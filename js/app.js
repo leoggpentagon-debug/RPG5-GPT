@@ -1,6 +1,6 @@
 (() => {
   "use strict";
-  const BUILD = "RPG6-UI";
+  const BUILD = "RPG6-AUTO-D20-UI";
   // Stable protocol version (not the Edge Function deployment number).
   const SUPPORTED_API_VERSION = 1;
   const config = window.RPG6_CONFIG || {};
@@ -105,7 +105,7 @@
         `Частичная неудача: ${safeObj(actual.outcomes).partial_failure||"—"}`,
         `Полная неудача: ${safeObj(actual.outcomes).full_failure||"—"}`];
       $("roll-details").textContent=lines.join("\n");
-      $("send-roll").textContent=savedRoll.check_id?"ПРИМЕНИТЬ БРОСОК":"СНАЧАЛА СОХРАНИТЬ RPG6";
+      $("send-roll").textContent=savedRoll.check_id?"АВТОМАТИЧЕСКИЙ d20":"СНАЧАЛА СОХРАНИТЬ RPG6";
     }
     state.pending=actual?{...actual,saved:!!savedRoll.check_id}:null;
     busy(state.busy);
@@ -170,21 +170,21 @@
     const data=await rpc("load");if(data.readiness!=="ready")throw new Error("Каноническая RPG6 не готова: "+data.readiness);
     renderState(data);report(`Подключено. RPG6 ревизия ${state.revision}, день ${safeObj(state.scene).day}, сцена ${safeObj(state.scene).scene_number}.`);
     if(!meta.gemini_configured)report("Сцена из RPG6 загружена. Для ответов Gemini добавь GEMINI_API_KEY в Edge Functions → Secrets.",true);
-  }catch(error){report(error.message||String(error),true)}finally{busy(false)}}
+  }catch(error){report(error.message||String(error),true)}finally{busy(false);if(state.pending?.saved)void act("auto")}}
   async function act(roll=null){if(state.busy)return;const action=$("action").value.trim();if(roll===null && !action)return;
     if(roll===null && action.toLowerCase()==="сохранить"){await save();return;}
     busy(true);report("Отправляю ход Gemini. Каноническая база не меняется до сохранения.");
     try{
       const result=await rpc("turn",{draft_sequence:state.sequence,action, ...(roll===null?{}:{roll})});
-      const actionShown=roll===null?action:`d20: ${roll}`;
+      const actionShown=roll===null?action:"🎲 Автоматический бросок d20";
       state.sequence=Number(result.draft_sequence);state.pending=result.pending_roll||null;
       msg("ОЛИВЕР · ЧЕРНОВОЙ ХОД "+state.sequence,actionShown,"player","oliver_hayes");showReply(result.reply);
       state.draft.push({turn:state.sequence,action:actionShown,reply:result.reply});
-      $("action").value="";$("natural").value="";
+      $("action").value="";
       $("draft-count").textContent="Черновых ходов: "+state.sequence;
       $("save-info").textContent=`${state.sequence} ходов ещё НЕ внесено в канон. Для записи нажми «Сохранить RPG6».`;
       showRoll();$("chat").scrollTop=$("chat").scrollHeight;
-      report(state.pending?"План d20 заморожен в черновике. Нажми «Сохранить RPG6» перед броском.":`Ход ${state.sequence} завершён. Для записи в канон используй «Сохранить RPG6».`);
+      report(state.pending?"Старый план d20 ожидает сохранения; дальше сервер сам бросит кубик.":`Ход ${state.sequence} завершён. Для записи в канон используй «Сохранить RPG6».`);
     }catch(error){
       // A response can be lost AFTER Supabase has already staged the turn.
       // Reconcile before allowing the player to accidentally submit it twice.
@@ -227,7 +227,7 @@
   $("send").addEventListener("click",()=>act());
   $("save").addEventListener("click",save);
   $("export").addEventListener("click",exportDraft);
-  $("send-roll").addEventListener("click",()=>{if(!state.pending?.saved){save();return;}const n=Number($("natural").value);if(!Number.isInteger(n)||n<1||n>20){report("Введи натуральное число от 1 до 20",true);return;}act(n)});
+  $("send-roll").addEventListener("click",()=>{if(!state.pending?.saved){save();return;}act("auto")});
   $("action").addEventListener("keydown",event=>{if(event.key==="Enter"&&event.ctrlKey){event.preventDefault();act()}});
   report("Сборка "+BUILD+" загружена. Нажми «ПРОДОЛЖИТЬ RPG6».");
 })();

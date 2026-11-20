@@ -36,8 +36,8 @@
     <label for="action">Что делает или говорит Оливер?</label>
     <textarea id="action" rows="5" maxlength="2500" disabled placeholder="Опиши любое физически возможное действие или реплику..."></textarea>
     <button type="button" class="primary" id="send" disabled>ОТПРАВИТЬ ДЕЙСТВИЕ</button>
-    <div id="roll-panel" class="roll-panel" hidden><div class="roll-header">🎲 ОЖИДАЕТСЯ d20</div><pre id="roll-details"></pre><label for="natural">Твоё натуральное число (1–20)</label><input type="number" id="natural" min="1" max="20" step="1"><button type="button" id="send-roll" disabled>ПРИМЕНИТЬ БРОСОК</button></div>
-    <p class="hint">Натуральный d20 сообщает игрок. Проверки и показатели не подменяются произвольным текстом ИИ.</p>
+    <div id="roll-panel" class="roll-panel" hidden><div class="roll-header">🎲 АВТОМАТИЧЕСКИЙ d20</div><pre id="roll-details"></pre><button type="button" id="send-roll" disabled>ВЫПОЛНИТЬ АВТОБРОСОК</button></div>
+    <p class="hint">d20 бросается автоматически на сервере. Бонусы, штрафы и итог проверки рассчитываются игровыми правилами, а не придумываются ИИ.</p>
    </section>
    <section class="panel"><div class="section-row"><h3>СОХРАНЕНИЕ</h3><small>ТОЛЬКО RPG6</small></div><p>Черновые ходы хранятся отдельно. Только команда «сохранить» передаёт подтверждённые события в канон через SQL-проверки.</p>
     <button type="button" id="save" disabled>💾 СОХРАНИТЬ RPG6</button><button type="button" id="export" class="secondary" disabled>СКАЧАТЬ ОТЧЁТ</button>
@@ -49,6 +49,6 @@
  <dialog id="portrait-dialog"><button type="button" id="portrait-close">Закрыть ×</button><img id="portrait-full" alt="Портрет"></dialog>
  <script src="js/portraits.js?v=RPG6-UI-20261121"></script>
  <script src="js/config.js?v=RPG6-UI-20261121"></script>
- <script src="js/app.js?v=RPG6-UI-API2-20261121"></script>
+ <script src="js/app.js?v=RPG6-AUTO-D20"></script>
 </body>
 </html>
