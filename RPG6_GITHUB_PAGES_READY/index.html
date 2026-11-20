@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0d0f12">
+  <title>28 DAYS LATER: SURVIVAL · RPG6</title>
+  <link rel="stylesheet" href="css/style.css?v=RPG6-UI-20261121">
+</head>
+<body>
+ <header class="header"><div class="identity"><span class="hazard">☣</span><div><strong>28 DAYS LATER:<em>SURVIVAL</em></strong><small>RPG6 · GEMINI API</small></div></div>
+  <nav aria-label="Режим игры"><span class="mode-label">GEMINI · RPG6</span></nav>
+  <div class="top-version">RPG6 · ONLINE</div></header>
+ <div class="threecol">
+  <aside class="left-col">
+   <section class="panel hero-panel"><div class="eyebrow">УПРАВЛЯЕМЫЙ ГЕРОЙ</div>
+    <div class="hero-identity"><button type="button" class="portrait-button" id="hero-portrait-button" aria-label="Увеличить портрет Оливера"><img id="hero-portrait" src="assets/portraits/oliver_hayes.png" alt="Оливер Хейз"></button><div><h2>Оливер Хейз</h2><p>Решения принимает игрок</p></div></div>
+    <div id="hero-stats" class="stat-list"><p class="muted">Загрузи настоящее сохранение RPG6.</p></div>
+   </section>
+   <section class="panel"><h3>РЯДОМ С ГЕРОЕМ</h3><div id="party" class="party-list"><p class="muted">Состав будет загружен из базы.</p></div></section>
+   <section class="panel"><h3>ИНВЕНТАРЬ</h3><div id="inventory" class="inventory-list"><p class="muted">Инвентарь будет загружен из базы.</p></div><p id="weight-label" class="small-label"></p></section>
+  </aside>
+  <main class="center-col">
+   <section class="panel scene-panel"><div class="section-row"><span class="eyebrow" id="scene-counter">RPG6 · ИСХОДНОЕ СОХРАНЕНИЕ</span><span class="pill">СОХРАНЕНИЕ В RPG6</span></div>
+    <h1 id="scene-title">Продолжить сохранённую историю</h1><div id="scene-location" class="scene-location">Сведения появятся после подключения</div>
+    <p id="scene-text" class="scene-text">Здесь откроется настоящая текущая сцена из RPG6. Никаких новых тестовых эпизодов.</p>
+    <div class="scene-foot"><span id="canon-revision">Каноническая ревизия: —</span><span id="draft-count">Несохранённых ходов: —</span></div>
+   </section>
+   <section class="panel narrative-panel"><div class="section-row"><h3>ПОВЕСТВОВАНИЕ И ДИАЛОГИ</h3><small>GEMINI API · ЗАПИСЬ ПО КОМАНДЕ</small></div><div id="chat" role="log" aria-live="polite"><div class="empty-story">Нажми «Продолжить RPG6» справа. После загрузки появится реальная сохранённая сцена.</div></div></section>
+  </main>
+  <aside class="right-col">
+   <section class="panel launch-panel"><div class="eyebrow">ТВОЯ ИСТОРИЯ, НЕ НОВАЯ ИГРА</div><h2>RPG6 · Gemini</h2><p>Продолжение текущей истории: персонажи, память, события и последствия загружаются из RPG6.</p>
+    <button type="button" id="start" class="primary big">▶ ПРОДОЛЖИТЬ RPG6</button><p id="status" class="status-text">Кнопка загрузит текущее сохранение. Почта и пароль не нужны.</p>
+   </section>
+   <section class="panel"><div class="section-row"><h3>ДЕЙСТВИЕ ОЛИВЕРА</h3><small>ПОЛНАЯ СВОБОДА</small></div>
+    <div id="choices" class="choices"></div>
+    <label for="action">Что делает или говорит Оливер?</label>
+    <textarea id="action" rows="5" maxlength="2500" disabled placeholder="Опиши любое физически возможное действие или реплику..."></textarea>
+    <button type="button" class="primary" id="send" disabled>ОТПРАВИТЬ ДЕЙСТВИЕ</button>
+    <div id="roll-panel" class="roll-panel" hidden><div class="roll-header">🎲 ОЖИДАЕТСЯ d20</div><pre id="roll-details"></pre><label for="natural">Твоё натуральное число (1–20)</label><input type="number" id="natural" min="1" max="20" step="1"><button type="button" id="send-roll" disabled>ПРИМЕНИТЬ БРОСОК</button></div>
+    <p class="hint">Натуральный d20 сообщает игрок. Проверки и показатели не подменяются произвольным текстом ИИ.</p>
+   </section>
+   <section class="panel"><div class="section-row"><h3>СОХРАНЕНИЕ</h3><small>ТОЛЬКО RPG6</small></div><p>Черновые ходы хранятся отдельно. Только команда «сохранить» передаёт подтверждённые события в канон через SQL-проверки.</p>
+    <button type="button" id="save" disabled>💾 СОХРАНИТЬ RPG6</button><button type="button" id="export" class="secondary" disabled>СКАЧАТЬ ОТЧЁТ</button>
+    <p id="save-info" class="small-label">Не загружено.</p></section>
+   <section class="panel mini-diagnostic"><h3>ДИАГНОСТИКА</h3><p id="diagnostic">Ожидаю подключения к RPG6.</p><small>Если сервер вернёт ошибку, она будет показана здесь без сокрытия причины.</small></section>
+  </aside>
+ </div>
+ <footer>28 DAYS LATER: SURVIVAL · RPG6</footer>
+ <dialog id="portrait-dialog"><button type="button" id="portrait-close">Закрыть ×</button><img id="portrait-full" alt="Портрет"></dialog>
+ <script src="js/portraits.js?v=RPG6-UI-20261121"></script>
+ <script src="js/config.js?v=RPG6-UI-20261121"></script>
+ <script src="js/app.js?v=RPG6-UI-API2-20261121"></script>
+</body>
+</html>
