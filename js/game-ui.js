@@ -136,11 +136,27 @@
     if(frame.getAttribute("src")!==src)frame.src=src;
     frame.hidden=false;placeholder.hidden=true;
   }
+  // Keep the scenic stage visible, even when the save has no generated image.
+  // Never treat an absent picture as an absent scene.
   function updateImage(scene,observable) {
+    const fallback="assets/ui/background/background_cinematic_street_2k.webp";
     const url=scene.image_url||scene.scene_image_url||observable.scene_image_url||observable.image_url;
     const wrap=$("scene-image-wrap"),image=$("scene-image");
-    if(typeof url!=="string"||!/^https:\/\//i.test(url)) {image.removeAttribute("src");wrap.hidden=true;return}
-    image.onerror=()=>{wrap.hidden=true};image.onload=()=>{wrap.hidden=false};image.src=url;
+    wrap.hidden=false;
+    image.onerror=null;
+    image.onload=null;
+    if(typeof url==="string" && /^https:\/\//i.test(url)) {
+      image.onerror=()=>{
+        image.onerror=null;
+        image.alt="Атмосферный фон сцены";
+        image.src=fallback;
+      };
+      image.alt="Изображение текущей сцены";
+      image.src=url;
+    } else {
+      image.alt="Атмосферный фон сцены";
+      if(image.getAttribute("src")!==fallback) image.src=fallback;
+    }
   }
   function updateJournal(scene,observable,hero) {
     const target=$("journal-entries");target.replaceChildren();
