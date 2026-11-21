@@ -95,7 +95,7 @@
   new MutationObserver(()=>{
     if(renderQueued)return;
     renderQueued=true;
-    requestAnimationFrame(()=>{renderQueued=false;refreshStory()});
+    requestAnimationFrame(()=>{renderQueued=false;try{refreshStory()}catch(error){console.error("Survival story rendering:",error);const box=$("diagnostic");if(box)box.textContent+="\nОшибка отображения сюжета: "+String(error?.message||error)}});
   }).observe(chat,{childList:true});
   refreshStory();
   const systemLog=$("system-log"),status=$("status");let lastStatus="";
@@ -173,6 +173,13 @@
     }
   }
   window.addEventListener("rpg6:render",event=>{
+    // An explicit refresh after a verified load prevents stale "loading" text even
+    // when MutationObserver callbacks are delayed by rendering or tab visibility.
+    try { refreshStory(); } catch (error) {
+      console.error("Survival story rendering:",error);
+      const box=$("diagnostic");
+      if(box)box.textContent+="\nОшибка отображения сюжета: "+String(error?.message||error);
+    }
     const d=obj(event.detail),scene=obj(d.scene),observable=obj(d.observable),hero=obj(d.hero);
     putText("world-day",scene.day===undefined?"День —":"День "+scene.day);
     putText("world-time",scene.time_label||"—:—");
