@@ -9,17 +9,18 @@
   <link rel="stylesheet" href="css/style.css?v=survival-ui-6">
   <link rel="stylesheet" href="css/cinematic.css?v=survival-ui-4">
   <link rel="stylesheet" href="css/refinements.css?v=survival-ui-8">
+  <link rel="stylesheet" href="css/reference-layout.css?v=survival-ui-9">
 </head>
 <body>
 <div class="game-shell" id="game-shell">
   <header class="game-header">
     <div class="brand"><div class="brand-art" aria-label="28 Days Later Survival"></div></div>
     <nav class="game-tabs" aria-label="Разделы игры">
-      <button type="button" class="game-tab active" data-tab="story" aria-label="Сюжет" title="Сюжет" aria-selected="true"><img src="assets/ui/icons/tab_story.webp" alt=""></button>
-      <button type="button" class="game-tab" data-tab="inventory" aria-label="Инвентарь" title="Инвентарь" aria-selected="false"><img src="assets/ui/icons/tab_inventory.webp" alt=""></button>
-      <button type="button" class="game-tab" data-tab="characters" aria-label="Персонажи" title="Персонажи" aria-selected="false"><img src="assets/ui/icons/tab_characters.webp" alt=""></button>
-      <button type="button" class="game-tab" data-tab="map" aria-label="Карта" title="Карта" aria-selected="false"><img src="assets/ui/icons/tab_map.webp" alt=""></button>
-      <button type="button" class="game-tab" data-tab="journal" aria-label="Журнал" title="Журнал" aria-selected="false"><img src="assets/ui/icons/tab_journal.webp" alt=""></button>
+      <button type="button" class="game-tab active" data-tab="story" aria-label="Сюжет" title="Сюжет" aria-selected="true"><img src="assets/ui/icons/tab_story.webp" alt=""><span class="tab-caption">Сюжет</span></button>
+      <button type="button" class="game-tab" data-tab="inventory" aria-label="Инвентарь" title="Инвентарь" aria-selected="false"><img src="assets/ui/icons/tab_inventory.webp" alt=""><span class="tab-caption">Инвентарь</span></button>
+      <button type="button" class="game-tab" data-tab="characters" aria-label="Персонажи" title="Персонажи" aria-selected="false"><img src="assets/ui/icons/tab_characters.webp" alt=""><span class="tab-caption">Отряд</span></button>
+      <button type="button" class="game-tab" data-tab="map" aria-label="Карта" title="Карта" aria-selected="false"><img src="assets/ui/icons/tab_map.webp" alt=""><span class="tab-caption">Карта</span></button>
+      <button type="button" class="game-tab" data-tab="journal" aria-label="Журнал" title="Журнал" aria-selected="false"><img src="assets/ui/icons/tab_journal.webp" alt=""><span class="tab-caption">Журнал</span></button>
     </nav>
     <div class="header-right">
       <div class="world-status" aria-label="День, погодные условия и время">
@@ -34,12 +35,12 @@
   <div class="game-layout">
     <aside class="hero-sidebar" aria-label="Игрок и персонажи рядом">
       <section class="sidebar-card hero-card">
-        <div class="card-title">ВЫЖИВШИЙ</div>
+        
         <div class="hero-identity">
           <div class="polaroid polaroid-player">
-            <button id="hero-portrait-button" type="button" class="portrait-button" aria-label="Увеличить портрет игрока"><img id="hero-portrait" src="assets/portraits/oliver_hayes.png" alt="Портрет игрока"></button>
+            <button id="hero-portrait-button" type="button" class="portrait-button" aria-label="Увеличить портрет Оливера"><img id="hero-portrait" src="assets/portraits/oliver_hayes.png" alt="Оливер Хейз"></button>
+            <div class="hero-name"><strong id="hero-name">Оливер Хейз</strong></div>
           </div>
-          <div class="hero-name"><strong id="hero-name">Оливер Хейз</strong></div>
         </div>
         <div id="hero-stats" class="stat-list" aria-label="Характеристики">Характеристики загружаются…</div>
       </section>
@@ -55,8 +56,8 @@
           <div><h1 id="scene-title">Продолжение истории</h1><p id="scene-location">Загрузка текущей локации…</p></div>
           <span class="chapter-mark" aria-hidden="true">☣</span>
         </div>
-        <div id="scene-image-wrap" class="scene-image-wrap" hidden>
-          <img id="scene-image" alt="Изображение текущей сцены" referrerpolicy="no-referrer">
+        <div id="scene-image-wrap" class="scene-image-wrap">
+          <img id="scene-image" src="assets/ui/background/background_cinematic_street_2k.webp" alt="Атмосферный фон текущей сцены" referrerpolicy="no-referrer">
         </div>
         <p id="scene-text" hidden></p>
         <div id="story-viewer" class="story-viewer" aria-label="Повествование и диалоги" tabindex="0">
@@ -132,7 +133,7 @@
 <dialog id="portrait-dialog" class="portrait-dialog"><button type="button" id="portrait-close" class="icon-button">Закрыть ×</button><img id="portrait-full" alt="Портрет персонажа"></dialog>
 <script src="js/portraits.js?v=survival-ui-2"></script>
 <script src="js/config.js?v=survival-ui-2"></script>
-<script src="js/game-ui.js?v=survival-ui-7"></script>
+<script src="js/game-ui.js?v=survival-ui-9"></script>
 <script src="js/app.js?v=survival-ui-7"></script>
 </body>
 </html>
