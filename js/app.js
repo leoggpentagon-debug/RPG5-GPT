@@ -77,7 +77,7 @@
   function child(tag, className="", text="") {const el=document.createElement(tag);if(className)el.className=className;if(text)el.textContent=word(text);return el;}
   function msg(label,text,kind="gm",speakerId=""){
     if(!word(text))return;
-    const wrap=child("div","chat-entry "+kind);const avatar=portrait(speakerId);
+    const wrap=child("div","chat-entry "+kind);wrap.dataset.speakerId=speakerId||"";const avatar=portrait(speakerId);
     if(avatar){const img=child("img","avatar");img.src=avatar;img.alt=label;img.addEventListener("click",()=>zoom(img.src,label));wrap.append(img)}
     const bubble=child("div","bubble");bubble.append(child("b","",label),child("div","",text));wrap.append(bubble);$("chat").append(wrap);
   }
@@ -87,7 +87,7 @@
   function showReply(reply){
     const r=safeObj(reply);
     if(r.roll){const v=r.roll;msg("🎲 ПРОВЕРКА d20",`Натуральный: ${v.natural}\n${v.natural} − ${v.negative} + ${v.positive} = ${v.total}; DC ${v.dc}\n${v.category}: ${v.consequence}`,"system")}
-    msg("ВЕДУЩАЯ",r.narration||"","gm");
+    msg("",r.narration||"","gm");
     for(const line of many(r.dialogue)){const a=safeObj(line);msg(a.name||nameById[a.speaker_id]||a.speaker_id||"NPC",a.text||"","npc",a.speaker_id)}
     $("choices").replaceChildren();for(const choice of many(r.choices)){const b=child("button","",choice);b.addEventListener("click",()=>{if(state.busy||!state.loaded)return;$("action").value=choice;void act()});$("choices").append(b)}
   }
@@ -115,22 +115,22 @@
     state.scene=scene;state.hero=hero;state.revision=Number(data.revision||0);
     state.sequence=Number(data.draft_sequence||0);state.draft=many(data.draft_turns);state.loaded=true;
     $("scene-counter").textContent=`СЮЖЕТНАЯ ЛИНИЯ · ЭПИЗОД ${scene.episode_number??"?"} · СЦЕНА ${scene.scene_number??"?"}`;
-    $("scene-title").textContent=`День ${scene.day??"?"} · Сцена ${scene.scene_number??"?"}`;
-    $("scene-location").textContent=`${scene.location_detail||observable.location_detail||"Местоположение не уточнено"} · ${scene.time_label||"Время неизвестно"}`;
+    $("scene-title").textContent=`Сцена ${scene.scene_number??"?"}`;
+    $("scene-location").textContent=scene.location_detail||observable.location_detail||"Местоположение не уточнено";
     $("scene-text").textContent=observable.scene_text||scene.scene_text||"Сохранённая сцена не содержит текста";
     $("canon-revision").textContent="Каноническая ревизия RPG6: "+state.revision;
     $("draft-count").textContent="Черновых ходов: "+state.sequence;
     const stats=safeObj(hero.stats);$("hero-stats").replaceChildren();for(const [key,label] of Object.entries({health:"Здоровье",stamina:"Выносливость",stress:"Стресс",hunger:"Голод",thirst:"Жажда"})){
-      const v=safeObj(stats[key]);const box=child("div","stat-chip");
+      const v=safeObj(stats[key]);const box=child("div","stat-chip");box.title=label+": "+(v.current??"—")+"/"+(v.max??"—");box.setAttribute("aria-label",box.title);
       const icon=child("img","stat-icon");const current=Number(v.current);
       icon.alt="";icon.src="assets/status/"+key+"/"+key+"_"+(Number.isFinite(current)?current:"unknown")+".webp";
       icon.addEventListener("error",()=>{const fb=child("span","stat-fallback",({health:"♥",stamina:"⚡",stress:"◉",hunger:"◴",thirst:"💧"})[key]);icon.replaceWith(fb)},{once:true});
-      box.append(icon,child("small","",label),child("strong","",(v.current??"—")+"/"+(v.max??"—")));$("hero-stats").append(box);
+      box.append(icon,child("strong","",(v.current??"—")+"/"+(v.max??"—")));$("hero-stats").append(box);
     }
     $("party").replaceChildren();const party=many(observable.characters).filter(x=>x?.character_id!=="oliver_hayes");
-    for(const person of party){const id=person?.character_id,name=nameById[id]||"Человек рядом";const row=child("div","party-person");
+    for(const person of party){const id=person?.character_id,name=person?.name||person?.display_name||nameById[id]||"Человек рядом";const row=child("div","party-person");
       const imagePath=portrait(id);if(imagePath){const img=child("img");img.src=imagePath;img.alt=name;const frame=child("div","polaroid polaroid-npc");const portraitButton=child("button","portrait-button");portraitButton.type="button";portraitButton.setAttribute("aria-label","Увеличить портрет "+name);portraitButton.append(img);portraitButton.addEventListener("click",()=>zoom(imagePath,name));frame.append(portraitButton);row.append(frame)}
-      const details=child("div");details.append(child("strong","",name),child("small","",id));row.append(details);$("party").append(row);
+      const details=child("div");details.append(child("strong","",name));row.append(details);$("party").append(row);
     }
     if(!party.length)$("party").append(child("p","muted","Никого рядом не установлено"));
     $("inventory").replaceChildren();const inv=safeObj(hero.inventory);const items=many(inv.items);
@@ -146,10 +146,10 @@
       for(const record of saved){
         const turn=safeObj(record),reply=safeObj(turn.reply);
         const partial=turn.source==="recovered_partial";
-        const label=partial?"ОЛИВЕР · ЧАСТИЧНО ВОССТАНОВЛЕННЫЙ ХОД ":"ОЛИВЕР · СОХРАНЁННЫЙ ХОД ";
-        msg(label+word(turn.turn),turn.action||"Действие не сохранилось полностью","player","oliver_hayes");
+        const label="Оливер";
+        msg(label,turn.action||"Действие не сохранилось полностью","player","oliver_hayes");
         if(partial){
-          if(reply.narration)msg("ВОССТАНОВЛЕННЫЙ ТЕКСТ ВЕДУЩЕЙ",reply.narration,"gm");
+          if(reply.narration)msg("",reply.narration,"gm");
           else if(reply.summary)msg("СОХРАНЁННАЯ СВОДКА · НЕ ПОЛНЫЙ ТЕКСТ",reply.summary,"system");
           for(const line of many(reply.dialogue)){
             const d=safeObj(line);
@@ -161,10 +161,10 @@
       const latest=new Set(many(history.last_commit_event_ids).map(Number));
       for(const event of many(history.recent_events)){
         const e=safeObj(event);
-        if(latest.has(Number(e.event_id)))msg("СОХРАНЁННОЕ СОБЫТИЕ №"+word(e.event_id),e.summary,"system");
+        if(latest.has(Number(e.event_id)))msg("",e.summary,"system");
       }
     }
-    for(const turn of state.draft){msg("ОЛИВЕР · ЧЕРНОВОЙ ХОД "+turn.turn,turn.action,"player","oliver_hayes");showReply(turn.reply)}
+    for(const turn of state.draft){msg("Оливер",turn.action,"player","oliver_hayes");showReply(turn.reply)}
     $("save-info").textContent=`Канон: ревизия ${state.revision}. ${state.sequence} несохранённых ходов. Сохранение только по явной команде.`;
     state.pending=data.pending_roll||null;showRoll();busy(false);
     window.dispatchEvent(new CustomEvent("rpg6:render",{detail:{scene,observable,hero}}));
@@ -183,7 +183,7 @@
       const result=await rpc("turn",{draft_sequence:state.sequence,action, ...(roll===null?{}:{roll})});
       const actionShown=roll===null?action:"🎲 Автоматический бросок d20";
       state.sequence=Number(result.draft_sequence);state.pending=result.pending_roll||null;
-      msg("ОЛИВЕР · ЧЕРНОВОЙ ХОД "+state.sequence,actionShown,"player","oliver_hayes");showReply(result.reply);
+      msg("Оливер",actionShown,"player","oliver_hayes");showReply(result.reply);
       state.draft.push({turn:state.sequence,action:actionShown,reply:result.reply});
       $("action").value="";
       $("draft-count").textContent="Черновых ходов: "+state.sequence;
