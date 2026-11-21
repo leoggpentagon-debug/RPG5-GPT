@@ -1,4 +1,4 @@
-/* Survival UI v38 — restore original grunge backdrop and dissolve scene on EVERY edge.
+/* Survival UI v39 — grunge wallpaper, restored scene photo with four-sided dissolve.
    Presentation only: retain all DOM, RPG state, Polaroid artwork, health/stat
    chips, status badges, buttons, textarea, journal/dossier and resize logic.
    No new image files; restore the originally approved dark-grunge background. */
@@ -131,7 +131,7 @@ body {
 /* Two independent fades combine naturally without mask-composite quirks:
    the wrapper erases TOP/BOTTOM; the photo erases LEFT/RIGHT.
    Both fully vanish at the boundaries so no straight rectangular rim remains.
-   This only applies when RPG6 provided a real picture for the scene. */
+   Also applies to the already-approved stage fallback when no URL exists. */
 #pane-story .scene-image-wrap {
   position:relative;
   isolation:isolate;
@@ -139,13 +139,13 @@ body {
   background:transparent;
   box-shadow:none;
   -webkit-mask-image:linear-gradient(180deg,
-    transparent 0%,rgba(0,0,0,.30) 11%,rgba(0,0,0,.85) 23%,
-    #000 34%,#000 60%,rgba(0,0,0,.75) 72%,
-    rgba(0,0,0,.18) 89%,transparent 100%);
+    transparent 0%,rgba(0,0,0,.70) 9%,#000 20%,
+    #000 62%,rgba(0,0,0,.90) 72%,
+    rgba(0,0,0,.35) 91%,transparent 100%);
   mask-image:linear-gradient(180deg,
-    transparent 0%,rgba(0,0,0,.30) 11%,rgba(0,0,0,.85) 23%,
-    #000 34%,#000 60%,rgba(0,0,0,.75) 72%,
-    rgba(0,0,0,.18) 89%,transparent 100%);
+    transparent 0%,rgba(0,0,0,.70) 9%,#000 20%,
+    #000 62%,rgba(0,0,0,.90) 72%,
+    rgba(0,0,0,.35) 91%,transparent 100%);
 }
 #pane-story .scene-image-wrap #scene-image {
   display:block;
@@ -156,13 +156,13 @@ body {
   transform-origin:center;
   filter:contrast(.93) saturate(.82) brightness(.88) blur(.8px);
   -webkit-mask-image:linear-gradient(90deg,
-    transparent 0%,rgba(0,0,0,.2) 5%,rgba(0,0,0,.8) 12%,
-    #000 21%,#000 79%,rgba(0,0,0,.8) 88%,
-    rgba(0,0,0,.2) 95%,transparent 100%);
+    transparent 0%,rgba(0,0,0,.35) 4%,rgba(0,0,0,.82) 10%,
+    #000 17%,#000 83%,rgba(0,0,0,.82) 90%,
+    rgba(0,0,0,.35) 96%,transparent 100%);
   mask-image:linear-gradient(90deg,
-    transparent 0%,rgba(0,0,0,.2) 5%,rgba(0,0,0,.8) 12%,
-    #000 21%,#000 79%,rgba(0,0,0,.8) 88%,
-    rgba(0,0,0,.2) 95%,transparent 100%);
+    transparent 0%,rgba(0,0,0,.35) 4%,rgba(0,0,0,.82) 10%,
+    #000 17%,#000 83%,rgba(0,0,0,.82) 90%,
+    rgba(0,0,0,.35) 96%,transparent 100%);
 }
 /* The old left-only blur and a box-shaped dark overlay are removed. */
 #pane-story .scene-image-wrap::before,
