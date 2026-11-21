@@ -41,6 +41,7 @@
     if(!names.includes(name))return;
     if(turning)finishTurn();
     if(name===current){if(focus)applyTab(name,true);return;}
+    window.RPG6_SFX?.play(name==="condition"?"page_turn_alt":"page_turn",{gain:.7});
     const from=names.indexOf(current),to=names.indexOf(name);
     const play=animate&&!reducedMotion.matches&&overlay.classList.contains("is-open")&&
       !overlay.classList.contains("is-entering")&&!overlay.classList.contains("is-exiting");
