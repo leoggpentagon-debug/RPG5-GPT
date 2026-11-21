@@ -1,4 +1,4 @@
-/* Survival UI v46: Nearby survivors as a two-column dossier board.
+/* Survival UI v48: compact left-hand survivor dossier, aligned beneath the player.
    This stylesheet deliberately DOES NOT resize the sidebar or companions card.
    It only changes the content inside the existing fixed-height scroll area. */
 
@@ -8,13 +8,13 @@
   grid-template-columns:repeat(2,minmax(0,1fr));
   align-content:start;
   justify-items:center;
-  column-gap:5px;
-  row-gap:10px;
+  column-gap:6px;
+  row-gap:14px;
   min-height:0;
   overflow-x:hidden;
   overflow-y:auto;
   scrollbar-width:thin;
-  padding:7px 3px 10px;
+  padding:11px 1px 14px;
 }
 #game-shell .companions-card .party-person {
   display:flex;
@@ -40,7 +40,7 @@
   position:relative;
   display:block;
   flex:0 0 auto;
-  width:min(132px,98%);
+  width:min(136px,100%);
   height:auto;
   aspect-ratio:1261 / 1247;
   margin:0;
@@ -155,12 +155,13 @@
   max-width:100%;
   padding:0;
   margin:0;
-  font:700 clamp(10px,.85vw,14px)/1.07 Georgia,serif;
+  font:700 clamp(10px,.73vw,12px)/1.04 Georgia,serif;
   color:#261b13;
   text-shadow:none;
   letter-spacing:-.035em;
-  overflow-wrap:anywhere;
+  overflow-wrap:break-word;
   white-space:normal;
+  text-wrap:balance;
   text-align:center;
 }
 /* Keep the region height unchanged on smaller monitors. */
@@ -179,3 +180,63 @@
 }
 /* Defensive fallback for any dialogue avatar inserted by a stale DOM source. */
 #game-shell .story-page .dialogue-avatar {display:none!important}
+
+
+/* Main character leads; nearby survivors read as a separate dossier shelf.
+   No modification to the page grid, the sidebar width or the scroll height. */
+#game-shell .hero-sidebar .hero-card {
+  position:relative;
+  padding-bottom:10px;
+}
+#game-shell .hero-sidebar .hero-card .hero-identity {
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0;
+  padding-left:7px;
+  padding-right:7px;
+  padding-bottom:24px;
+}
+/* A thin fading line, not another rectangular card. */
+#game-shell .hero-sidebar .hero-card::after {
+  content:"";
+  display:block;
+  height:1px;
+  margin:9px 13px 0;
+  background:linear-gradient(90deg,transparent,#bf80677d 19%,#cdb18b96 50%,#bf80677d 81%,transparent);
+  box-shadow:0 1px 5px #b55d362b;
+  pointer-events:none;
+}
+#game-shell .hero-sidebar .companions-card {
+  align-items:stretch;
+}
+#game-shell .hero-sidebar .companions-card .card-title {
+  text-align:left;
+  margin:2px 0 8px;
+  padding:0 2px;
+  font-size:17px;
+  line-height:1.2;
+  letter-spacing:.19em;
+}
+#game-shell .companions-card .party-list {
+  width:100%;
+}
+/* Subtle hand-mounted tilt varies between the two dossiers in a row.
+   Keep photos large, labels below photos, and all names legible. */
+#game-shell .companions-card .party-person:nth-child(2n) .polaroid-npc {
+  transform:rotate(1.4deg);
+}
+#game-shell .companions-card .polaroid-npc .party-portrait-name {
+  height:16%;
+  top:79%;
+}
+#game-shell .companions-card .polaroid-npc .party-portrait-name strong {
+  max-height:100%;
+}
+/* Maintain existing compact-height budget and avoid cropped name tabs. */
+@media(max-height:750px) {
+  #game-shell .hero-sidebar .hero-card .hero-identity {padding-bottom:16px}
+  #game-shell .hero-sidebar .hero-card::after {margin-top:5px}
+  #game-shell .companions-card .party-list {row-gap:8px}
+}
