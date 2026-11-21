@@ -290,13 +290,11 @@
       overlay.classList.remove("is-entering");
       phase="open";
       closeButton.focus({preventScroll:true});
-      cue("paper_brush",0,.85);
+      cue("book_open",0,.8);
       return;
     }
-    // No mechanical creaks or metal impacts: just layered page handling.
-    cue("paper_brush",0,.75);
-    cue("page_turn_alt",320,.95);
-    cue("paper_brush",940,.54);
+    cue("paper_rustle",0,.55);
+    cue("book_open",210,.75);
     const ghost=createFlightClone(photoFrame,sourceBounds);
     photoFrame.classList.add("dossier-source-hidden","dossier-source-lift");
     dossierPhoto.style.opacity="0";
@@ -327,13 +325,12 @@
     overlay.classList.add("is-exiting");
     overlay.classList.remove("is-entering");
     if(prefersReducedMotion.matches||!canAnimate){
-      cue("page_turn_alt",0,.8);
+      cue("book_close",0,.75);
       finishClosing(serial);
       return;
     }
-    cue("paper_brush",0,.65);
-    cue("page_turn_alt",230,.9);
-    cue("paper_brush",650,.44);
+    cue("book_close",160,.82);
+    cue("paper_rustle",425,.28);
     const startingBounds=geometry(dossierPhoto),endBounds=geometry(photoFrame);
     const ghost=createFlightClone(dossierPhoto,startingBounds);
     dossierPhoto.style.opacity="0";
