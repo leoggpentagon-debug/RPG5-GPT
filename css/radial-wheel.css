@@ -42,6 +42,8 @@
   height:100%;
   overflow:visible;
   isolation:auto;
+  /* Restrict the hit area to the smoky wheel. Dark space outside still closes it. */
+  clip-path:circle(47% at 50% 50%);
   border:0;
   border-radius:0;
   background:transparent;
