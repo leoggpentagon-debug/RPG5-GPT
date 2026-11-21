@@ -1,4 +1,4 @@
-/* Survival UI v50 — clean, extra-tall Hazard Dossier wooden panel.
+/* Survival UI v51 — widened Hazard Dossier and safe staggered NPC photos.
    The board contains NO photos, Polaroid slots, labels or tape.
    Live portraits, approved frame WebPs, names and diary animation are separate.
    The board occupies the available LEFT RAIL below the logo, with a gap
@@ -11,12 +11,15 @@
   flex-direction:column;
   flex:1 1 0;
   gap:8px;
+  /* Wooden rails extend into existing outer padding/gap, not the story grid. */
+  --wood-overhang:clamp(4px,.45vw,9px);
+  width:calc(100% + 2 * var(--wood-overhang));
   min-width:0;
   min-height:0;
-  margin:0 0 clamp(10px,1.8vh,23px);
+  margin:0 calc(-1 * var(--wood-overhang)) clamp(10px,1.8vh,23px);
   padding:14px 0 22px;
   background-color:transparent;
-  background-image:url("../assets/ui/boards/wooden_board_02_hazard_dossier.webp");
+  background-image:url("../assets/ui/boards/wooden_board_02_hazard_dossier.webp?v=survival-ui-51");
   background-repeat:no-repeat;
   background-position:center center;
   /* Full-height wood, without cropping its physical edge. */
@@ -61,5 +64,77 @@
     padding-bottom:7px;
     margin-bottom:7px;
     gap:2px;
+  }
+}
+
+/* The board art may project a few pixels into the layout's existing gap.
+   This DOES NOT resize or shift the scene column. */
+#game-shell .hero-sidebar {
+  overflow:visible;
+}
+
+/* The visible, wooden CENTER is narrower than the full transparent PNG/WebP.
+   Keep all interactive Polaroids clear of both physical wooden side rails. */
+#game-shell .hero-sidebar > .survivor-board > .companions-card {
+  padding-left:clamp(31px,10%,40px);
+  padding-right:clamp(31px,10%,40px);
+}
+#game-shell .hero-sidebar > .survivor-board .party-list {
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  column-gap:2px;
+  row-gap:14px;
+  justify-items:center;
+  padding:13px 0 19px;
+  overflow-x:hidden;
+  overflow-y:auto;
+}
+#game-shell .hero-sidebar > .survivor-board .party-person {
+  width:100%;
+  min-width:0;
+}
+#game-shell .hero-sidebar > .survivor-board .party-person .polaroid-npc {
+  width:min(148px,100%);
+  height:auto;
+  aspect-ratio:1261 / 1247;
+  transform-origin:center center;
+}
+/* Four repeating mounting angles: some crooked, one nearly straight.
+   The small inward nudges keep the frames off the wooden rails. */
+#game-shell .hero-sidebar > .survivor-board .party-person:nth-child(4n+1) .polaroid-npc {
+  transform:translateX(7px) rotate(-3.6deg) scale(1.06);
+}
+#game-shell .hero-sidebar > .survivor-board .party-person:nth-child(4n+2) .polaroid-npc {
+  transform:translateX(-9px) rotate(1.8deg) scale(1.04);
+}
+#game-shell .hero-sidebar > .survivor-board .party-person:nth-child(4n+3) .polaroid-npc {
+  transform:translateX(6px) rotate(-.25deg) scale(1.07);
+}
+#game-shell .hero-sidebar > .survivor-board .party-person:nth-child(4n) .polaroid-npc {
+  transform:translateX(-8px) rotate(3.2deg) scale(1.05);
+}
+/* A slight natural height variation keeps the row from looking stamped out. */
+#game-shell .hero-sidebar > .survivor-board .party-person:nth-child(2n) {
+  padding-top:5px;
+}
+@media(max-width:1090px) and (min-width:721px) {
+  #game-shell .hero-sidebar > .survivor-board > .companions-card {
+    padding-left:clamp(23px,9%,29px);
+    padding-right:clamp(23px,9%,29px);
+  }
+  #game-shell .hero-sidebar > .survivor-board .party-person .polaroid-npc {
+    width:min(130px,100%);
+  }
+  #game-shell .hero-sidebar > .survivor-board .party-person:nth-child(4n+1) .polaroid-npc {
+    transform:translateX(4px) rotate(-3.1deg) scale(1.035);
+  }
+  #game-shell .hero-sidebar > .survivor-board .party-person:nth-child(4n+2) .polaroid-npc {
+    transform:translateX(-4px) rotate(1.8deg) scale(1.035);
+  }
+}
+@media(max-height:750px) {
+  #game-shell .hero-sidebar > .survivor-board .party-list {
+    row-gap:8px;
+    padding-top:8px;
+    padding-bottom:11px;
   }
 }
