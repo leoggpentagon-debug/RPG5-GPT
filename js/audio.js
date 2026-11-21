@@ -4,7 +4,7 @@
   // Optional client-only audio. No contact with Gemini or the RPG6 save API.
   const ROOT="assets/audio/";
   const sources=Object.freeze({
-    book_open:"book_open.ogg",book_close:"book_close.ogg",
+    book_open:"book_open.ogg",book_close:"book_close.ogg",paper_brush:"paper_brush.ogg",
     page_turn:"page_turn.ogg",page_turn_alt:"page_turn_alt.ogg",
     paper_stamp:"paper_stamp.ogg",paper_rustle:"paper_rustle.ogg",
     leather_creak:"leather_creak.ogg",
@@ -14,8 +14,8 @@
     ui_error:"ui_error.ogg",ui_toggle:"ui_toggle.ogg"
   });
   const baseGain={
-    book_open:.75,book_close:.75,page_turn:.85,page_turn_alt:.7,
-    paper_stamp:.52,paper_rustle:.52,leather_creak:.4,
+    book_open:.34,book_close:.34,page_turn:.95,page_turn_alt:.95,paper_brush:.95,
+    paper_stamp:.24,paper_rustle:.4,leather_creak:.16,
     ui_click:.5,ui_select:.48,ui_hover:.19,ui_confirm:.48,
     ui_back:.4,ui_open:.38,ui_close:.38,ui_error:.37,ui_toggle:.45
   };
@@ -43,7 +43,7 @@
   }
   function play(name,options={}){
     if(!enabled||volume<=0||!Object.hasOwn(sources,name)||typeof Audio==="undefined")return;
-    const now=performance.now(),minimum=name==="ui_hover"?165:45;
+    const now=performance.now(),minimum=name==="paper_brush"?490:name==="ui_hover"?165:45;
     if(now-(lastPlayed.get(name)||-10000)<minimum)return;
     lastPlayed.set(name,now);
     const gain=Number.isFinite(Number(options.gain))?Math.max(0,Math.min(1,Number(options.gain))):1;
@@ -52,6 +52,7 @@
       const sound=new Audio(ROOT+sources[name]);
       sound.preload="auto";
       sound.volume=Math.max(0,Math.min(1,volume*(baseGain[name]??.5)*gain));
+      if(Number.isFinite(Number(options.rate)))sound.playbackRate=Math.max(.72,Math.min(1.25,Number(options.rate)));
       const cleanup=()=>active.delete(sound);
       sound.addEventListener("ended",cleanup,{once:true});
       sound.addEventListener("error",cleanup,{once:true});
@@ -90,7 +91,7 @@
   toggle?.addEventListener("click",()=>setEnabled(!enabled));
   slider?.addEventListener("input",event=>setVolume(event.target.value));
   slider?.addEventListener("change",()=>play("ui_select",{gain:.7}));
-  preview?.addEventListener("click",()=>play("book_open",{gain:.8}));
+  preview?.addEventListener("click",()=>{play("paper_brush",{gain:.8});setTimeout(()=>play("page_turn",{gain:.8}),340)});
   render();
 
   // Clicking an action confirms the *input*, not a successful game turn/save.
@@ -121,11 +122,32 @@
   document.addEventListener("pointerover",event=>{
     if(event.pointerType==="touch")return;
     const target=event.target instanceof Element?event.target.closest(
-      ".game-tab,.profile-book-tab,.profile-stat,#choices button,.service-drawer button"
+      ".game-tab,#choices button,.service-drawer button"
     ):null;
     if(!target||target.disabled||target.closest("#sound-settings")||
        (event.relatedTarget instanceof Node&&target.contains(event.relatedTarget)))return;
     play("ui_hover",{gain:.55});
+  },{passive:true});
+
+  // Paper is not a button. A gentle brush is heard only after the pointer
+  // has travelled a meaningful distance over an exposed page, not every pixel.
+  let lastPaperX=null,lastPaperY=null,lastPaperAt=0,paperPhase=0;
+  document.addEventListener("pointermove",event=>{
+    if(event.pointerType!=="mouse"||!enabled||volume<=0)return;
+    const target=event.target instanceof Element?event.target.closest(".book-left-page,.profile-book-page,.profile-book-tab,.profile-stat"):null;
+    const dossier=document.getElementById("profile-overlay");
+    if(!target||!dossier?.classList.contains("is-open")||
+      dossier.classList.contains("is-entering")||dossier.classList.contains("is-exiting")){lastPaperX=null;lastPaperY=null;return;}
+    if(!target.closest(".profile-body")||target.closest(".profile-page-turn"))return;
+    if(lastPaperX===null){lastPaperX=event.clientX;lastPaperY=event.clientY;return;}
+    const distance=Math.hypot(event.clientX-lastPaperX,event.clientY-lastPaperY);
+    if(distance<68)return;
+    lastPaperX=event.clientX;lastPaperY=event.clientY;
+    const now=performance.now();
+    if(now-lastPaperAt<850)return;
+    lastPaperAt=now;
+    const soft=target.closest(".profile-book-tab,.profile-stat")?.matches(".profile-book-tab,.profile-stat");
+    play("paper_brush",{gain:soft?.24:.29,rate:paperPhase++%2?.87:1.04});
   },{passive:true});
 
   // Only announce a save acoustically after a server-confirmed success message.
