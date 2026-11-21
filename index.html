@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="css/reference-layout.css?v=survival-ui-10">
   <link rel="stylesheet" href="css/profile.css?v=survival-ui-11">
   <link rel="stylesheet" href="css/profile-motion.css?v=survival-ui-13">
+  <link rel="stylesheet" href="css/profile-book.css?v=survival-ui-15">
 </head>
 <body>
 <div class="game-shell" id="game-shell">
@@ -111,42 +112,66 @@
       <span class="profile-kicker">ЛИЧНОЕ ДЕЛО ВЫЖИВШЕГО</span>
       <button type="button" id="profile-close" class="profile-close" aria-label="Закрыть досье">✕</button>
     </div>
+    <div class="profile-book-cover" aria-hidden="true">
+      <div class="book-cover-emboss">28 DAYS LATER</div>
+      <div class="book-cover-center">
+        <span class="book-cover-rule"></span>
+        <span class="book-cover-title">ДОСЬЕ</span>
+        <span class="book-cover-subtitle">ЛИЧНАЯ ЗАПИСНАЯ КНИГА</span>
+        <span class="book-cover-seal">SURVIVAL</span>
+      </div>
+      <span class="book-cover-corner"></span>
+    </div>
     <div class="profile-body">
-      <div class="profile-photo-column">
+      <div class="profile-photo-column book-left-page">
         <div class="profile-polaroid">
           <img id="profile-photo" src="assets/portraits/oliver_hayes.png" alt="Оливер Хейз">
           <div class="profile-photo-label"><strong id="profile-name">Оливер Хейз</strong></div>
         </div>
-        <p class="profile-mini-caption">Выживший</p>
+        <div class="book-left-note">
+          <span class="book-left-note-caption">ЛИЧНЫЕ ЗАПИСИ</span>
+          <span class="book-archive-stamp" aria-hidden="true">ВЫЖИВШИЙ</span>
+          <p>Все сведения — только из подтверждённого игрового состояния.</p>
+        </div>
       </div>
-      <div class="profile-content-column">
-        <section class="profile-section profile-stats-section" aria-labelledby="profile-stats-heading">
-          <h2 id="profile-stats-heading">СОСТОЯНИЕ</h2>
-          <div class="profile-ring" id="profile-ring">
-            <div class="profile-ring-core">
-              <span>ОСМОТР</span>
-              <strong id="profile-condition-detail">Выбери характеристику</strong>
-              <small id="profile-condition-value"></small>
+      <div class="profile-content-column book-right-page">
+        <nav class="profile-book-tabs" role="tablist" aria-label="Разделы личного дневника">
+          <button class="profile-book-tab active" type="button" role="tab" id="profile-book-tab-condition" data-profile-tab="condition" aria-controls="profile-page-condition" aria-selected="true">Состояние</button>
+          <button class="profile-book-tab" type="button" role="tab" id="profile-book-tab-status" data-profile-tab="status" aria-controls="profile-page-status" aria-selected="false">Статусы</button>
+          <button class="profile-book-tab" type="button" role="tab" id="profile-book-tab-skills" data-profile-tab="skills" aria-controls="profile-page-skills" aria-selected="false">Навыки</button>
+          <button class="profile-book-tab" type="button" role="tab" id="profile-book-tab-objectives" data-profile-tab="objectives" aria-controls="profile-page-objectives" aria-selected="false">Задачи</button>
+        </nav>
+        <div class="profile-book-pages">
+          <div class="profile-page-turn" id="profile-page-turn" aria-hidden="true"></div>
+          <section id="profile-page-condition" class="profile-book-page is-active profile-section profile-stats-section" role="tabpanel" aria-labelledby="profile-book-tab-condition" data-profile-page="condition">
+            <header class="profile-page-heading">
+              <span>Лист 01 / 04</span><h2 id="profile-stats-heading">СОСТОЯНИЕ ОЛИВЕРА</h2>
+            </header>
+            <div class="profile-ring" id="profile-ring">
+              <div id="profile-stats" class="profile-ring-stats"></div>
+              <div class="profile-ring-core">
+                <span>ОСМОТР</span>
+                <strong id="profile-condition-detail">Выбери характеристику</strong>
+                <small id="profile-condition-value"></small>
+              </div>
             </div>
-            <div id="profile-stats" class="profile-ring-stats"></div>
-          </div>
-          <p id="profile-status-description" class="profile-status-description" aria-live="polite">Описание состояния появится при выборе характеристики.</p>
-          <p class="profile-hint">Наведи или нажми на характеристику, чтобы узнать подробности.</p>
-        </section>
-        <div class="profile-details">
-          <section class="profile-section" aria-labelledby="profile-effects-heading">
-            <h2 id="profile-effects-heading">СОСТОЯНИЯ И ЭФФЕКТЫ</h2>
+            <p id="profile-status-description" class="profile-status-description" aria-live="polite">Наведи на характеристику или нажми на неё.</p>
+            <p class="profile-hint">Оценки иконок отражают только подтверждённые данные персонажа.</p>
+          </section>
+          <section id="profile-page-status" class="profile-book-page profile-section" role="tabpanel" aria-labelledby="profile-book-tab-status" data-profile-page="status" hidden>
+            <header class="profile-page-heading"><span>Лист 02 / 04</span><h2 id="profile-effects-heading">СТАТУСЫ И ЭФФЕКТЫ</h2></header>
             <div id="profile-effects" class="profile-data-list"><p>Сведения пока не получены.</p></div>
           </section>
-          <section class="profile-section" aria-labelledby="profile-skills-heading">
-            <h2 id="profile-skills-heading">НАВЫКИ</h2>
+          <section id="profile-page-skills" class="profile-book-page profile-section" role="tabpanel" aria-labelledby="profile-book-tab-skills" data-profile-page="skills" hidden>
+            <header class="profile-page-heading"><span>Лист 03 / 04</span><h2 id="profile-skills-heading">ОСВОЕННЫЕ НАВЫКИ</h2></header>
             <div id="profile-skills" class="profile-data-list"><p>Сведения пока не получены.</p></div>
           </section>
-          <section class="profile-section profile-objectives" aria-labelledby="profile-objectives-heading">
-            <h2 id="profile-objectives-heading">ТЕКУЩИЕ ЗАДАЧИ</h2>
+          <section id="profile-page-objectives" class="profile-book-page profile-section" role="tabpanel" aria-labelledby="profile-book-tab-objectives" data-profile-page="objectives" hidden>
+            <header class="profile-page-heading"><span>Лист 04 / 04</span><h2 id="profile-objectives-heading">ЛИЧНЫЕ ЗАДАЧИ</h2></header>
             <div id="profile-objectives" class="profile-data-list"><p>Задачи пока не указаны.</p></div>
           </section>
         </div>
+        <div class="profile-book-footer"><span>28 DAYS LATER: SURVIVAL</span><span>ЛИЧНОЕ ДЕЛО</span></div>
       </div>
     </div>
   </section>
@@ -183,7 +208,8 @@
 <script src="js/portraits.js?v=survival-ui-2"></script>
 <script src="js/config.js?v=survival-ui-2"></script>
 <script src="js/game-ui.js?v=survival-ui-11"></script>
-<script src="js/profile-ui.js?v=survival-ui-14"></script>
+<script src="js/profile-ui.js?v=survival-ui-15"></script>
+<script src="js/profile-book.js?v=survival-ui-15"></script>
 <script src="js/app.js?v=survival-ui-11"></script>
 </body>
 </html>
