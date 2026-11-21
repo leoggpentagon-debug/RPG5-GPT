@@ -1,9 +1,9 @@
 {
   "package": "28 Days Later — Survivor Dossier",
-  "version": "1.0",
+  "version": "2.0",
   "source": "Original project-specific materials generated for the user; originals: image atlas 2 panels. Custom alpha masks and text overlays processed with Pillow.",
   "third_party_cc0_textures_included": false,
-  "note": "AmbientCG and Poly Haven were researched as alternatives, but their texture downloads are NOT part of this zip. No license claims for those downloaded materials.",
+  "note": "V2: all four right-edge bookmarks are landscape-shaped (280x108) with unrotated live HTML labels; rest unchanged.",
   "assets": [
     {
       "file": "assets/ui/dossier/cover/leather_cover.webp",
@@ -43,75 +43,75 @@
     },
     {
       "file": "assets/ui/dossier/tabs/tab_condition_idle.webp",
-      "width": 144,
-      "height": 196,
-      "bytes": 6110
+      "width": 280,
+      "height": 108,
+      "bytes": 3532
     },
     {
       "file": "assets/ui/dossier/tabs/tab_condition_hover.webp",
-      "width": 144,
-      "height": 196,
-      "bytes": 6230
+      "width": 280,
+      "height": 108,
+      "bytes": 3556
     },
     {
       "file": "assets/ui/dossier/tabs/tab_condition_active.webp",
-      "width": 144,
-      "height": 196,
-      "bytes": 5538
+      "width": 280,
+      "height": 108,
+      "bytes": 3126
     },
     {
       "file": "assets/ui/dossier/tabs/tab_status_idle.webp",
-      "width": 144,
-      "height": 196,
-      "bytes": 6250
+      "width": 280,
+      "height": 108,
+      "bytes": 3568
     },
     {
       "file": "assets/ui/dossier/tabs/tab_status_hover.webp",
-      "width": 144,
-      "height": 196,
-      "bytes": 6204
+      "width": 280,
+      "height": 108,
+      "bytes": 3550
     },
     {
       "file": "assets/ui/dossier/tabs/tab_status_active.webp",
-      "width": 144,
-      "height": 196,
-      "bytes": 5718
+      "width": 280,
+      "height": 108,
+      "bytes": 3198
     },
     {
       "file": "assets/ui/dossier/tabs/tab_skills_idle.webp",
-      "width": 144,
-      "height": 196,
-      "bytes": 6156
+      "width": 280,
+      "height": 108,
+      "bytes": 3576
     },
     {
       "file": "assets/ui/dossier/tabs/tab_skills_hover.webp",
-      "width": 144,
-      "height": 196,
-      "bytes": 6194
+      "width": 280,
+      "height": 108,
+      "bytes": 3664
     },
     {
       "file": "assets/ui/dossier/tabs/tab_skills_active.webp",
-      "width": 144,
-      "height": 196,
-      "bytes": 5632
+      "width": 280,
+      "height": 108,
+      "bytes": 3172
     },
     {
       "file": "assets/ui/dossier/tabs/tab_objectives_idle.webp",
-      "width": 144,
-      "height": 196,
-      "bytes": 6132
+      "width": 280,
+      "height": 108,
+      "bytes": 3524
     },
     {
       "file": "assets/ui/dossier/tabs/tab_objectives_hover.webp",
-      "width": 144,
-      "height": 196,
-      "bytes": 6172
+      "width": 280,
+      "height": 108,
+      "bytes": 3572
     },
     {
       "file": "assets/ui/dossier/tabs/tab_objectives_active.webp",
-      "width": 144,
-      "height": 196,
-      "bytes": 5706
+      "width": 280,
+      "height": 108,
+      "bytes": 3210
     },
     {
       "file": "assets/ui/dossier/decor/tape_worn.webp",
