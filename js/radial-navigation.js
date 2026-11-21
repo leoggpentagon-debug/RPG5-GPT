@@ -43,12 +43,15 @@
     }
   }
   function toggle(){setOpen(!open)}
-  function editingOrActivating(target){
+  function ignoreSpace(target){
     if(!(target instanceof Element))return false;
-    return Boolean(target.closest(
+    // Do not steal typing, range controls, or an open menu item's native Space
+    // activation. The hotkey DOES work after clicking ordinary game buttons.
+    if(target.closest(
       "input,textarea,select,[contenteditable]:not([contenteditable='false'])," +
-      "[role='textbox'],[role='slider'],button,a[href],summary"
-    ));
+      "[role='textbox'],[role='slider'],summary"
+    ))return true;
+    return open&&Boolean(target.closest("#radial-nav-overlay button"));
   }
   // Hovering the very top reveals the radial overlay, but a tiny dwell
   // avoids surprising accidental opening when crossing the window boundary.
@@ -88,7 +91,7 @@
     }
     if(event.code!=="Space"&&event.key!==" ")return;
     if(event.repeat||event.ctrlKey||event.altKey||event.metaKey)return;
-    if(editingOrActivating(event.target))return; // Never steal typing or button activation.
+    if(ignoreSpace(event.target))return; // Preserve typing and radial item selection.
     if(!open&&busyOverlay())return;
     event.preventDefault();
     toggle();
