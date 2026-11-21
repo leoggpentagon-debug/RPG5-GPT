@@ -1,0 +1,186 @@
+/* SURVIVAL UI v5: compact header, accessible story feed and single-frame Polaroids.
+   The world background and existing artwork remain unchanged. */
+:root {--scale:1.2}
+html,body {font-size:20px}
+.game-shell {grid-template-rows:92px minmax(0,1fr)}
+.game-header {height:92px;gap:24px;padding:7px 25px}
+.brand {width:235px;flex:0 0 235px}
+.brand-art {height:72px;width:230px;flex:0 0 230px}
+.game-tabs {
+  display:flex;align-items:center;justify-content:flex-start;gap:9px;
+  flex:0 0 auto;height:auto;min-height:0;padding:0;border:0;box-shadow:none;
+  background:none;
+}
+.game-tab {
+  flex:0 0 61px;width:61px;min-width:61px;max-width:61px;height:61px;min-height:61px;
+  padding:4px;border:1px solid #82614d;border-radius:7px;display:grid;place-items:center;
+  background:#1a1512a6;box-shadow:inset 0 1px #e1b18c35,0 4px 12px #0009;
+  transition:transform .15s,filter .15s,border-color .15s;
+}
+.game-tab img {display:block;width:51px;height:51px;object-fit:contain;filter:drop-shadow(0 1px 3px #0007)}
+.game-tab:after {display:none}
+.game-tab.active {
+  border-color:#e28e61;box-shadow:inset 0 0 0 1px #c76246,0 0 0 2px #85482b66,0 4px 14px #0009;
+  background:#512e24a8;
+}
+.game-tab:hover:not(:disabled) {transform:translateY(-2px);filter:brightness(1.17)}
+.header-right {margin-left:auto;display:flex;align-items:center;gap:18px;flex:0 0 auto}
+.world-status {
+  display:flex;align-items:center;justify-content:flex-end;gap:11px;white-space:nowrap;
+  font-size:19px;color:#e7c9a4;min-width:0;overflow:visible;
+}
+.world-status>span {display:inline-flex;align-items:center}
+.world-day,.world-time {font-weight:600;letter-spacing:.02em}
+.world-weather {font-size:27px;min-width:32px;justify-content:center}
+.menu-toggle {margin:0;width:57px;height:56px;flex:0 0 57px}
+.game-layout {grid-template-columns:340px minmax(0,1fr);gap:16px;padding:14px 18px}
+.hero-sidebar {gap:12px}
+.sidebar-card {padding:12px}
+.hero-identity {min-height:186px;gap:11px;align-items:center}
+.hero-name {flex:1;min-width:0}
+.hero-name strong {
+  font:500 22px/1.15 var(--font-display);color:#f7eee1;white-space:nowrap;
+  letter-spacing:0;display:block;
+}
+.hero-name small {display:none}
+.polaroid {
+  isolation:isolate;background:
+    linear-gradient(135deg,#f2e7d911,#7e4b3214),
+    url("../assets/ui/textures/old_paper_texture.webp") center/cover,
+    #ccbaa0;
+  border:1px solid #6b5640;border-radius:2px;
+  box-shadow:inset 0 0 0 4px #e5d6bb67,2px 6px 10px #000a;
+  filter:drop-shadow(1px 3px 3px #0006);
+  overflow:visible;
+}
+.polaroid-player {width:155px;height:194px;transform:rotate(-3deg)}
+.polaroid-npc {width:88px;height:103px;transform:rotate(-2deg)}
+.polaroid:after {
+  content:"";position:absolute;z-index:4;inset:0;pointer-events:none;background:
+    radial-gradient(circle at 90% 93%,#7a171a73 0,#7c1d1c29 15%,transparent 31%),
+    linear-gradient(90deg,#ffffff1c,transparent 30%,#150c0822 95%);
+}
+.polaroid:before {
+  content:"";position:absolute;z-index:5;left:24%;top:-6%;height:15%;width:55%;
+  background:url("../assets/ui/decoration/tape_short.webp") center/100% 100% no-repeat;
+  opacity:.93;transform:rotate(3deg);pointer-events:none;
+  filter:drop-shadow(1px 2px 1px #0005);
+}
+.polaroid .portrait-button {
+  top:10%;left:8%;width:84%;height:73%;border:1px solid #564335;
+  border-radius:0;z-index:2;background:#201916;
+}
+.polaroid-npc .portrait-button {top:11%;left:8%;width:84%;height:71%}
+.polaroid .portrait-button img {width:100%;height:100%;object-fit:cover}
+.stat-list {
+  margin-top:12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;
+}
+.stat-chip {
+  display:grid;grid-template-columns:55px minmax(0,1fr);align-items:center;gap:5px;
+  min-height:59px;padding:3px 7px 3px 4px;
+  background:linear-gradient(110deg,#0e0d0bd8,#23180fd4);
+  border-radius:4px;box-shadow:inset 0 1px #e2af8e24;
+}
+.stat-chip small {display:none}
+.stat-icon,.stat-fallback {width:52px;height:52px;object-fit:contain}
+.stat-chip strong {font:600 24px/1 var(--font-display);color:#f7e7cc;text-align:center;white-space:nowrap}
+.party-list {gap:9px}
+.party-person {min-height:99px;gap:13px}
+.party-person strong {font-size:20px;line-height:1.2}
+.party-person small {display:none}
+.scene-heading {min-height:83px;padding:12px 22px 10px}
+.scene-heading h1 {font-size:29px;margin:0 0 4px}
+.scene-heading p {font-size:18px}
+.story-viewer {
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+  min-height:0;flex:1;padding:16px 22px 23px;
+  scrollbar-color:#9b694b #1a1411;scrollbar-width:thin;
+}
+.story-page {
+  height:auto;min-height:0;overflow:visible;white-space:normal;
+  font-size:20px;line-height:1.55;color:#f0e0c8;
+}
+.story-page p {margin:0;white-space:pre-wrap}
+.story-page .story-empty {font-style:italic;color:#cab294}
+.narrative-block {
+  display:flex;align-items:flex-start;gap:13px;margin:0 0 16px;padding:10px 12px;
+  border-radius:3px;max-width:100%;
+}
+.narrative-block.role-narrator {
+  margin:12px 0 23px;padding:14px 19px 14px 21px;
+  border-left:3px solid #b64e3d;background:linear-gradient(90deg,#1b110fca,#0a0b0b35 80%);
+  color:#f0ded0;box-shadow:inset 0 1px #c56a4830;
+}
+.narrative-block.role-narrator:before {
+  content:"";flex:0 0 5px;width:5px;height:5px;border-radius:50%;
+  margin:12px 0 0 -12px;background:#a74838;box-shadow:0 0 10px #dc6141;
+}
+.narrative-block.role-player {
+  background:linear-gradient(90deg,#43302ac7,#201b19a9 80%);
+  border-left:3px solid #aa6850;
+}
+.narrative-block.role-npc {
+  background:linear-gradient(90deg,#28231fd1,#1a1715a5 75%);
+  border-left:3px solid var(--speaker-color,#ad987c);
+}
+.narrative-block .dialogue-avatar {width:54px;height:65px;object-fit:cover;flex:0 0 54px;border:1px solid #98745b;box-shadow:2px 3px 5px #0008;cursor:zoom-in}
+.narrative-block .dialogue-body {min-width:0;flex:1}
+.narrative-block .dialogue-name {
+  display:block;color:var(--speaker-color,#efe9de);
+  font:600 18px/1.2 var(--font-ui);letter-spacing:.075em;margin:0 0 8px;
+}
+.narrative-block.role-narrator .dialogue-name {display:none}
+.narrative-block .dialogue-text {font-size:20px;line-height:1.57;white-space:pre-wrap;overflow-wrap:anywhere}
+.choices button {font-size:17px}
+.action-area {padding:10px 14px 12px}
+.choices {max-height:108px}
+.action-compose textarea {font-size:19px}
+@media(max-height:800px) {
+  .game-shell {grid-template-rows:77px minmax(0,1fr)}
+  .game-header {height:77px;padding:3px 14px}
+  .brand {width:190px;flex-basis:190px}
+  .brand-art {width:188px;flex-basis:188px;height:65px}
+  .game-tab {width:53px;min-width:53px;max-width:53px;flex-basis:53px;height:53px;min-height:53px}
+  .game-tab img {width:47px;height:47px}
+  .game-layout {grid-template-columns:316px minmax(0,1fr);gap:9px;padding:8px 12px}
+  .polaroid-player {width:138px;height:174px}
+  .hero-identity {min-height:172px}
+  .stat-chip {min-height:54px}
+  .stat-icon,.stat-fallback {width:48px;height:48px}
+  .stat-chip {grid-template-columns:49px minmax(0,1fr)}
+  .scene-heading {min-height:70px;padding:8px 17px}
+  .story-viewer {padding:9px 14px}
+  .narrative-block {margin-bottom:10px;padding:8px 10px}
+  .narrative-block.role-narrator {padding:10px 12px}
+}
+@media(max-width:1120px) {
+  .game-header {gap:9px;padding:7px 12px}
+  .brand {width:160px;flex-basis:160px}
+  .brand-art {width:157px;flex-basis:157px;height:59px}
+  .game-tabs {gap:3px}
+  .game-tab {width:45px;min-width:45px;max-width:45px;flex-basis:45px;height:48px;min-height:48px}
+  .game-tab img {width:40px;height:40px}
+  .world-status {font-size:16px;gap:7px}
+  .world-weather {font-size:23px}
+  .game-layout {grid-template-columns:280px minmax(0,1fr);gap:8px;padding:8px}
+  .polaroid-player {width:126px;height:158px}
+  .hero-name strong {font-size:19px}
+  .stat-chip {grid-template-columns:46px minmax(0,1fr)}
+  .stat-icon,.stat-fallback {width:44px;height:44px}
+  .stat-chip strong {font-size:21px}
+}
+@media(max-width:720px) {
+  .game-shell {grid-template-rows:70px minmax(0,1fr)}
+  .game-header {height:70px;gap:5px}
+  .brand {width:102px;flex-basis:102px}
+  .brand-art {width:99px;flex-basis:99px;height:47px}
+  .game-tab {width:33px;min-width:33px;max-width:33px;flex-basis:33px;height:38px;min-height:38px;padding:2px}
+  .game-tab img {width:30px;height:30px}
+  .header-right {gap:5px}
+  .world-status {font-size:12px;gap:3px}
+  .world-weather {font-size:16px;min-width:18px}
+  .menu-toggle {width:39px;flex-basis:39px;height:42px}
+  .story-viewer {padding:10px}
+  .story-page,.narrative-block .dialogue-text {font-size:17px}
+  .narrative-block .dialogue-avatar {width:42px;height:52px;flex-basis:42px}
+}
