@@ -1,4 +1,4 @@
-/* Survival UI v36 — frameless visual cleanup.
+/* Survival UI v37 — continuous frameless composition + soft left scene feather.
    Presentation only: retain all DOM, RPG state, Polaroid artwork, health/stat
    chips, status badges, buttons, textarea, journal/dossier and resize logic.
    No new image files or site background changes. */
@@ -27,8 +27,13 @@
   background:none;
   box-shadow:none;
 }
-/* No changes here to .polaroid, .polaroid-player, .polaroid-npc,
-   .stat-list, .stat-chip, .world-status, or their descendants. */
+/* Keep the Polaroids and status chips; remove only the old decorative
+   horizontal rule above the first health chip. */
+#game-shell .hero-card .stat-list {
+  border-top:0;
+  padding-top:0;
+}
+/* No changes to the Polaroid art, stat chips, world clock, or buttons. */
 
 /* The scene title, image, story text and action controls now form a single
    composition. Keep the exact text/layout measurements and scroll containers. */
@@ -65,14 +70,28 @@
   background:transparent;
   box-shadow:none;
 }
-#game-shell .content .story-page .narrative-block.role-narrator::before {
-  content:none;
-  display:none;
-}
-/* Preserve narrator spacing/indents; a soft typographic tint replaces the bar. */
+/* A small blood-red typographic marker, not a bordered narrator card. */
 #game-shell .content .story-page .narrative-block.role-narrator {
+  position:relative;
   color:#f0ded0;
 }
+#game-shell .content .story-page .narrative-block.role-narrator::before {
+  content:"";
+  display:block;
+  position:absolute;
+  left:5px;
+  top:16px;
+  width:2px;
+  height:30px;
+  flex:none;
+  margin:0;
+  border:0;
+  border-radius:2px;
+  background:linear-gradient(180deg,#cf5344,#853024 78%,transparent);
+  box-shadow:0 0 7px #b83f3040;
+}
+/* No horizontal divider above the story's pagination controls. */
+#game-shell .content .story-pagination {border-top:0;}
 
 /* Panes that are not the diary: inventory and character data read as content
    rather than separate tile boxes. No generated values or labels are changed. */
@@ -114,12 +133,15 @@
   width:100%;
   height:100%;
   object-fit:cover;
-  transform:scale(1.045);
+  transform:scale(1.03);
   transform-origin:60% 50%;
-  -webkit-mask-image:linear-gradient(to right,
-    transparent 0%,rgba(0,0,0,.32) 2.5%,rgba(0,0,0,.80) 7%,#000 11.5%,#000 100%);
-  mask-image:linear-gradient(to right,
-    transparent 0%,rgba(0,0,0,.32) 2.5%,rgba(0,0,0,.80) 7%,#000 11.5%,#000 100%);
+  /* The image gently emerges out of the underlying page at its LEFT edge. */
+  -webkit-mask-image:linear-gradient(90deg,
+    transparent 0%,rgba(0,0,0,.17) 2%,rgba(0,0,0,.48) 6%,
+    rgba(0,0,0,.82) 11%,#000 17%,#000 100%);
+  mask-image:linear-gradient(90deg,
+    transparent 0%,rgba(0,0,0,.17) 2%,rgba(0,0,0,.48) 6%,
+    rgba(0,0,0,.82) 11%,#000 17%,#000 100%);
 }
 #pane-story .scene-image-wrap::before {
   content:"";
@@ -128,12 +150,12 @@
   top:0;
   left:0;
   bottom:0;
-  width:13%;
+  width:18%;
   pointer-events:none;
-  backdrop-filter:blur(6px);
-  -webkit-backdrop-filter:blur(6px);
-  -webkit-mask-image:linear-gradient(to right,#000,transparent);
-  mask-image:linear-gradient(to right,#000,transparent);
+  backdrop-filter:blur(8px) saturate(.9);
+  -webkit-backdrop-filter:blur(8px) saturate(.9);
+  -webkit-mask-image:linear-gradient(90deg,#000 0%,rgba(0,0,0,.75) 30%,transparent 100%);
+  mask-image:linear-gradient(90deg,#000 0%,rgba(0,0,0,.75) 30%,transparent 100%);
 }
 #pane-story .scene-image-wrap::after {
   content:"";
@@ -142,8 +164,8 @@
   inset:0;
   pointer-events:none;
   background:
-    linear-gradient(180deg,#08080824,transparent 26%,transparent 76%,#0807088c 100%),
-    linear-gradient(90deg,#100c0c20,transparent 17%);
+    linear-gradient(180deg,#08080816 0%,transparent 23%,transparent 66%,#0c090899 94%,#0c0908bd 100%),
+    linear-gradient(90deg,#100c0c33,transparent 20%);
 }
 /* The resizer remains usable but no longer looks like a thick panel border. */
 #pane-story .stage-divider {
@@ -153,7 +175,7 @@
 }
 #pane-story .stage-divider-grip {
   box-shadow:none;
-  opacity:.45;
+  opacity:.14;
 }
 #pane-story .stage-divider:hover,
 #pane-story .stage-divider.dragging,
@@ -164,6 +186,13 @@
 #pane-story .stage-divider:hover .stage-divider-grip,
 #pane-story .stage-divider.dragging .stage-divider-grip,
 #pane-story .stage-divider:focus-visible .stage-divider-grip {opacity:.88}
+
+/* The narrative is legible over the world backdrop without a rectangular
+   panel. This continuous top-to-bottom haze blends into the scene's vignette. */
+#game-shell #pane-story .story-viewer {
+  background:linear-gradient(180deg,
+    #0c090876 0%,#0c09083b 22%,transparent 63%);
+}
 
 /* Preserve native focus indication on editable and clickable controls. */
 #game-shell button:focus-visible,
