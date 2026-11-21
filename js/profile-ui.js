@@ -63,7 +63,7 @@
       const selectAndPlay=()=>{
         chooseStat(block);
         // RPG6's actual stress 0..5 decides the approved sound; unknown is silent.
-        window.RPG6_SFX?.playStat(key,key==="stress"&&valid?number:undefined);
+        window.RPG6_SFX?.playStat(key,key==="stress"&&valid&&value.current!=null?number:undefined);
       };
       block.addEventListener("mouseenter",selectAndPlay);
       block.addEventListener("focus",selectAndPlay);
