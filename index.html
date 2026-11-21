@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/profile.css?v=survival-ui-11">
   <link rel="stylesheet" href="css/profile-motion.css?v=survival-ui-13">
   <link rel="stylesheet" href="css/profile-book.css?v=survival-ui-16">
+  <link rel="stylesheet" href="css/audio.css?v=survival-ui-17">
 </head>
 <body>
 <div class="game-shell" id="game-shell">
@@ -188,6 +189,21 @@
       <button type="button" id="start" class="secondary">Повторно загрузить сохранение</button>
       <p id="save-info" class="small-label">Ожидаю подключения.</p>
     </section>
+    <section class="service-block sound-settings" id="sound-settings" aria-label="Настройки звуков интерфейса">
+      <div class="section-row sound-settings-head">
+        <h3>Звуки интерфейса</h3>
+        <button type="button" id="sfx-toggle" class="sound-toggle" aria-pressed="true">Включены</button>
+      </div>
+      <div class="sound-volume-row">
+        <label for="sfx-volume">Громкость</label>
+        <output id="sfx-value" for="sfx-volume">35%</output>
+      </div>
+      <input type="range" id="sfx-volume" min="0" max="100" step="1" value="35" aria-label="Громкость игровых звуков">
+      <div class="sound-preview-row">
+        <span>Бумага, обложка, страницы и кнопки</span>
+        <button type="button" id="sfx-preview" class="sound-preview">Прослушать</button>
+      </div>
+    </section>
     <section class="service-block">
       <h3>Соединение и обработка</h3><p id="status" class="status-text">Инициализация…</p>
       <div class="technical-details"><span id="scene-counter"></span><span id="canon-revision"></span><span id="draft-count"></span></div>
@@ -207,9 +223,10 @@
 <dialog id="portrait-dialog" class="portrait-dialog"><button type="button" id="portrait-close" class="icon-button">Закрыть ×</button><img id="portrait-full" alt="Портрет персонажа"></dialog>
 <script src="js/portraits.js?v=survival-ui-2"></script>
 <script src="js/config.js?v=survival-ui-2"></script>
+<script src="js/audio.js?v=survival-ui-17"></script>
 <script src="js/game-ui.js?v=survival-ui-11"></script>
-<script src="js/profile-ui.js?v=survival-ui-16"></script>
-<script src="js/profile-book.js?v=survival-ui-16"></script>
+<script src="js/profile-ui.js?v=survival-ui-17"></script>
+<script src="js/profile-book.js?v=survival-ui-17"></script>
 <script src="js/app.js?v=survival-ui-11"></script>
 </body>
 </html>
