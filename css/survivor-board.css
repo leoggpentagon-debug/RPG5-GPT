@@ -1,29 +1,29 @@
-/* Survival UI v49 — straight wooden board behind the original live Polaroids.
-   The board is ONE background layer. It contains no built-in photograph,
-   paper frame, text label or tape. All real character portraits, paper WebPs,
-   names, dossier behaviour and the live two-column party list remain intact.
-   Keep the original sidebar width and the companion-list scroll budget. */
+/* Survival UI v50 — clean, extra-tall Hazard Dossier wooden panel.
+   The board contains NO photos, Polaroid slots, labels or tape.
+   Live portraits, approved frame WebPs, names and diary animation are separate.
+   The board occupies the available LEFT RAIL below the logo, with a gap
+   before the bottom edge. The actual game-layout column width is unchanged. */
 
 #game-shell .hero-sidebar > .survivor-board {
   position:relative;
   isolation:isolate;
   display:flex;
   flex-direction:column;
-  flex:0 1 auto;
+  flex:1 1 0;
   gap:8px;
   min-width:0;
   min-height:0;
+  margin:0 0 clamp(10px,1.8vh,23px);
   padding:14px 0 22px;
-  background-image:url("../assets/ui/boards/wooden_board_01_straight.webp");
+  background-color:transparent;
+  background-image:url("../assets/ui/boards/wooden_board_02_hazard_dossier.webp");
   background-repeat:no-repeat;
-  background-position:center;
-  /* Fit the wood panel to the content of BOTH portrait sections.
-     Do not use cover: it would crop off the physical wooden sides. */
+  background-position:center center;
+  /* Full-height wood, without cropping its physical edge. */
   background-size:100% 100%;
 }
 
-/* Preserve original player and companion sections and stacking.
-   The wood never intercepts portrait clicks or dossier hold actions. */
+/* Exactly the pre-existing two real DOM sections: no painted-on portraits. */
 #game-shell .hero-sidebar > .survivor-board > .hero-card,
 #game-shell .hero-sidebar > .survivor-board > .companions-card {
   position:relative;
@@ -33,23 +33,25 @@
   box-shadow:none;
 }
 
-/* The list, not the whole sidebar, still scrolls when survivors accumulate. */
+/* Let new survivors continue down the same board without changing the rail;
+   as before, only the live party list scrolls when there are many. */
+#game-shell .hero-sidebar > .survivor-board > .hero-card {
+  flex:0 0 auto;
+}
 #game-shell .hero-sidebar > .survivor-board > .companions-card {
   flex:0 1 auto;
-  min-height:100px;
+  min-height:96px;
   overflow:hidden;
 }
 #game-shell .hero-sidebar > .survivor-board .party-list {
   min-height:0;
   overflow-y:auto;
 }
-
-/* Only trim decorative padding on short screens; never widen the sidebar
-   or change the dimensions of the approved paper/portrait assets. */
 @media(max-height:820px) {
   #game-shell .hero-sidebar > .survivor-board {
     padding-top:8px;
     padding-bottom:12px;
+    margin-bottom:11px;
     gap:5px;
   }
 }
@@ -57,6 +59,7 @@
   #game-shell .hero-sidebar > .survivor-board {
     padding-top:4px;
     padding-bottom:7px;
+    margin-bottom:7px;
     gap:2px;
   }
 }

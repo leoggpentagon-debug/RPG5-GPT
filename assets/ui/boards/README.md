@@ -1,17 +1,22 @@
-# Wooden Survivor Boards
+# Wooden Survivor Boards — clean/tall set (v50)
 
-Four user-selected design variants, exported as WebP from the original generated PNGs.
-All four are stored in this folder. Only `wooden_board_01_straight.webp` is activated
-by `css/survivor-board.css`.
+The **straight board (01) has been deleted from the current branch**.
+The three remaining WebP assets have been regenerated as tall, empty
+wooden surfaces with no baked-in character portraits, paper photo frames,
+tape, text labels, or reserved Polaroid positions.
 
-- `wooden_board_01_straight.webp`: the straight, empty wooden board (transparent edge), used as the background behind the live portraits.
-- `wooden_board_02_hazard_dossier.webp`: alternative detailed layout with printed photo placeholders.
-- `wooden_board_03_worn_wood.webp`: alternative distressed board with marked attachment positions.
-- `wooden_board_04_survivor_polaroids.webp`: alternative board with four printed Polaroid slots.
+| Asset | Status | Image dimensions |
+| --- | --- | --- |
+| `wooden_board_02_hazard_dossier.webp` | **Active** clean board with distressed hazard symbol and ivy | 841 × 1870 |
+| `wooden_board_03_worn_wood.webp` | Clean alternative wooden surface | 879 × 1790 |
+| `wooden_board_04_survivor_polaroids.webp` | Clean alternative wooden surface | 916 × 1717 |
 
-**Do not use the alternatives as the active board behind the current live photos
-without redesign:** their pre-painted paper/Polaroid slots would duplicate the approved
-`polaroid_player_paper_frame.webp` and `polaroid_player_tape.webp` layers.
+All three preserve transparency along the edges and have increased vertical
+aspect ratios for the extended survivor board beneath the game's logo.
 
-Real character portraits, their HTML labels, 2-column nearby list and dossier opening
-animation remain separate from these backgrounds.
+The actual photograph, paper frame, tape and HTML name for Oliver and each
+nearby NPC remain separate interactive DOM layers. They are NOT embedded in
+these board images. The two-column dynamic NPC list continues to scroll.
+
+The board is styled by `css/survivor-board.css`. The surrounding sidebar
+and primary game-layout widths are unchanged.
