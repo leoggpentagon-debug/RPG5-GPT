@@ -338,7 +338,8 @@
   overlay.addEventListener("keydown",event=>{
     if(event.key==="Escape"){event.preventDefault();closeProfile();return;}
     if(event.key!=="Tab")return;
-    const focusable=[closeButton,...panel.querySelectorAll('button:not([disabled]),[tabindex="0"]')];
+    const focusable=[closeButton,...panel.querySelectorAll('button:not([disabled]),[tabindex="0"]')]
+      .filter(element=>!element.closest("[hidden]")&&element.getClientRects().length>0);
     if(focusable.length<2)return;
     if(event.shiftKey&&document.activeElement===focusable[0]){event.preventDefault();focusable[focusable.length-1].focus()}
     else if(!event.shiftKey&&document.activeElement===focusable[focusable.length-1]){event.preventDefault();focusable[0].focus()}
