@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="css/style.css?v=survival-ui-6">
   <link rel="stylesheet" href="css/cinematic.css?v=survival-ui-4">
   <link rel="stylesheet" href="css/refinements.css?v=survival-ui-8">
-  <link rel="stylesheet" href="css/reference-layout.css?v=survival-ui-9">
+  <link rel="stylesheet" href="css/reference-layout.css?v=survival-ui-10">
 </head>
 <body>
 <div class="game-shell" id="game-shell">
@@ -25,7 +25,7 @@
     <div class="header-right">
       <div class="world-status" aria-label="День, погодные условия и время">
         <span class="world-day" id="world-day">День —</span>
-        <span class="world-weather" id="world-weather" role="img" aria-label="Погода неизвестна" title="Погода неизвестна">—</span>
+        <span class="world-weather" id="world-weather" role="img" aria-label="Погода не указана" title="Погода не указана">🌡️?</span>
         <span class="world-time" id="world-time">—:—</span>
       </div>
       <button type="button" id="service-toggle" class="icon-button menu-toggle" aria-label="Открыть служебное меню" aria-expanded="false" aria-controls="service-drawer"><span></span><span></span><span></span></button>
@@ -58,6 +58,9 @@
         </div>
         <div id="scene-image-wrap" class="scene-image-wrap">
           <img id="scene-image" src="assets/ui/background/background_cinematic_street_2k.webp" alt="Атмосферный фон текущей сцены" referrerpolicy="no-referrer">
+        </div>
+        <div id="stage-divider" class="stage-divider" role="separator" aria-label="Изменить высоту изображения сцены" aria-controls="scene-image-wrap story-viewer" aria-orientation="horizontal" aria-valuemin="10" aria-valuemax="55" aria-valuenow="25" tabindex="0" title="Перетащи границу для изменения высоты. Двойной щелчок — сброс.">
+          <span class="stage-divider-grip" aria-hidden="true"></span>
         </div>
         <p id="scene-text" hidden></p>
         <div id="story-viewer" class="story-viewer" aria-label="Повествование и диалоги" tabindex="0">
@@ -133,7 +136,7 @@
 <dialog id="portrait-dialog" class="portrait-dialog"><button type="button" id="portrait-close" class="icon-button">Закрыть ×</button><img id="portrait-full" alt="Портрет персонажа"></dialog>
 <script src="js/portraits.js?v=survival-ui-2"></script>
 <script src="js/config.js?v=survival-ui-2"></script>
-<script src="js/game-ui.js?v=survival-ui-9"></script>
+<script src="js/game-ui.js?v=survival-ui-10"></script>
 <script src="js/app.js?v=survival-ui-7"></script>
 </body>
 </html>
