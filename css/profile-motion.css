@@ -131,3 +131,22 @@ body.dossier-cinematic .profile-overlay.is-open .profile-dossier {
   .profile-overlay.is-exiting .profile-ring-core {animation:none!important}
   .profile-stat,.polaroid-player.hold-progress {transition:none!important}
 }
+
+/* A calm horizontal status note replaces crammed multi-line text inside the ring. */
+.profile-ring-core > strong {max-height:none;font-size:17px}
+.profile-ring-core > small {font-size:17px;margin-top:3px}
+.profile-status-description {
+  min-height:34px;
+  max-height:74px;
+  overflow:auto;
+  margin:0 0 6px;
+  padding:6px 10px;
+  border-top:1px solid #8d56433d;
+  color:#e7cbb4;
+  text-align:center;
+  font:15px/1.35 var(--font-ui);
+  scrollbar-width:thin;
+}
+@media(max-height:810px) {
+  .profile-status-description {font-size:14px;min-height:30px;max-height:56px;padding:4px 7px}
+}
