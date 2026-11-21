@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<defs>
+  <linearGradient id="bone" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#f0dfc7"/><stop offset="0.56" stop-color="#dbcaaf"/><stop offset="1" stop-color="#a99378"/></linearGradient>
+</defs>
+
+<!-- Three real silhouettes, shoulder-to-shoulder, not a clipart people icon. -->
+<path d="M112 225 C88 225 73 208 73 182 C73 148 89 130 116 128 C143 130 160 153 159 181 C160 210 142 225 112 225Z" fill="url(#bone)"/>
+<path d="M398 225 C373 225 357 206 357 181 C357 149 373 130 400 128 C428 131 444 154 443 181 C443 208 425 225 398 225Z" fill="url(#bone)"/>
+<path d="M256 218 C210 218 190 189 194 146 C195 106 220 83 256 82 C292 84 317 109 319 149 C319 192 299 219 256 218Z" fill="url(#bone)"/>
+<path d="M70 260 Q114 232 160 256 L187 278 Q170 308 167 366 L59 366 Q53 301 70 260Z" fill="url(#bone)"/>
+<path d="M442 260 Q398 232 353 256 L324 278 Q344 310 345 366 L452 366 Q460 302 442 260Z" fill="url(#bone)"/>
+<path d="M180 262 Q207 236 256 232 Q308 234 331 264 Q353 309 356 425 L155 425 Q160 312 180 262Z" fill="url(#bone)"/>
+<path d="M214 263 L256 315 L298 263 L280 419 L232 419Z" fill="#261b15" fill-opacity=".54"/>
+<path d="M153 410 L355 410 M87 347 L146 347 M364 347 L422 347" stroke="#261b15" stroke-width="9" stroke-opacity=".5"/>
+
+</svg>

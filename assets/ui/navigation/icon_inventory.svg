@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<defs>
+  <linearGradient id="bone" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#f0dfc7"/><stop offset="0.56" stop-color="#dbcaaf"/><stop offset="1" stop-color="#a99378"/></linearGradient>
+</defs>
+
+<!-- Canvas backpack with shoulder straps, zipped outer pouch and buckles. -->
+<path d="M134 179 Q124 149 142 117 Q171 76 236 71 L274 71 Q349 74 379 131 L379 179 L405 194 L413 388 Q405 433 365 437 L145 437 Q106 429 100 392 L108 206Z" fill="url(#bone)"/>
+<path d="M164 152 Q168 95 254 98 Q341 95 346 152" stroke="#261b15" stroke-width="18" fill="none"/>
+<path d="M143 174 Q125 169 120 198 L103 348 M369 174 Q387 169 392 198 L409 348" fill="none" stroke="#261b15" stroke-width="14"/>
+<path d="M164 159 L348 159 L364 297 Q256 325 148 297Z" fill="#261b15" fill-opacity=".22" stroke="#261b15" stroke-width="12" stroke-linejoin="round"/>
+<path d="M166 193 L346 193 M255 194 L255 282" stroke="#261b15" stroke-width="12" stroke-linecap="round" stroke-opacity=".8"/>
+<path d="M184 300 Q257 324 328 300 L342 391 Q257 410 169 391Z" fill="#261b15" fill-opacity=".22" stroke="#261b15" stroke-width="12"/>
+<path d="M184 329 L328 329 M202 360 L310 360" fill="none" stroke="#261b15" stroke-width="9"/>
+<rect x="238" y="341" width="34" height="31" rx="6" fill="#bea88a" stroke="#261b15" stroke-width="8"/>
+<path d="M148 223 L130 265 L145 283 M367 222 L382 265 L367 283" fill="none" stroke="#261b15" stroke-width="14"/>
+
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<defs>
+  <linearGradient id="bone" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#f0dfc7"/><stop offset="0.56" stop-color="#dbcaaf"/><stop offset="1" stop-color="#a99378"/></linearGradient>
+</defs>
+
+<!-- Torn folded field map with inky route, trail and target cross. -->
+<path d="M62 139 L185 103 L312 143 L444 99 L444 373 L314 416 L184 376 L62 420Z" fill="url(#bone)" stroke="#bea88a" stroke-width="12" stroke-linejoin="miter"/>
+<path d="M185 103 L184 376 M312 143 L314 416" stroke="#261b15" stroke-width="13" stroke-opacity=".69"/>
+<path d="M89 188 Q130 221 157 202 Q185 180 208 225 Q251 303 299 272 Q349 229 422 283" fill="none" stroke="#261b15" stroke-width="13" stroke-linecap="round" stroke-dasharray="14 17"/>
+<circle cx="348" cy="238" r="27" fill="none" stroke="#261b15" stroke-width="10"/>
+<path d="M348 203 L348 272 M313 238 L383 238" fill="none" stroke="#261b15" stroke-width="9" stroke-linecap="round"/>
+<path d="M95 337 Q119 315 146 337 M222 337 L262 318 M346 344 L413 314 M215 183 L258 205" fill="none" stroke="#261b15" stroke-width="11" stroke-opacity=".6"/>
+
+</svg>

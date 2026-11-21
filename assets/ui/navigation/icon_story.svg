@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<defs>
+  <linearGradient id="bone" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#f0dfc7"/><stop offset="0.56" stop-color="#dbcaaf"/><stop offset="1" stop-color="#a99378"/></linearGradient>
+</defs>
+
+<!-- A ragged survival journal: two stacks of thick, broken pages. -->
+<path d="M252 158 C210 129 137 115 71 138 L71 353 C145 332 204 344 252 384Z" fill="url(#bone)"/>
+<path d="M260 158 C302 129 375 115 441 138 L441 353 C367 332 308 344 260 384Z" fill="url(#bone)"/>
+<path d="M253 157 L253 381" stroke="#261b15" stroke-width="15" stroke-linecap="round"/>
+<path d="M71 148 L54 159 L55 376 C132 349 201 359 248 397 M441 148 L457 159 L457 376 C380 349 311 359 264 397" fill="none" stroke="#bea88a" stroke-width="14" stroke-linejoin="round"/>
+<path d="M93 168 Q162 146 226 176 M93 207 Q161 188 226 216 M91 245 Q154 228 217 257 M90 283 Q145 267 215 301 M287 176 Q352 146 419 168 M287 216 Q352 188 419 207 M296 257 Q359 228 421 245 M297 301 Q366 267 422 283" fill="none" stroke="#261b15" stroke-opacity=".57" stroke-width="9" stroke-linecap="round"/>
+<path d="M154 120 L178 91 L212 98 L225 137 M365 122 L350 97 L329 103 L308 138" fill="none" stroke="#bea88a" stroke-width="9"/>
+
+</svg>
