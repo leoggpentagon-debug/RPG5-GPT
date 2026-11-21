@@ -206,7 +206,9 @@
   } catch(error) { /* Storage is optional. */ }
 
   function imageSizeLimits() {
-    const fullHeight=Math.max(1,scenePane.clientHeight-sceneHeading.getBoundingClientRect().height);
+    // The shared scene heading now sits outside the story pane; subtract it only in legacy layouts.
+    const headingHeight=sceneHeading?.getBoundingClientRect().height||0;
+    const fullHeight=Math.max(1,scenePane.clientHeight-headingHeight);
     const actionHeight=actionPane.getBoundingClientRect().height;
     const dividerHeight=divider.getBoundingClientRect().height||12;
     const minStory=Math.min(175,Math.max(105,fullHeight*0.25));
