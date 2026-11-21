@@ -1,7 +1,7 @@
-/* Survivor Dossier asset hook v24.
+/* Survivor Dossier asset hook v26.
    Works immediately with procedural backgrounds. If the image assets ZIP is
    later uploaded at assets/ui/dossier/, image layers automatically appear.
-   Landscape index cards stack OUTSIDE the right leaf; their text stays horizontal. */
+   Landscape index cards slide from BEHIND the paper leaf; their text stays horizontal. */
 .profile-dossier {
   width:min(1100px,calc(100vw - 232px));margin-right:134px;overflow:visible;
   background-image:linear-gradient(100deg,#21120fd4,#3d2820a8 40%,#1b120fd9),url("../assets/ui/dossier/cover/leather_cover.webp"),url("../assets/ui/textures/metal_worn_texture_2048.webp");
@@ -17,7 +17,7 @@
   background-size:cover;background-position:center;
 }
 .book-right-page{
-  overflow:visible;padding-top:26px;
+  overflow:visible;padding-top:26px;padding-right:39px;
   background-image:linear-gradient(99deg,#45281930,#ffefd017 15%,#fff4d50a 83%,#51311e36),url("../assets/ui/dossier/pages/page_right.webp"),url("../assets/ui/textures/old_paper_texture.webp");
   background-size:cover;background-position:center;
 }
@@ -42,16 +42,47 @@
   width:110px;height:110px;background:url("../assets/ui/dossier/stamps/stamp_ink_ring.webp") center/contain no-repeat;
   opacity:.17;transform:rotate(18deg);
 }
+/* Physical paper lip: tab roots sit 28–39px beneath the page.
+   This foreground strip has the same paper grain and is ABOVE the tabs,
+   so they emerge from under the leaf rather than float beside it.
+   Pointer events pass through to preserve accessible controls. */
+.book-right-page::after{
+  content:"";
+  position:absolute;
+  top:0;bottom:0;right:-1px;
+  width:40px;
+  z-index:45;
+  pointer-events:none;
+  border-radius:0 4px 4px 0;
+  background:
+    linear-gradient(90deg,#dec49a13 0%,#d7b89226 27%,#c8a1784d 78%,#b28a66a8 100%),
+    url("../assets/ui/dossier/pages/page_right.webp") right center/auto 100% no-repeat,
+    url("../assets/ui/textures/old_paper_texture.webp") right center/auto 100% no-repeat,
+    #cdb08a;
+  box-shadow:
+    inset -5px 0 7px #68432933,
+    1px 0 0 #8c694b,
+    3px 0 0 #ddbf98,
+    5px 0 0 #997455,
+    8px 1px 10px #21130bc2;
+}
+@media(max-width:950px){
+  .book-right-page::after{width:35px}
+}
+@media(max-width:580px){
+  .book-right-page::after{width:29px;box-shadow:inset -3px 0 5px #68432933,2px 0 0 #dfbf98,4px 0 0 #9c7957,6px 0 8px #21130baa}
+}
+
 /* Browser buttons remain accessible, only their physical position changes. */
 .book-right-page .profile-book-tabs {
-  position:absolute;top:clamp(42px,12%,94px);right:-126px;bottom:auto;left:auto;
+  position:absolute;top:clamp(42px,12%,94px);right:-113px;bottom:auto;left:auto;
   z-index:35;display:flex;flex-direction:column;align-items:flex-start;
-  justify-content:flex-start;width:140px;height:auto;min-height:0;
+  justify-content:flex-start;width:150px;height:auto;min-height:0;
   padding:0;margin:0;gap:14px;border:none;background:transparent;overflow:visible;
 }
 .profile-book-tabs .profile-book-tab{
   box-sizing:border-box;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
-  width:140px;height:54px;min-height:0;padding:7px 11px 7px 18px;
+  width:150px;height:54px;min-height:0;padding:7px 8px 7px 39px;
   writing-mode:horizontal-tb;text-orientation:initial;white-space:nowrap;direction:ltr;letter-spacing:.025em;
   font:700 17px/1.1 var(--font-display);
   border:0;border-radius:2px 8px 8px 2px;color:#39241b;text-shadow:0 1px 0 #e4ccacb5;
@@ -116,22 +147,22 @@
 }
 @media(max-width:950px){
  .profile-dossier{width:min(770px,calc(100vw - 200px));margin-right:116px}
- .book-right-page .profile-book-tabs{width:124px;right:-110px;top:45px;gap:10px}
- .profile-book-tabs .profile-book-tab{width:124px;height:48px;padding:6px 9px 6px 16px;font-size:15px}
- .book-right-page{padding-top:18px}
+ .book-right-page .profile-book-tabs{width:128px;right:-96px;top:45px;gap:10px}
+ .profile-book-tabs .profile-book-tab{width:128px;height:48px;padding:6px 6px 6px 32px;font-size:15px}
+ .book-right-page{padding-top:18px;padding-right:36px}
 }
 @media(max-height:720px) and (min-width:581px){
  .book-right-page .profile-book-tabs{top:26px;gap:8px}
  .profile-book-tabs .profile-book-tab{height:42px;font-size:14px}
- .book-right-page{padding-top:11px}
+ .book-right-page{padding-top:11px;padding-right:36px}
 }
 @media(max-width:580px){
  .profile-dossier{width:calc(100vw - 148px);margin-right:104px;height:calc(100dvh - 14px)}
  .profile-body{overflow:visible}
  .book-left-page{flex:0 0 auto;min-height:0;max-height:185px}
- .book-right-page{min-height:0;flex:1 1 auto;padding:10px 9px}
- .book-right-page .profile-book-tabs{top:17px;right:-96px;width:108px;gap:8px}
- .profile-book-tabs .profile-book-tab{width:108px;height:42px;font-size:12px;padding:4px 5px 4px 12px}
+ .book-right-page{min-height:0;flex:1 1 auto;padding:10px 29px 10px 9px}
+ .book-right-page .profile-book-tabs{top:17px;right:-80px;width:108px;gap:8px}
+ .profile-book-tabs .profile-book-tab{width:108px;height:42px;font-size:12px;padding:4px 5px 4px 28px}
  .book-left-note::after{display:none}
  .profile-book-pages{min-height:0}
 }
