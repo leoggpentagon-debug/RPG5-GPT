@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="css/profile-book.css?v=survival-ui-16">
   <link rel="stylesheet" href="css/profile-assets.css?v=survival-ui-26">
   <link rel="stylesheet" href="css/radial-navigation.css?v=survival-ui-30">
-  <link rel="stylesheet" href="css/radial-wheel.css?v=survival-ui-34">
+  <link rel="stylesheet" href="css/radial-petals.css?v=survival-ui-35">
   <link rel="stylesheet" href="css/audio.css?v=survival-ui-18">
 </head>
 <body>
@@ -104,21 +104,31 @@
   </div>
 </div>
 
-<!-- Hover the upper edge or press Space to open the cinematic main navigation. -->
+<!-- Top-edge hover / Space opens the v35 feathered petal menu. -->
 <button type="button" id="radial-edge-trigger" class="radial-edge-trigger"
   aria-label="Открыть круговое меню разделов игры" aria-controls="radial-nav-overlay"
-  aria-haspopup="dialog" aria-expanded="false" ></button>
+  aria-haspopup="dialog" aria-expanded="false"></button>
 <div id="radial-nav-overlay" class="radial-nav-overlay" role="dialog" aria-modal="true"
   aria-label="Меню разделов игры" aria-hidden="true" inert>
   <div id="radial-nav-backdrop" class="radial-nav-backdrop" aria-hidden="true"></div>
   <div class="radial-nav-shell">
+    <div class="radial-sector-art" aria-hidden="true">
+      <img class="radial-petal radial-petal-base" data-for="story" src="assets/ui/navigation/sector_story.webp" alt="" draggable="false">
+      <img class="radial-petal radial-petal-base" data-for="inventory" src="assets/ui/navigation/sector_inventory.webp" alt="" draggable="false">
+      <img class="radial-petal radial-petal-base" data-for="characters" src="assets/ui/navigation/sector_squad.webp" alt="" draggable="false">
+      <img class="radial-petal radial-petal-base" data-for="map" src="assets/ui/navigation/sector_map.webp" alt="" draggable="false">
+      <img class="radial-petal radial-petal-hover" data-for="story" src="assets/ui/navigation/hover_story.webp" alt="" draggable="false">
+      <img class="radial-petal radial-petal-hover" data-for="inventory" src="assets/ui/navigation/hover_inventory.webp" alt="" draggable="false">
+      <img class="radial-petal radial-petal-hover" data-for="characters" src="assets/ui/navigation/hover_squad.webp" alt="" draggable="false">
+      <img class="radial-petal radial-petal-hover" data-for="map" src="assets/ui/navigation/hover_map.webp" alt="" draggable="false">
+    </div>
     <nav class="game-tabs radial-game-tabs" aria-label="Круговое меню разделов игры">
-      <button type="button" class="game-tab active" data-tab="story" aria-label="Сюжет" title="Сюжет" aria-selected="true"><img src="assets/ui/navigation/smoke-icon-story.webp" alt=""><span class="tab-caption">Сюжет</span></button>
-      <button type="button" class="game-tab" data-tab="inventory" aria-label="Инвентарь" title="Инвентарь" aria-selected="false"><img src="assets/ui/navigation/smoke-icon-inventory.webp" alt=""><span class="tab-caption">Инвентарь</span></button>
-      <button type="button" class="game-tab" data-tab="characters" aria-label="Персонажи" title="Персонажи" aria-selected="false"><img src="assets/ui/navigation/smoke-icon-characters.webp" alt=""><span class="tab-caption">Отряд</span></button>
-      <button type="button" class="game-tab" data-tab="map" aria-label="Карта" title="Карта" aria-selected="false"><img src="assets/ui/navigation/smoke-icon-map.webp" alt=""><span class="tab-caption">Карта</span></button>
+      <button type="button" class="game-tab active" data-tab="story" aria-label="Сюжет" title="Сюжет" aria-selected="true"><img class="radial-tab-icon" src="assets/ui/navigation/icon_story.svg" alt="" draggable="false"><span class="tab-caption">Сюжет</span></button>
+      <button type="button" class="game-tab" data-tab="inventory" aria-label="Инвентарь" title="Инвентарь" aria-selected="false"><img class="radial-tab-icon" src="assets/ui/navigation/icon_inventory.svg" alt="" draggable="false"><span class="tab-caption">Инвентарь</span></button>
+      <button type="button" class="game-tab" data-tab="characters" aria-label="Отряд" title="Отряд" aria-selected="false"><img class="radial-tab-icon" src="assets/ui/navigation/icon_squad.svg" alt="" draggable="false"><span class="tab-caption">Отряд</span></button>
+      <button type="button" class="game-tab" data-tab="map" aria-label="Карта" title="Карта" aria-selected="false"><img class="radial-tab-icon" src="assets/ui/navigation/icon_map.svg" alt="" draggable="false"><span class="tab-caption">Карта</span></button>
     </nav>
-    <button type="button" id="radial-nav-hub" class="radial-nav-hub" aria-label="Закрыть круговое меню"></button>
+    <button type="button" id="radial-nav-hub" class="radial-nav-hub" aria-label="Закрыть круговое меню"><img src="assets/ui/navigation/icon_biohazard.svg" alt="" draggable="false"></button>
   </div>
 </div>
 
@@ -242,7 +252,7 @@
 <script src="js/config.js?v=survival-ui-2"></script>
 <script src="js/audio.js?v=survival-ui-29"></script>
 <script src="js/game-ui.js?v=survival-ui-30"></script>
-<script src="js/radial-navigation.js?v=survival-ui-33"></script>
+<script src="js/radial-navigation.js?v=survival-ui-35"></script>
 <script src="js/profile-ui.js?v=survival-ui-29"></script>
 <script src="js/profile-book.js?v=survival-ui-18"></script>
 <script src="js/app.js?v=survival-ui-11"></script>
