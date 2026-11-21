@@ -1,4 +1,4 @@
-/* Survival UI v43 — approved layered paper Polaroid for the PLAYER only.
+/* Survival UI v44 — player Polaroid ~150% scale, tape kept at prior visual size.
    Transparent portrait -> authentic torn-paper frame -> separate angled tape.
    The character's name remains editable HTML. No extra black backing.
    Keep the existing .polaroid-player DOM so the dossier flight animation works,
@@ -8,7 +8,7 @@
   position:relative;
   display:block;
   flex:0 0 auto;
-  width:min(255px,92%);
+  width:min(382.5px,calc(100% - 12px));
   height:auto;
   aspect-ratio:1261 / 1247;
   transform:rotate(-2deg);
@@ -69,9 +69,9 @@
   content:"";
   position:absolute;
   z-index:6;
-  top:-10%;
-  left:-8%;
-  width:69%;
+  top:-6.67%;
+  left:-5.33%;
+  width:46%;
   height:auto;
   aspect-ratio:749 / 415;
   pointer-events:none;
@@ -114,7 +114,7 @@
   max-width:100%;
   margin:0;
   color:#261b13;
-  font:700 clamp(12px, .94vw, 19px)/1.05 Georgia,serif;
+  font:700 clamp(16px, 1.3vw, 25px)/1.05 Georgia,serif;
   letter-spacing:-.035em;
   white-space:nowrap;
   text-shadow:none;
@@ -128,16 +128,24 @@
   filter:drop-shadow(0 0 17px #d3513a85) drop-shadow(4px 8px 9px #0009);
 }
 
-/* Fit the existing left dossier column at 100% browser zoom. */
-@media(max-height:1000px) {
-  .polaroid.polaroid-player {width:min(224px,90%)}
-  .polaroid.polaroid-player > .hero-name strong {font-size:17px}
+/* Reserve enough space for the larger paper/portrait rather than clipping it
+   against the story. The hero column still disappears at <=720px, as before. */
+#game-shell>.game-layout {
+  grid-template-columns:clamp(458px,25vw,495px) minmax(0,1fr);
 }
-@media(max-width:1090px) {
-  .polaroid.polaroid-player {width:min(207px,88%)}
-  .polaroid.polaroid-player > .hero-name strong {font-size:14px}
+@media(max-height:1000px) {
+  .polaroid.polaroid-player {width:min(336px,calc(100% - 12px))}
+  .polaroid.polaroid-player > .hero-name strong {font-size:22px}
+}
+@media(max-width:1090px) and (min-width:721px) {
+  #game-shell>.game-layout {grid-template-columns:390px minmax(0,1fr)}
+  .polaroid.polaroid-player {width:min(310.5px,calc(100% - 12px))}
+  .polaroid.polaroid-player > .hero-name strong {font-size:18px}
 }
 @media(max-height:750px) {
-  .polaroid.polaroid-player {width:min(183px,85%)}
-  .polaroid.polaroid-player > .hero-name strong {font-size:13.5px}
+  .polaroid.polaroid-player {width:min(274.5px,calc(100% - 12px))}
+  .polaroid.polaroid-player > .hero-name strong {font-size:18px}
+}
+@media(max-width:720px) {
+  #game-shell>.game-layout {grid-template-columns:minmax(0,1fr)}
 }
