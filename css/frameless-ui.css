@@ -1,4 +1,4 @@
-/* Survival UI v39 — grunge wallpaper, restored scene photo with four-sided dissolve.
+/* Survival UI v40 — sharp scene image with narrowly feathered edges.
    Presentation only: retain all DOM, RPG state, Polaroid artwork, health/stat
    chips, status badges, buttons, textarea, journal/dossier and resize logic.
    No new image files; restore the originally approved dark-grunge background. */
@@ -128,43 +128,42 @@ body {
     #19110e;
 }
 
-/* Two independent fades combine naturally without mask-composite quirks:
-   the wrapper erases TOP/BOTTOM; the photo erases LEFT/RIGHT.
-   Both fully vanish at the boundaries so no straight rectangular rim remains.
-   Also applies to the already-approved stage fallback when no URL exists. */
+/* Feather ONLY the image edges. The entire center is fully opaque,
+   sharp and unfiltered; the page wallpaper stays the approved dark grunge.
+   Apply independent short vertical/horizontal fades for four soft borders. */
 #pane-story .scene-image-wrap {
   position:relative;
   isolation:isolate;
   border:0;
   background:transparent;
   box-shadow:none;
-  -webkit-mask-image:linear-gradient(180deg,
-    transparent 0%,rgba(0,0,0,.70) 9%,#000 20%,
-    #000 62%,rgba(0,0,0,.90) 72%,
-    rgba(0,0,0,.35) 91%,transparent 100%);
-  mask-image:linear-gradient(180deg,
-    transparent 0%,rgba(0,0,0,.70) 9%,#000 20%,
-    #000 62%,rgba(0,0,0,.90) 72%,
-    rgba(0,0,0,.35) 91%,transparent 100%);
+  -webkit-mask-image:linear-gradient(to bottom,
+    transparent 0%,rgba(0,0,0,.35) 2.5%,rgba(0,0,0,.78) 5%,
+    #000 8%,#000 92%,
+    rgba(0,0,0,.78) 95%,rgba(0,0,0,.35) 97.5%,transparent 100%);
+  mask-image:linear-gradient(to bottom,
+    transparent 0%,rgba(0,0,0,.35) 2.5%,rgba(0,0,0,.78) 5%,
+    #000 8%,#000 92%,
+    rgba(0,0,0,.78) 95%,rgba(0,0,0,.35) 97.5%,transparent 100%);
 }
 #pane-story .scene-image-wrap #scene-image {
   display:block;
   width:100%;
   height:100%;
   object-fit:cover;
-  transform:scale(1.02);
-  transform-origin:center;
-  filter:contrast(.93) saturate(.82) brightness(.88) blur(.8px);
-  -webkit-mask-image:linear-gradient(90deg,
-    transparent 0%,rgba(0,0,0,.35) 4%,rgba(0,0,0,.82) 10%,
-    #000 17%,#000 83%,rgba(0,0,0,.82) 90%,
-    rgba(0,0,0,.35) 96%,transparent 100%);
-  mask-image:linear-gradient(90deg,
-    transparent 0%,rgba(0,0,0,.35) 4%,rgba(0,0,0,.82) 10%,
-    #000 17%,#000 83%,rgba(0,0,0,.82) 90%,
-    rgba(0,0,0,.35) 96%,transparent 100%);
+  /* No global blur, dimming, desaturation or artificial enlargement. */
+  transform:none;
+  filter:none;
+  -webkit-mask-image:linear-gradient(to right,
+    transparent 0%,rgba(0,0,0,.35) 2%,rgba(0,0,0,.82) 5%,
+    #000 8%,#000 92%,
+    rgba(0,0,0,.82) 95%,rgba(0,0,0,.35) 98%,transparent 100%);
+  mask-image:linear-gradient(to right,
+    transparent 0%,rgba(0,0,0,.35) 2%,rgba(0,0,0,.82) 5%,
+    #000 8%,#000 92%,
+    rgba(0,0,0,.82) 95%,rgba(0,0,0,.35) 98%,transparent 100%);
 }
-/* The old left-only blur and a box-shaped dark overlay are removed. */
+/* No old one-sided backdrop blur or opaque gradient hiding the picture. */
 #pane-story .scene-image-wrap::before,
 #pane-story .scene-image-wrap::after {
   content:none;
