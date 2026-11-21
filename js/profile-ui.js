@@ -268,6 +268,8 @@
     overlay.setAttribute("aria-hidden","false");
     overlay.classList.remove("is-exiting");
     overlay.classList.add("is-open","is-entering");
+    // Keep Escape and keyboard focus available throughout the cinematic transition.
+    closeButton.focus({preventScroll:true});
     // The real panel is now in its final geometry, initially concealed by animation.
     void panel.offsetWidth;
     const destinationBounds=geometry(dossierPhoto);
