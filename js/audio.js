@@ -8,16 +8,16 @@
     page_turn:"page_turn.ogg",page_turn_alt:"page_turn_alt.ogg",
     paper_stamp:"paper_stamp.ogg",paper_rustle:"paper_rustle.ogg",
     leather_creak:"leather_creak.ogg",
-    ui_click:"ui_click.ogg",ui_select:"ui_select.ogg",ui_hover:"ui_hover.ogg",
+    ui_click:"ui_click.ogg",ui_hover:"ui_hover.ogg",
     ui_confirm:"ui_confirm.ogg",ui_back:"ui_back.ogg",
-    ui_open:"ui_open.ogg",ui_close:"ui_close.ogg",
+    ui_close:"ui_close.ogg",
     ui_error:"ui_error.ogg",ui_toggle:"ui_toggle.ogg"
   });
   const baseGain={
     book_open:.75,book_close:.75,page_turn:.85,page_turn_alt:.7,
     paper_stamp:.52,paper_rustle:.52,leather_creak:.4,
-    ui_click:.5,ui_select:.48,ui_hover:.19,ui_confirm:.48,
-    ui_back:.4,ui_open:.38,ui_close:.38,ui_error:.37,ui_toggle:.45
+    ui_click:.5,ui_hover:.19,ui_confirm:.48,
+    ui_back:.4,ui_close:.38,ui_error:.37,ui_toggle:.45
   };
   const STORE_ENABLED="survival.audio.enabled.v1",STORE_VOLUME="survival.audio.volume.v1";
   let enabled=true,volume=.35;
@@ -42,6 +42,8 @@
     active.clear();
   }
   function play(name,options={}){
+    // User-rejected selection/menu-open tones are blocked globally, including future call sites.
+    if(name==="ui_select"||name==="ui_open")return;
     if(!enabled||volume<=0||!Object.hasOwn(sources,name)||typeof Audio==="undefined")return;
     const now=performance.now(),minimum=name==="ui_hover"?165:45;
     if(now-(lastPlayed.get(name)||-10000)<minimum)return;
@@ -89,7 +91,7 @@
   const toggle=$("sfx-toggle"),slider=$("sfx-volume"),preview=$("sfx-preview");
   toggle?.addEventListener("click",()=>setEnabled(!enabled));
   slider?.addEventListener("input",event=>setVolume(event.target.value));
-  slider?.addEventListener("change",()=>play("ui_select",{gain:.7}));
+  // Slider feedback stays visual; no menu-selection tone.
   preview?.addEventListener("click",()=>play("book_open",{gain:.8}));
   render();
 
@@ -100,21 +102,21 @@
     if(el.closest(".profile-book-tabs")||el.closest("#hero-portrait-button")||
        el.closest("#profile-close")||el.closest("#profile-backdrop"))return;
     const id=el.id;
-    if(id==="service-toggle")return play("ui_open");
+    if(id==="service-toggle")return; // Drawer opening is silent.
     if(id==="service-close")return play("ui_close");
     if(id==="portrait-close")return play("ui_close");
-    if(id==="send"||id==="send-roll"||el.closest("#choices"))return play("ui_select");
+    if(id==="send"||id==="send-roll"||el.closest("#choices"))return;
     if(id==="save")return play("ui_click");
     if(id==="export")return play("ui_confirm");
-    if(id==="start")return play("ui_open");
+    if(id==="start")return;
     if(id==="clear-log")return play("ui_back");
     if(el.matches("summary"))return play("ui_toggle",{gain:.7});
     if(el.matches(".game-tab")){
       if(el.dataset.tab==="inventory")return play("paper_rustle",{gain:.5});
       if(el.dataset.tab==="map")return play("page_turn_alt",{gain:.5});
-      return play("ui_select");
+      return; // Other top-level tabs, including Отряд, are silent.
     }
-    if(el.closest(".party-person")||el.closest(".character-card"))return play("ui_open",{gain:.65});
+    if(el.closest(".party-person")||el.closest(".character-card"))return;
     return play("ui_click",{gain:.65});
   },true);
   // Hover audio is only for deliberate high-value controls, not every text link.
