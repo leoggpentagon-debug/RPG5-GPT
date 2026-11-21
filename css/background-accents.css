@@ -1,0 +1,45 @@
+/* Survival UI v47 — strictly local background light balance.
+   This preserves the original approved WebP and every foreground element.
+   The vignette originally provided by cinematic.css is kept unchanged. */
+
+/* Reduce the upper-right red background glow by about 12–14%.
+   The patch belongs to the page backdrop, BELOW the game-shell (z-index:1);
+   it never dims the scene picture, text, buttons or their hover states. */
+body::after {
+  background:
+    radial-gradient(ellipse 420px 260px at 86% 7%,
+      rgba(12,8,7,.14) 0%,
+      rgba(12,8,7,.115) 42%,
+      rgba(12,8,7,0) 100%),
+    radial-gradient(ellipse at center,transparent 48%,#0006 100%);
+}
+
+/* Very soft, naturally feathered shade directly BEHIND the two Polaroid
+   clusters — not a global dimmer and not a visible dark card. */
+#game-shell .hero-sidebar .hero-identity,
+#game-shell .hero-sidebar .companions-card {
+  position:relative;
+  isolation:isolate;
+}
+#game-shell .hero-sidebar .hero-identity::before {
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:-15% -10%;
+  pointer-events:none;
+  background:radial-gradient(ellipse 72% 72% at 50% 51%,
+    rgba(9,7,6,.19) 0%,
+    rgba(9,7,6,.10) 50%,
+    rgba(9,7,6,0) 83%);
+}
+#game-shell .hero-sidebar .companions-card::before {
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:30px -10px -8px;
+  pointer-events:none;
+  background:radial-gradient(ellipse 75% 64% at 50% 40%,
+    rgba(9,7,6,.18) 0%,
+    rgba(9,7,6,.085) 53%,
+    rgba(9,7,6,0) 86%);
+}
