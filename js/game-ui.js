@@ -41,9 +41,11 @@
     if(!pages.length) {
       const p=document.createElement("p");p.textContent="Подключаюсь к сохранённой истории…";story.append(p);
     } else {
-      const entry=pages[pageIndex],speaker=document.createElement("span"),p=document.createElement("p");
-      speaker.className="story-speaker";speaker.textContent=entry.speaker;
-      p.textContent=entry.text||"…";story.append(speaker,p);
+      for(const entry of pages[pageIndex]) {
+        const speaker=document.createElement("span"),p=document.createElement("p");
+        speaker.className="story-speaker";speaker.textContent=entry.speaker;
+        p.textContent=entry.text||"…";story.append(speaker,p);
+      }
     }
     counter.textContent=pages.length?(pageIndex+1)+" / "+pages.length:"— / —";
     prev.disabled=pageIndex<=0;next.disabled=pageIndex>=pages.length-1;
@@ -61,8 +63,27 @@
       const body=bubble.querySelector("div")?.textContent||"";
       for(const piece of splitNarrative(body))built.push({speaker:label,text:piece});
     }
+    // Pack nearby dialogue and narration into actual pages, not one bubble per page.
+    const grouped=[];let group=[],used=0;
+    for(const item of built) {
+      const size=item.text.length + Math.min(70,item.speaker.length);
+      if(group.length && (used+size>1450 || group.length>=4)) {
+        grouped.push(group);group=[];used=0;
+      }
+      group.push(item);used+=size;
+    }
+    if(group.length)grouped.push(group);
+    // Avoid a last page consisting of just one short NPC sentence.
+    if(grouped.length>1) {
+      const last=grouped[grouped.length-1],lastLength=last.reduce((n,e)=>n+e.text.length,0);
+      const previous=grouped[grouped.length-2];
+      if(lastLength<350 && previous.length>1) {
+        last.unshift(previous.pop());
+        if(!previous.length)grouped.splice(grouped.length-2,1);
+      }
+    }
     const latest=wasEmpty || pageIndex>=pages.length-1;
-    pages=built;pageIndex=pages.length?(latest?pages.length-1:Math.min(pageIndex,pages.length-1)):0;
+    pages=grouped;pageIndex=pages.length?(latest?pages.length-1:Math.min(pageIndex,pages.length-1)):0;
     wasEmpty=pages.length===0;showPage();
   }
   let scheduled=false;
