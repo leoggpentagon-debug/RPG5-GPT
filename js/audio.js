@@ -101,8 +101,20 @@
     try{activeStat.pause();activeStat.currentTime=0}catch(error){}
     active.delete(activeStat);activeStat=null;
   }
+  // Prime the browser cache when the user opens the diary, not on every visit.
+  // This only downloads five tiny clips; it never starts audible playback.
+  const statPreloads=[];
+  function preloadStats(){
+    if(statPreloads.length||typeof Audio==="undefined")return;
+    for(const key of ["health","stamina","stress","hunger","thirst"]){
+      const audio=new Audio(ROOT+sources["stat_"+key]);
+      audio.preload="auto";
+      statPreloads.push(audio);
+      audio.load();
+    }
+  }
   window.RPG6_SFX=Object.freeze({
-    play,playStat:key=>play("stat_"+key),stopStat,setEnabled,setVolume,
+    play,playStat:key=>play("stat_"+key),preloadStats,stopStat,setEnabled,setVolume,
     get enabled(){return enabled},get volume(){return volume}
   });
 
