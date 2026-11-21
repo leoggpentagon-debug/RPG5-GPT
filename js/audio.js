@@ -11,13 +11,20 @@
     ui_click:"ui_click.ogg",ui_select:"ui_select.ogg",ui_hover:"ui_hover.ogg",
     ui_confirm:"ui_confirm.ogg",ui_back:"ui_back.ogg",
     ui_open:"ui_open.ogg",ui_close:"ui_close.ogg",
-    ui_error:"ui_error.ogg",ui_toggle:"ui_toggle.ogg"
+    ui_error:"ui_error.ogg",ui_toggle:"ui_toggle.ogg",
+    // Thematic, CC0, permanent hotlinks from SFXMint; Kenney spark is hosted locally.
+    stat_health:"https://sfxmint.com/dl/horror-heartbeat-52.mp3",
+    stat_stamina:"stat_electric.ogg",
+    stat_stress:"https://sfxmint.com/dl/whisper-09.mp3",
+    stat_hunger:"https://sfxmint.com/dl/cutlery-01.mp3",
+    stat_thirst:"https://sfxmint.com/dl/water-drip-75.mp3"
   });
   const baseGain={
     book_open:.75,book_close:.75,page_turn:.85,page_turn_alt:.7,
     paper_stamp:.52,paper_rustle:.52,leather_creak:.4,
     ui_click:.5,ui_select:.48,ui_hover:.19,ui_confirm:.48,
-    ui_back:.4,ui_open:.38,ui_close:.38,ui_error:.37,ui_toggle:.45
+    ui_back:.4,ui_open:.38,ui_close:.38,ui_error:.37,ui_toggle:.45,
+    stat_health:1,stat_stamina:.70,stat_stress:.95,stat_hunger:.88,stat_thirst:1
   };
   const STORE_ENABLED="survival.audio.enabled.v1",STORE_VOLUME="survival.audio.volume.v1";
   let enabled=true,volume=.35;
@@ -49,13 +56,26 @@
     const gain=Number.isFinite(Number(options.gain))?Math.max(0,Math.min(1,Number(options.gain))):1;
     if(active.size>=8){const first=active.values().next().value;if(first){try{first.pause()}catch(error){}active.delete(first)}}
     try{
-      const sound=new Audio(ROOT+sources[name]);
+      const url=sources[name];
+      const sound=new Audio(/^https:\/\//.test(url)?url:ROOT+url);
       sound.preload="auto";
       sound.volume=Math.max(0,Math.min(1,volume*(baseGain[name]??.5)*gain));
       const cleanup=()=>active.delete(sound);
       sound.addEventListener("ended",cleanup,{once:true});
       sound.addEventListener("error",cleanup,{once:true});
       active.add(sound);
+      // The clip's audible playback, not its network loading, determines duration.
+      const limit=Number(options.maxMs);
+      if(Number.isFinite(limit)&&limit>100){
+        sound.addEventListener("playing",()=>{
+          const fadeLength=Math.min(220,limit*.3),fadeSteps=4;
+          const startingVolume=sound.volume;
+          for(let n=1;n<=fadeSteps;n++)setTimeout(()=>{
+            if(active.has(sound))sound.volume=startingVolume*(1-n/fadeSteps);
+          },Math.max(0,limit-fadeLength)+n*fadeLength/fadeSteps);
+          setTimeout(()=>{if(active.has(sound)){sound.pause();cleanup()}},limit+30);
+        },{once:true});
+      }
       const result=sound.play();
       if(result&&typeof result.catch==="function")result.catch(cleanup);
       return sound;
@@ -121,7 +141,7 @@
   document.addEventListener("pointerover",event=>{
     if(event.pointerType==="touch")return;
     const target=event.target instanceof Element?event.target.closest(
-      ".game-tab,.profile-book-tab,.profile-stat,#choices button,.service-drawer button"
+      ".game-tab,.profile-book-tab,#choices button,.service-drawer button"
     ):null;
     if(!target||target.disabled||target.closest("#sound-settings")||
        (event.relatedTarget instanceof Node&&target.contains(event.relatedTarget)))return;
