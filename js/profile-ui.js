@@ -271,6 +271,7 @@
     wasOpen=true;phase="opening";
     const serial=++sequence;
     previousFocus=document.activeElement;
+    window.RPG6_SFX?.preloadStats();
     panel.style.opacity="";
     setProfileValues();
     stopMotion();
