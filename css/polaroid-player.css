@@ -1,4 +1,4 @@
-/* Survival UI v44 — player Polaroid ~150% scale, tape kept at prior visual size.
+/* Survival UI v45 — portrait-only enlargement, unified diary paper, stable layout.
    Transparent portrait -> authentic torn-paper frame -> separate angled tape.
    The character's name remains editable HTML. No extra black backing.
    Keep the existing .polaroid-player DOM so the dossier flight animation works,
@@ -8,10 +8,12 @@
   position:relative;
   display:block;
   flex:0 0 auto;
-  width:min(382.5px,calc(100% - 12px));
+  width:min(255px,92%);
   height:auto;
   aspect-ratio:1261 / 1247;
-  transform:rotate(-2deg);
+  /* Only visually enlarge the Polaroid; never change the sidebar grid. */
+  transform:rotate(-2deg) scale(1.23);
+  transform-origin:center center;
   isolation:isolate;
   overflow:visible;
   background:transparent;
@@ -114,7 +116,7 @@
   max-width:100%;
   margin:0;
   color:#261b13;
-  font:700 clamp(16px, 1.3vw, 25px)/1.05 Georgia,serif;
+  font:700 clamp(12px, .94vw, 19px)/1.05 Georgia,serif;
   letter-spacing:-.035em;
   white-space:nowrap;
   text-shadow:none;
@@ -128,24 +130,130 @@
   filter:drop-shadow(0 0 17px #d3513a85) drop-shadow(4px 8px 9px #0009);
 }
 
-/* Reserve enough space for the larger paper/portrait rather than clipping it
-   against the story. The hero column still disappears at <=720px, as before. */
-#game-shell>.game-layout {
-  grid-template-columns:clamp(458px,25vw,495px) minmax(0,1fr);
-}
+/* Exactly the v43 column size: only this image visually scales up.
+   At shorter viewports scale back slightly to preserve the nearby-people block.
+   No #game-shell > .game-layout grid rules appear in this file. */
 @media(max-height:1000px) {
-  .polaroid.polaroid-player {width:min(336px,calc(100% - 12px))}
-  .polaroid.polaroid-player > .hero-name strong {font-size:22px}
+  .polaroid.polaroid-player {width:min(224px,90%);transform:rotate(-2deg) scale(1.20)}
+  .polaroid.polaroid-player > .hero-name strong {font-size:17px}
 }
 @media(max-width:1090px) and (min-width:721px) {
-  #game-shell>.game-layout {grid-template-columns:390px minmax(0,1fr)}
-  .polaroid.polaroid-player {width:min(310.5px,calc(100% - 12px))}
-  .polaroid.polaroid-player > .hero-name strong {font-size:18px}
+  .polaroid.polaroid-player {width:min(207px,88%);transform:rotate(-2deg) scale(1.17)}
+  .polaroid.polaroid-player > .hero-name strong {font-size:14px}
 }
 @media(max-height:750px) {
-  .polaroid.polaroid-player {width:min(274.5px,calc(100% - 12px))}
-  .polaroid.polaroid-player > .hero-name strong {font-size:18px}
+  .polaroid.polaroid-player {width:min(183px,85%);transform:rotate(-2deg) scale(1.14)}
+  .polaroid.polaroid-player > .hero-name strong {font-size:13.5px}
 }
-@media(max-width:720px) {
-  #game-shell>.game-layout {grid-template-columns:minmax(0,1fr)}
+
+/* Exactly the same two approved WebP layers in the open character diary:
+   real character photo -> paper frame -> independent tape -> HTML name.
+   Use a transparent base and the original full-resolution character photo. */
+.profile-polaroid {
+  position:relative;
+  display:block;
+  flex:0 0 auto;
+  width:min(280px,85%);
+  height:auto;
+  aspect-ratio:1261 / 1247;
+  padding:0;
+  margin:0;
+  isolation:isolate;
+  overflow:visible;
+  transform:rotate(-2deg);
+  background:none;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  filter:none;
+}
+.profile-polaroid > #profile-photo {
+  position:absolute;
+  z-index:2;
+  display:block;
+  top:9.1%;
+  left:13.1%;
+  width:73.8%;
+  height:72%;
+  margin:0;
+  padding:0;
+  object-fit:cover;
+  object-position:center 33%;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+}
+.profile-polaroid::after {
+  content:"";
+  position:absolute;
+  z-index:4;
+  inset:0;
+  pointer-events:none;
+  background:url("../assets/ui/portraits/polaroid_player_paper_frame.webp")
+    center / 100% 100% no-repeat;
+  opacity:1;
+  border:0;
+  box-shadow:none;
+}
+.profile-polaroid::before {
+  content:"";
+  position:absolute;
+  z-index:6;
+  top:-6.67%;
+  left:-5.33%;
+  width:46%;
+  height:auto;
+  aspect-ratio:749 / 415;
+  pointer-events:none;
+  background:url("../assets/ui/portraits/polaroid_player_tape.webp")
+    center / contain no-repeat;
+  opacity:1;
+  transform:none;
+  filter:none;
+  box-shadow:none;
+}
+.profile-polaroid > .profile-photo-label {
+  position:absolute;
+  z-index:8;
+  top:80.8%;
+  bottom:auto;
+  left:9.1%;
+  width:54.5%;
+  max-width:none;
+  min-width:0;
+  height:10%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  transform:rotate(-1deg);
+  background:transparent;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  text-align:center;
+  pointer-events:none;
+}
+.profile-polaroid > .profile-photo-label strong {
+  display:block;
+  max-width:100%;
+  color:#261b13;
+  font:700 clamp(10px,1.02vw,19px)/1.05 Georgia,serif;
+  letter-spacing:-.035em;
+  white-space:nowrap;
+  text-shadow:none;
+}
+
+/* Keep the diary's pre-existing responsive space budget. */
+@media(max-height:810px) {
+  .profile-polaroid {width:min(210px,83%)}
+}
+@media(max-width:950px) {
+  .profile-polaroid {width:min(208px,91%)}
+}
+@media(max-width:580px) {
+  .profile-polaroid {width:125px}
+  .profile-polaroid > .profile-photo-label strong {font-size:10px}
 }
