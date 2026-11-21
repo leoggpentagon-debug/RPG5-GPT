@@ -34,8 +34,9 @@
   function chooseStat(button){
     if(!button)return;
     for(const el of $("profile-stats").querySelectorAll(".profile-stat"))el.classList.toggle("selected",el===button);
-    $("profile-condition-detail").textContent=button.dataset.status||button.dataset.label||"Нет сведений";
-    $("profile-condition-value").textContent=button.dataset.label+" · "+button.dataset.value;
+    $("profile-condition-detail").textContent=button.dataset.label||"Нет сведений";
+    $("profile-condition-value").textContent=button.dataset.value||"—";
+    const description=$("profile-status-description");if(description)description.textContent=button.dataset.status||"Подробности не указаны.";
   }
   function drawStats(stats){
     const target=$("profile-stats");target.replaceChildren();
@@ -242,6 +243,8 @@
   }
   function finishClosing(serial){
     if(serial!==sequence||phase!=="closing")return;
+    // Freeze the panel invisible before removing WAAPI fill, avoiding a one-frame flash.
+    panel.style.opacity="0";
     stopMotion();
     dossierPhoto.style.opacity="";
     photoFrame.classList.remove("dossier-source-hidden","dossier-source-lift");
@@ -257,6 +260,7 @@
     wasOpen=true;phase="opening";
     const serial=++sequence;
     previousFocus=document.activeElement;
+    panel.style.opacity="";
     setProfileValues();
     stopMotion();
     const sourceBounds=geometry(photoFrame);
@@ -290,7 +294,7 @@
     animateIcons(true,destinationBounds);
     animateSections(true);
     // Opening reaches its final resting state after the last radial icon.
-    finishTimer=setTimeout(()=>finishOpening(serial),1650);
+    finishTimer=setTimeout(()=>finishOpening(serial),1780);
   }
   function closeProfile(){
     if(!wasOpen||phase==="closed"||phase==="closing")return;
