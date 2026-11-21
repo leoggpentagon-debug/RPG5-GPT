@@ -31,3 +31,22 @@ not required, but their sources are preserved here for provenance and re-use.
 | `assets/audio/ui_toggle.ogg` | `audio/interface-sounds/switch_001.ogg` |
 
 Audio is client-only feedback; sounds do not modify game state or imply success.
+
+## Character stat sounds (November 2026)
+
+Hover/focus previews use five distinct short effects. They do not modify RPG6 state.
+
+| Stat | Sound / Source | License |
+| --- | --- | --- |
+| Health | [Muffled Through Wall Heartbeat 52](https://sfxmint.com/sounds/horror-heartbeat-52) | CC0 1.0 |
+| Stamina | Kenney [Digital Audio](https://kenney.nl/assets/digital-audio) (zap1.ogg), locally copied as assets/audio/stat_electric.ogg | CC0 1.0 |
+| Stress | [Trembling Whisper 09](https://sfxmint.com/sounds/whisper) | CC0 1.0 |
+| Hunger | [Fork on Ceramic 01](https://sfxmint.com/sounds/cutlery) | CC0 1.0 |
+| Thirst | [Single Water Drip 75](https://sfxmint.com/sounds/water-drip-75) | CC0 1.0 |
+
+SFXMint audio streams (health, stress, hunger, thirst) use external direct MP3 hotlinks,
+not repository copies. They require internet and are subject to remote-host uptime.
+SFXMint permits hotlinking and distributes these AI-generated effects under CC0:
+https://sfxmint.com/license
+
+Kenney's stamina zap is self-hosted, using the same CC0 mirror as the other Kenney audio.
