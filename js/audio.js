@@ -10,18 +10,22 @@
     leather_creak:"leather_creak.ogg",
     ui_click:"ui_click.ogg",ui_hover:"ui_hover.ogg",
     ui_confirm:"ui_confirm.ogg",ui_back:"ui_back.ogg",
-    ui_error:"ui_error.ogg",ui_toggle:"ui_toggle.ogg"
+    ui_error:"ui_error.ogg",ui_toggle:"ui_toggle.ogg",
+    stat_health:"stat_health.ogg",stat_stamina:"stat_stamina.ogg",
+    stat_stress:"stat_stress.ogg",stat_hunger:"stat_hunger.ogg",stat_thirst:"stat_thirst.ogg"
   });
   const baseGain={
     book_open:.75,book_close:.75,page_turn:.85,page_turn_alt:.7,
     paper_stamp:.52,paper_rustle:.52,leather_creak:.4,
     ui_click:.5,ui_hover:.19,ui_confirm:.48,
-    ui_back:.4,ui_error:.37,ui_toggle:.45
+    ui_back:.4,ui_error:.37,ui_toggle:.45,
+    stat_health:.86,stat_stamina:.72,stat_stress:.8,stat_hunger:.6,stat_thirst:.95
   };
   const STORE_ENABLED="survival.audio.enabled.v1",STORE_VOLUME="survival.audio.volume.v1";
   let enabled=true,volume=.35;
   const active=new Set();
   const lastPlayed=new Map();
+  let activeStat=null,lastStatTime=-10000,lastStatKey="";
   const $=id=>document.getElementById(id);
   try{
     const saved=localStorage.getItem(STORE_ENABLED);
@@ -38,25 +42,32 @@
   }
   function silence(){
     for(const sound of active){try{sound.pause();sound.currentTime=0}catch(error){}}
-    active.clear();
+    active.clear();activeStat=null;
   }
   function play(name,options={}){
     // Reject the unwanted selection, drawer-open and drawer-close tones globally.
     if(name==="ui_select"||name==="ui_open"||name==="ui_close")return;
     if(!enabled||volume<=0||!Object.hasOwn(sources,name)||typeof Audio==="undefined")return;
-    const now=performance.now(),minimum=name==="ui_hover"?165:45;
+    const now=performance.now(),isStat=name.startsWith("stat_"),minimum=name==="ui_hover"?165:45;
+    if(isStat&&(now-lastStatTime<300||(name===lastStatKey&&now-lastStatTime<1000)))return;
     if(now-(lastPlayed.get(name)||-10000)<minimum)return;
     lastPlayed.set(name,now);
+    if(isStat){lastStatTime=now;lastStatKey=name;}
     const gain=Number.isFinite(Number(options.gain))?Math.max(0,Math.min(1,Number(options.gain))):1;
     if(active.size>=8){const first=active.values().next().value;if(first){try{first.pause()}catch(error){}active.delete(first)}}
     try{
+      if(isStat&&activeStat){
+        try{activeStat.pause();activeStat.currentTime=0;}catch(error){}
+        active.delete(activeStat);activeStat=null;
+      }
       const sound=new Audio(ROOT+sources[name]);
       sound.preload="auto";
       sound.volume=Math.max(0,Math.min(1,volume*(baseGain[name]??.5)*gain));
-      const cleanup=()=>active.delete(sound);
+      const cleanup=()=>{active.delete(sound);if(activeStat===sound)activeStat=null;};
       sound.addEventListener("ended",cleanup,{once:true});
       sound.addEventListener("error",cleanup,{once:true});
       active.add(sound);
+      if(isStat)activeStat=sound;
       const result=sound.play();
       if(result&&typeof result.catch==="function")result.catch(cleanup);
       return sound;
@@ -85,7 +96,15 @@
     volume=Math.max(0,Math.min(1,next/100));store();render();
     for(const sound of active)try{sound.volume=Math.min(sound.volume,volume)}catch(error){}
   }
-  window.RPG6_SFX=Object.freeze({play,setEnabled,setVolume,get enabled(){return enabled},get volume(){return volume}});
+  function stopStat(){
+    if(!activeStat)return;
+    try{activeStat.pause();activeStat.currentTime=0}catch(error){}
+    active.delete(activeStat);activeStat=null;
+  }
+  window.RPG6_SFX=Object.freeze({
+    play,playStat:key=>play("stat_"+key),stopStat,setEnabled,setVolume,
+    get enabled(){return enabled},get volume(){return volume}
+  });
 
   const toggle=$("sfx-toggle"),slider=$("sfx-volume"),preview=$("sfx-preview");
   toggle?.addEventListener("click",()=>setEnabled(!enabled));
@@ -98,7 +117,7 @@
   document.addEventListener("click",event=>{
     const el=event.target instanceof Element?event.target.closest("button,summary"):null;
     if(!el||el.disabled||el.closest("#sound-settings"))return;
-    if(el.closest(".profile-book-tabs")||el.closest("#hero-portrait-button")||
+    if(el.closest(".profile-book-tabs")||el.closest(".profile-stat")||el.closest("#hero-portrait-button")||
        el.closest("#profile-close")||el.closest("#profile-backdrop"))return;
     const id=el.id;
     if(id==="service-toggle")return; // Drawer opening is silent.
@@ -122,7 +141,7 @@
   document.addEventListener("pointerover",event=>{
     if(event.pointerType==="touch")return;
     const target=event.target instanceof Element?event.target.closest(
-      ".game-tab,.profile-book-tab,.profile-stat,#choices button,.service-drawer button"
+      ".game-tab,.profile-book-tab,#choices button,.service-drawer button"
     ):null;
     if(!target||target.disabled||target.closest("#sound-settings")||
        (event.relatedTarget instanceof Node&&target.contains(event.relatedTarget)))return;
