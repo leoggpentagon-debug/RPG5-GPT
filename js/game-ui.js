@@ -136,42 +136,42 @@
     if(frame.getAttribute("src")!==src)frame.src=src;
     frame.hidden=false;placeholder.hidden=true;
   }
-  // The grunge texture belongs to the PAGE, not the scene photo.
-  // If no real image is supplied, the story uses the whole area: no stock street.
+  // Full-page wallpaper remains dark grunge. The approved street asset is
+  // only a SCENE fallback and never a replacement for the page background.
   function updateImage(scene,observable) {
+    const fallback="assets/ui/background/background_cinematic_street_2k.webp";
     const source=scene.image_url||scene.scene_image_url||observable.scene_image_url||observable.image_url;
-    const url=typeof source==="string"?source.trim():"";
+    const realImage=typeof source==="string" && /^https:\/\//i.test(source.trim());
+    const requested=realImage?source.trim():fallback;
     const wrap=$("scene-image-wrap"),image=$("scene-image"),divider=$("stage-divider");
-    image.onload=null;
-    image.onerror=null;
-    function hideSceneImage() {
-      image.onload=null;
-      image.onerror=null;
-      image.removeAttribute("src");
-      image.alt="";
-      wrap.hidden=true;
-      if(divider)divider.hidden=true;
-    }
-    if(!/^https:\/\//i.test(url)) {
-      hideSceneImage();
-      return;
-    }
-    image.alt="Изображение текущей сцены";
-    image.onload=()=>{
+    const showImage=()=>{
       wrap.hidden=false;
       if(divider)divider.hidden=false;
       applyImageRatio();
     };
-    image.onerror=hideSceneImage;
-    if(image.getAttribute("src")!==url) {
+    const hideBrokenImage=()=>{
+      image.onerror=null;
+      image.onload=null;
+      image.removeAttribute("src");
       wrap.hidden=true;
       if(divider)divider.hidden=true;
-      image.src=url;
-    } else if(image.complete && image.naturalWidth>0) {
-      wrap.hidden=false;
-      if(divider)divider.hidden=false;
-      applyImageRatio();
-    }
+    };
+    image.onload=showImage;
+    image.onerror=()=>{
+      image.onerror=null;
+      if(image.getAttribute("src")!==fallback) {
+        // Only a failed remote scene request falls back to the approved image.
+        image.alt="Атмосферное изображение сцены";
+        image.onerror=hideBrokenImage;
+        image.src=fallback;
+        showImage();
+      } else hideBrokenImage();
+    };
+    image.alt=realImage?"Изображение текущей сцены":"Атмосферное изображение сцены";
+    // Keep the stage visible through scene updates; do not hide it for missing
+    // scene_image_url or while a new image loads.
+    showImage();
+    if(image.getAttribute("src")!==requested) image.src=requested;
   }
   function updateJournal(scene,observable,hero) {
     // Journal tab is now the Objectives section inside the survivor dossier.
