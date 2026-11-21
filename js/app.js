@@ -129,7 +129,7 @@
     }
     $("party").replaceChildren();const party=many(observable.characters).filter(x=>x?.character_id!=="oliver_hayes");
     for(const person of party){const id=person?.character_id,name=nameById[id]||"Человек рядом";const row=child("div","party-person");
-      const imagePath=portrait(id);if(imagePath){const img=child("img");img.src=imagePath;img.alt=name;img.addEventListener("click",()=>zoom(imagePath,name));const frame=child("div","polaroid polaroid-npc");const portraitButton=child("button","portrait-button");portraitButton.type="button";portraitButton.setAttribute("aria-label","Увеличить портрет "+name);portraitButton.append(img);portraitButton.addEventListener("click",()=>zoom(imagePath,name));frame.append(portraitButton);row.append(frame)}
+      const imagePath=portrait(id);if(imagePath){const img=child("img");img.src=imagePath;img.alt=name;const frame=child("div","polaroid polaroid-npc");const portraitButton=child("button","portrait-button");portraitButton.type="button";portraitButton.setAttribute("aria-label","Увеличить портрет "+name);portraitButton.append(img);portraitButton.addEventListener("click",()=>zoom(imagePath,name));frame.append(portraitButton);row.append(frame)}
       const details=child("div");details.append(child("strong","",name),child("small","",id));row.append(details);$("party").append(row);
     }
     if(!party.length)$("party").append(child("p","muted","Никого рядом не установлено"));
