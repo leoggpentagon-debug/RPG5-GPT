@@ -131,12 +131,19 @@
   const dossierPhoto=panel.querySelector(".profile-polaroid");
   const prefersReducedMotion=window.matchMedia("(prefers-reduced-motion: reduce)");
   const canAnimate=typeof panel.animate==="function";
-  let phase="closed",sequence=0,animations=[],flyingPhoto=null,finishTimer=null;
+  let phase="closed",sequence=0,animations=[],flyingPhoto=null,finishTimer=null,soundTimers=[];
   function stopMotion(){
     if(finishTimer!==null){clearTimeout(finishTimer);finishTimer=null;}
+    for(const timer of soundTimers)clearTimeout(timer);
+    soundTimers=[];
     for(const animation of animations){try{animation.cancel()}catch(error){}}
     animations=[];
     if(flyingPhoto){flyingPhoto.remove();flyingPhoto=null;}
+  }
+  function cue(name,delay=0,gain=1){
+    const trigger=()=>window.RPG6_SFX?.play(name,{gain});
+    if(delay<=0){trigger();return;}
+    soundTimers.push(setTimeout(trigger,delay));
   }
   function animatePart(node,frames,options){
     if(!canAnimate||!node)return null;
@@ -283,8 +290,13 @@
       overlay.classList.remove("is-entering");
       phase="open";
       closeButton.focus({preventScroll:true});
+      cue("book_open",0,.8);
       return;
     }
+    cue("paper_rustle",0,.55);
+    cue("book_open",210,.75);
+    cue("leather_creak",460,.38);
+    cue("paper_stamp",1060,.42);
     const ghost=createFlightClone(photoFrame,sourceBounds);
     photoFrame.classList.add("dossier-source-hidden","dossier-source-lift");
     dossierPhoto.style.opacity="0";
@@ -315,9 +327,12 @@
     overlay.classList.add("is-exiting");
     overlay.classList.remove("is-entering");
     if(prefersReducedMotion.matches||!canAnimate){
+      cue("book_close",0,.75);
       finishClosing(serial);
       return;
     }
+    cue("book_close",160,.82);
+    cue("paper_rustle",425,.28);
     const startingBounds=geometry(dossierPhoto),endBounds=geometry(photoFrame);
     const ghost=createFlightClone(dossierPhoto,startingBounds);
     dossierPhoto.style.opacity="0";
