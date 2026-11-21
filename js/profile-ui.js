@@ -189,10 +189,9 @@
     panel.querySelectorAll(".profile-stat").forEach((icon,index)=>{
       const box=geometry(icon);
       const dx=photoCenter.centerX-box.centerX,dy=photoCenter.centerY-box.centerY;
-      const base="translate(-50%, -50%)";
-      const start=base+" translate("+dx+"px,"+dy+"px) scale(.20) rotate(-28deg)";
-      const middle=base+" translate("+(dx*.12-15)+"px,"+(dy*.16-8)+"px) scale(1.17) rotate(9deg)";
-      const finish=base+" translate(0px,0px) scale(1) rotate(0deg)";
+      const start="translate("+dx+"px,"+dy+"px) scale(.20) rotate(-25deg)";
+      const middle="translate("+(dx*.12-10)+"px,"+(dy*.16-7)+"px) scale(1.12) rotate(7deg)";
+      const finish="translate(0px,0px) scale(1) rotate(0deg)";
       const frames=outward?[
         {offset:0,opacity:0,transform:start,filter:"brightness(1.55)"},
         {offset:.73,opacity:1,transform:middle,filter:"brightness(1.2)"},
@@ -210,8 +209,14 @@
     });
   }
   function animateSections(opening){
-    const elements=[panel.querySelector(".profile-topbar"),panel.querySelector(".profile-stats-section h2"),
-      panel.querySelector(".profile-hint"),...panel.querySelectorAll(".profile-details .profile-section")];
+    const elements=[
+      panel.querySelector(".profile-topbar"),
+      panel.querySelector(".book-left-note"),
+      panel.querySelector(".profile-book-tabs"),
+      panel.querySelector(".profile-page-heading"),
+      panel.querySelector(".profile-status-description"),
+      panel.querySelector(".profile-book-footer")
+    ];
     elements.forEach((node,index)=>{
       if(!node)return;
       const frames=opening?[
