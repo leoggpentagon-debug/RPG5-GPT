@@ -14,30 +14,17 @@
   <link rel="stylesheet" href="css/profile-motion.css?v=survival-ui-13">
   <link rel="stylesheet" href="css/profile-book.css?v=survival-ui-16">
   <link rel="stylesheet" href="css/profile-assets.css?v=survival-ui-26">
+  <link rel="stylesheet" href="css/radial-navigation.css?v=survival-ui-30">
   <link rel="stylesheet" href="css/audio.css?v=survival-ui-18">
 </head>
 <body>
 <div class="game-shell" id="game-shell">
-  <header class="game-header">
-    <div class="brand"><div class="brand-art" aria-label="28 Days Later Survival"></div></div>
-    <nav class="game-tabs" aria-label="Разделы игры">
-      <button type="button" class="game-tab active" data-tab="story" aria-label="Сюжет" title="Сюжет" aria-selected="true"><img src="assets/ui/icons/tab_story.webp" alt=""><span class="tab-caption">Сюжет</span></button>
-      <button type="button" class="game-tab" data-tab="inventory" aria-label="Инвентарь" title="Инвентарь" aria-selected="false"><img src="assets/ui/icons/tab_inventory.webp" alt=""><span class="tab-caption">Инвентарь</span></button>
-      <button type="button" class="game-tab" data-tab="characters" aria-label="Персонажи" title="Персонажи" aria-selected="false"><img src="assets/ui/icons/tab_characters.webp" alt=""><span class="tab-caption">Отряд</span></button>
-      <button type="button" class="game-tab" data-tab="map" aria-label="Карта" title="Карта" aria-selected="false"><img src="assets/ui/icons/tab_map.webp" alt=""><span class="tab-caption">Карта</span></button>
-    </nav>
-    <div class="header-right">
-      <div class="world-status" aria-label="День, погодные условия и время">
-        <span class="world-day" id="world-day">День —</span>
-        <span class="world-weather" id="world-weather" role="img" aria-label="Погода не указана" title="Погода не указана">🌡️?</span>
-        <span class="world-time" id="world-time">—:—</span>
-      </div>
-      <button type="button" id="service-toggle" class="icon-button menu-toggle" aria-label="Открыть служебное меню" aria-expanded="false" aria-controls="service-drawer"><span></span><span></span><span></span></button>
-    </div>
-  </header>
 
   <div class="game-layout">
     <aside class="hero-sidebar" aria-label="Игрок и персонажи рядом">
+      <div class="sidebar-brand" aria-label="28 Days Later Survival">
+        <div class="brand"><div class="brand-art" aria-label="28 Days Later Survival"></div></div>
+      </div>
       <section class="sidebar-card hero-card">
         
         <div class="hero-identity">
@@ -55,11 +42,21 @@
     </aside>
 
     <main class="content" id="main-content">
-      <section class="game-pane visible story-pane" id="pane-story" data-pane="story">
-        <div class="scene-heading">
+      <div class="scene-heading">
+        <div class="scene-heading-main">
           <div><h1 id="scene-title">Продолжение истории</h1><p id="scene-location">Загрузка текущей локации…</p></div>
           <span class="chapter-mark" aria-hidden="true">☣</span>
         </div>
+        <div class="header-right">
+          <div class="world-status" aria-label="День, погодные условия и время">
+            <span class="world-day" id="world-day">День —</span>
+            <span class="world-weather" id="world-weather" role="img" aria-label="Погода не указана" title="Погода не указана">🌡️?</span>
+            <span class="world-time" id="world-time">—:—</span>
+          </div>
+          <button type="button" id="service-toggle" class="icon-button menu-toggle" aria-label="Открыть служебное меню" aria-expanded="false" aria-controls="service-drawer"><span></span><span></span><span></span></button>
+        </div>
+      </div>
+      <section class="game-pane visible story-pane" id="pane-story" data-pane="story">
         <div id="scene-image-wrap" class="scene-image-wrap">
           <img id="scene-image" src="assets/ui/background/background_cinematic_street_2k.webp" alt="Атмосферный фон текущей сцены" referrerpolicy="no-referrer">
         </div>
@@ -103,6 +100,30 @@
       </section>
 
     </main>
+  </div>
+</div>
+
+<!-- Hover the upper edge or press Space to open the cinematic main navigation. -->
+<button type="button" id="radial-edge-trigger" class="radial-edge-trigger"
+  aria-label="Открыть круговое меню разделов игры" aria-controls="radial-nav-overlay"
+  aria-haspopup="dialog" aria-expanded="false" title="Разделы игры — наведи курсор или нажми пробел"></button>
+<div id="radial-nav-overlay" class="radial-nav-overlay" role="dialog" aria-modal="true"
+  aria-labelledby="radial-nav-title" aria-describedby="radial-nav-hint" aria-hidden="true" inert>
+  <div id="radial-nav-backdrop" class="radial-nav-backdrop" aria-hidden="true"></div>
+  <div class="radial-nav-shell">
+    <button type="button" id="radial-nav-close" class="radial-nav-close" aria-label="Закрыть меню разделов">×</button>
+    <nav class="game-tabs radial-game-tabs" aria-label="Круговое меню разделов игры">
+      <button type="button" class="game-tab active" data-tab="story" aria-label="Сюжет" title="Сюжет" aria-selected="true"><img src="assets/ui/icons/tab_story.webp" alt=""><span class="tab-caption">Сюжет</span></button>
+      <button type="button" class="game-tab" data-tab="inventory" aria-label="Инвентарь" title="Инвентарь" aria-selected="false"><img src="assets/ui/icons/tab_inventory.webp" alt=""><span class="tab-caption">Инвентарь</span></button>
+      <button type="button" class="game-tab" data-tab="characters" aria-label="Персонажи" title="Персонажи" aria-selected="false"><img src="assets/ui/icons/tab_characters.webp" alt=""><span class="tab-caption">Отряд</span></button>
+      <button type="button" class="game-tab" data-tab="map" aria-label="Карта" title="Карта" aria-selected="false"><img src="assets/ui/icons/tab_map.webp" alt=""><span class="tab-caption">Карта</span></button>
+    </nav>
+    <button type="button" id="radial-nav-hub" class="radial-nav-hub" aria-label="Закрыть круговое меню">
+      <span class="radial-nav-emblem" aria-hidden="true">☣</span>
+      <strong id="radial-nav-title">РАЗДЕЛЫ</strong>
+      <small>ПРОБЕЛ · ЗАКРЫТЬ</small>
+    </button>
+    <div id="radial-nav-hint" class="radial-nav-hint">КЛИК ПО ТЕМНОТЕ ИЛИ ESC — ВЕРНУТЬСЯ</div>
   </div>
 </div>
 
@@ -225,7 +246,8 @@
 <script src="js/portraits.js?v=survival-ui-2"></script>
 <script src="js/config.js?v=survival-ui-2"></script>
 <script src="js/audio.js?v=survival-ui-29"></script>
-<script src="js/game-ui.js?v=survival-ui-11"></script>
+<script src="js/game-ui.js?v=survival-ui-30"></script>
+<script src="js/radial-navigation.js?v=survival-ui-30"></script>
 <script src="js/profile-ui.js?v=survival-ui-29"></script>
 <script src="js/profile-book.js?v=survival-ui-18"></script>
 <script src="js/app.js?v=survival-ui-11"></script>
