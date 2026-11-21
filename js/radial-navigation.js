@@ -1,0 +1,103 @@
+(() => {
+  "use strict";
+  // Presentation-only navigation. Existing .game-tab handlers keep all game panes intact.
+  const overlay=document.getElementById("radial-nav-overlay");
+  const edge=document.getElementById("radial-edge-trigger");
+  const scrim=document.getElementById("radial-nav-backdrop");
+  const hub=document.getElementById("radial-nav-hub");
+  const closeButton=document.getElementById("radial-nav-close");
+  const menuToggle=document.getElementById("service-toggle");
+  const tabs=Array.from(overlay?.querySelectorAll(".radial-game-tabs .game-tab")||[]);
+  if(!overlay||!edge||!scrim||!hub||!closeButton||tabs.length!==4)return;
+
+  let open=false,previousFocus=null,hoverTimer=null;
+  const visible=(element)=>element&&element.isConnected&&!element.closest("[hidden],.game-pane[hidden],[aria-hidden='true']");
+  const busyOverlay=()=>
+    document.querySelector(".profile-overlay.is-open,.service-drawer.open,dialog[open]")!==null;
+
+  function cancelHover(){
+    if(hoverTimer!==null){clearTimeout(hoverTimer);hoverTimer=null;}
+  }
+  function setOpen(next,{restoreFocus=true}={}){
+    cancelHover();
+    if(next===open)return;
+    if(next&&busyOverlay())return;
+    open=next;
+    if(open){
+      previousFocus=document.activeElement instanceof HTMLElement?document.activeElement:null;
+      overlay.inert=false;
+      overlay.setAttribute("aria-hidden","false");
+      overlay.classList.add("is-open");
+      edge.setAttribute("aria-expanded","true");
+      hub.focus({preventScroll:true});
+    }else{
+      overlay.classList.remove("is-open");
+      overlay.setAttribute("aria-hidden","true");
+      overlay.inert=true;
+      edge.setAttribute("aria-expanded","false");
+      if(restoreFocus){
+        const target=visible(previousFocus)?previousFocus:menuToggle;
+        target?.focus({preventScroll:true});
+      }
+      previousFocus=null;
+    }
+  }
+  function toggle(){setOpen(!open)}
+  function editingOrActivating(target){
+    if(!(target instanceof Element))return false;
+    return Boolean(target.closest(
+      "input,textarea,select,[contenteditable]:not([contenteditable='false'])," +
+      "[role='textbox'],[role='slider'],button,a[href],summary"
+    ));
+  }
+  // Hovering the very top reveals the radial overlay, but a tiny dwell
+  // avoids surprising accidental opening when crossing the window boundary.
+  edge.addEventListener("pointerenter",event=>{
+    if(open||busyOverlay()||!(event.pointerType==="mouse"||event.pointerType==="pen"))return;
+    cancelHover();
+    hoverTimer=setTimeout(()=>{hoverTimer=null;setOpen(true)},140);
+  });
+  edge.addEventListener("pointerleave",cancelHover);
+  edge.addEventListener("click",()=>setOpen(true)); // Also available for touch.
+  scrim.addEventListener("click",()=>setOpen(false));
+  hub.addEventListener("click",()=>setOpen(false));
+  closeButton.addEventListener("click",()=>setOpen(false));
+  tabs.forEach(tab=>tab.addEventListener("click",()=>setOpen(false)));
+
+  const focusable=()=>[closeButton,...tabs,hub].filter(button=>!button.disabled);
+  window.addEventListener("keydown",event=>{
+    if(event.key==="Escape"){
+      if(open){event.preventDefault();event.stopPropagation();setOpen(false)}
+      return;
+    }
+    if(open&&event.key==="Tab"){
+      const items=focusable(),first=items[0],last=items[items.length-1];
+      if(event.shiftKey&&document.activeElement===first){
+        event.preventDefault();last.focus();return;
+      }
+      if(!event.shiftKey&&document.activeElement===last){
+        event.preventDefault();first.focus();return;
+      }
+    }
+    if(open&&["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(event.key)){
+      event.preventDefault();
+      const current=tabs.indexOf(document.activeElement);
+      const direction=(event.key==="ArrowLeft"||event.key==="ArrowUp")?-1:1;
+      tabs[(current<0?0:current+direction+tabs.length)%tabs.length].focus();
+      return;
+    }
+    if(event.code!=="Space"&&event.key!==" ")return;
+    if(event.repeat||event.ctrlKey||event.altKey||event.metaKey)return;
+    if(editingOrActivating(event.target))return; // Never steal typing or button activation.
+    if(!open&&busyOverlay())return;
+    event.preventDefault();
+    toggle();
+  });
+
+  // Opening the service drawer or survivor dossier externally cannot leave
+  // an obscuring navigation dialog stranded above another modal.
+  document.getElementById("hero-portrait-button")?.addEventListener("pointerdown",()=>{
+    if(open)setOpen(false,{restoreFocus:false});
+  });
+  window.addEventListener("blur",cancelHover);
+})();
