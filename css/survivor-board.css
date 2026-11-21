@@ -1,0 +1,62 @@
+/* Survival UI v49 — straight wooden board behind the original live Polaroids.
+   The board is ONE background layer. It contains no built-in photograph,
+   paper frame, text label or tape. All real character portraits, paper WebPs,
+   names, dossier behaviour and the live two-column party list remain intact.
+   Keep the original sidebar width and the companion-list scroll budget. */
+
+#game-shell .hero-sidebar > .survivor-board {
+  position:relative;
+  isolation:isolate;
+  display:flex;
+  flex-direction:column;
+  flex:0 1 auto;
+  gap:8px;
+  min-width:0;
+  min-height:0;
+  padding:14px 0 22px;
+  background-image:url("../assets/ui/boards/wooden_board_01_straight.webp");
+  background-repeat:no-repeat;
+  background-position:center;
+  /* Fit the wood panel to the content of BOTH portrait sections.
+     Do not use cover: it would crop off the physical wooden sides. */
+  background-size:100% 100%;
+}
+
+/* Preserve original player and companion sections and stacking.
+   The wood never intercepts portrait clicks or dossier hold actions. */
+#game-shell .hero-sidebar > .survivor-board > .hero-card,
+#game-shell .hero-sidebar > .survivor-board > .companions-card {
+  position:relative;
+  z-index:1;
+  background:transparent;
+  border:0;
+  box-shadow:none;
+}
+
+/* The list, not the whole sidebar, still scrolls when survivors accumulate. */
+#game-shell .hero-sidebar > .survivor-board > .companions-card {
+  flex:0 1 auto;
+  min-height:100px;
+  overflow:hidden;
+}
+#game-shell .hero-sidebar > .survivor-board .party-list {
+  min-height:0;
+  overflow-y:auto;
+}
+
+/* Only trim decorative padding on short screens; never widen the sidebar
+   or change the dimensions of the approved paper/portrait assets. */
+@media(max-height:820px) {
+  #game-shell .hero-sidebar > .survivor-board {
+    padding-top:8px;
+    padding-bottom:12px;
+    gap:5px;
+  }
+}
+@media(max-height:650px) {
+  #game-shell .hero-sidebar > .survivor-board {
+    padding-top:4px;
+    padding-bottom:7px;
+    gap:2px;
+  }
+}
