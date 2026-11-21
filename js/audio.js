@@ -10,14 +10,13 @@
     leather_creak:"leather_creak.ogg",
     ui_click:"ui_click.ogg",ui_hover:"ui_hover.ogg",
     ui_confirm:"ui_confirm.ogg",ui_back:"ui_back.ogg",
-    ui_close:"ui_close.ogg",
     ui_error:"ui_error.ogg",ui_toggle:"ui_toggle.ogg"
   });
   const baseGain={
     book_open:.75,book_close:.75,page_turn:.85,page_turn_alt:.7,
     paper_stamp:.52,paper_rustle:.52,leather_creak:.4,
     ui_click:.5,ui_hover:.19,ui_confirm:.48,
-    ui_back:.4,ui_close:.38,ui_error:.37,ui_toggle:.45
+    ui_back:.4,ui_error:.37,ui_toggle:.45
   };
   const STORE_ENABLED="survival.audio.enabled.v1",STORE_VOLUME="survival.audio.volume.v1";
   let enabled=true,volume=.35;
@@ -42,8 +41,8 @@
     active.clear();
   }
   function play(name,options={}){
-    // User-rejected selection/menu-open tones are blocked globally, including future call sites.
-    if(name==="ui_select"||name==="ui_open")return;
+    // Reject the unwanted selection, drawer-open and drawer-close tones globally.
+    if(name==="ui_select"||name==="ui_open"||name==="ui_close")return;
     if(!enabled||volume<=0||!Object.hasOwn(sources,name)||typeof Audio==="undefined")return;
     const now=performance.now(),minimum=name==="ui_hover"?165:45;
     if(now-(lastPlayed.get(name)||-10000)<minimum)return;
@@ -103,8 +102,8 @@
        el.closest("#profile-close")||el.closest("#profile-backdrop"))return;
     const id=el.id;
     if(id==="service-toggle")return; // Drawer opening is silent.
-    if(id==="service-close")return play("ui_close");
-    if(id==="portrait-close")return play("ui_close");
+    if(id==="service-close")return; // Drawer closing is silent.
+    if(id==="portrait-close")return; // Same unwanted closing cue disabled.
     if(id==="send"||id==="send-roll"||el.closest("#choices"))return;
     if(id==="save")return play("ui_click");
     if(id==="export")return play("ui_confirm");
