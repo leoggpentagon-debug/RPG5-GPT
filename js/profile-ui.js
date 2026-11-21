@@ -38,22 +38,6 @@
     $("profile-condition-value").textContent=button.dataset.value||"—";
     const description=$("profile-status-description");if(description)description.textContent=button.dataset.status||"Подробности не указаны.";
   }
-  const statAudioOptions={
-    health:{gain:.95,maxMs:1800},
-    stamina:{gain:.42,maxMs:800},
-    stress:{gain:.38,maxMs:1450},
-    hunger:{gain:.44,maxMs:650},
-    thirst:{gain:.9,maxMs:850}
-  };
-  let lastStatSoundAt=-10000,lastStatSoundKey="";
-  function soundForStat(key){
-    if(!statAudioOptions[key]||!wasOpen)return;
-    const now=performance.now();
-    if(now-lastStatSoundAt<330)return;
-    if(key===lastStatSoundKey&&now-lastStatSoundAt<1100)return;
-    lastStatSoundAt=now;lastStatSoundKey=key;
-    window.RPG6_SFX?.play("stat_"+key,statAudioOptions[key]);
-  }
   function drawStats(stats){
     const target=$("profile-stats");target.replaceChildren();
     const sources=getObj(stats);
@@ -76,9 +60,9 @@
       const angle=(-90+index*72)*Math.PI/180;
       block.style.setProperty("--ring-x",(50+35*Math.cos(angle)).toFixed(2)+"%");
       block.style.setProperty("--ring-y",(50+35*Math.sin(angle)).toFixed(2)+"%");
-      block.addEventListener("mouseenter",()=>{chooseStat(block);soundForStat(key)});
-      block.addEventListener("focus",()=>{chooseStat(block);soundForStat(key)});
-      block.addEventListener("click",()=>{chooseStat(block);soundForStat(key)});
+      block.addEventListener("mouseenter",()=>chooseStat(block));
+      block.addEventListener("focus",()=>chooseStat(block));
+      block.addEventListener("click",()=>chooseStat(block));
       target.append(block);
     });
     chooseStat(target.querySelector(".profile-stat"));
