@@ -1,0 +1,471 @@
+/* Radial navigation / full-height scene layout v30
+   This skin replaces the old top navigation strip without touching RPG6 state. */
+
+/* The left column is an independent dossier/portrait rail. The scene reaches
+   the top of the viewport, with its controls incorporated into scene heading. */
+#game-shell {
+  display:flex!important;
+  flex-direction:column!important;
+  height:100dvh;
+  min-height:0;
+}
+#game-shell>.game-layout {
+  flex:1 1 0%!important;
+  height:auto!important;
+  min-height:0!important;
+  width:100%;
+  grid-template-columns:clamp(278px,20vw,340px) minmax(0,1fr);
+  gap:13px;
+  padding:0 15px 12px;
+  align-items:stretch;
+}
+#game-shell .hero-sidebar {min-height:0;gap:11px}
+.sidebar-brand {
+  position:relative;
+  flex:0 0 93px;
+  min-height:93px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid #78503d;
+  border-top:0;
+  border-radius:0 0 4px 4px;
+  background:
+    linear-gradient(150deg,#271a17dc,#100e0be9),
+    url("../assets/ui/textures/metal_worn_texture_2048.webp") center/cover;
+  box-shadow:inset 0 -1px #ae6a4940,0 5px 16px #0009;
+}
+.sidebar-brand::after {
+  position:absolute;
+  content:"";
+  bottom:0;left:15%;right:15%;height:1px;
+  background:linear-gradient(90deg,transparent,#b55542a0,transparent);
+  pointer-events:none;
+}
+.sidebar-brand .brand {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex:0 1 auto;
+  width:100%;
+  min-width:0;
+  height:100%;
+  margin:0;
+}
+.sidebar-brand .brand-art {
+  display:block;
+  width:min(270px,93%);
+  height:83px;
+  max-width:93%;
+  flex:0 1 270px;
+  background-position:center;
+  background-size:contain;
+}
+#game-shell .content {
+  display:flex;
+  flex-direction:column;
+  height:100%;
+  min-height:0;
+  overflow:hidden;
+  border-radius:0 0 3px 3px;
+}
+#game-shell .content>.scene-heading {
+  position:relative;
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  min-height:90px;
+  margin:0;
+  padding:11px 19px 12px 23px;
+  gap:16px;
+  border-top:2px solid #9f5b41;
+  z-index:2;
+}
+.scene-heading-main {
+  display:flex;
+  align-items:center;
+  min-width:0;
+  flex:1 1 auto;
+  gap:12px;
+}
+.scene-heading-main>div {min-width:0;flex:1 1 auto}
+.scene-heading-main h1 {
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+.scene-heading-main p {
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.scene-heading-main .chapter-mark {
+  flex:0 0 auto;
+  font-size:28px;
+  opacity:.37;
+}
+#game-shell .scene-heading .header-right {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:12px;
+  margin-left:auto;
+  min-width:0;
+  flex:0 0 auto;
+}
+#game-shell .scene-heading .world-status {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 12px;
+  font-size:16px;
+  white-space:nowrap;
+}
+#game-shell .scene-heading .world-weather {font-size:23px;min-width:27px}
+#game-shell .scene-heading #service-toggle {
+  margin:0;
+  width:51px;
+  height:51px;
+  flex:0 0 51px;
+}
+#game-shell .content>.game-pane {
+  flex:1 1 0%;
+  height:auto;
+  min-height:0;
+  min-width:0;
+}
+#game-shell .content>.game-pane[hidden] {display:none}
+
+/* The top 16px is a quiet, invisible hover/touch gate, not a toolbar. */
+.radial-edge-trigger {
+  position:fixed;
+  top:0;left:0;right:0;
+  z-index:67;
+  display:block;
+  width:100%;
+  height:17px;
+  padding:0;
+  margin:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+.radial-edge-trigger::after {
+  position:absolute;
+  content:"";
+  left:50%;top:0;
+  width:118px;height:3px;
+  transform:translateX(-50%);
+  border-radius:0 0 8px 8px;
+  background:linear-gradient(90deg,transparent,#b95743 30%,#dda17b 50%,#b95743 70%,transparent);
+  box-shadow:0 1px 8px #da634b30;
+  opacity:.52;
+  transition:height .2s,opacity .2s,box-shadow .2s;
+}
+.radial-edge-trigger:hover::after,
+.radial-edge-trigger:focus-visible::after {
+  height:6px;
+  opacity:1;
+  box-shadow:0 2px 14px #d36a4c75;
+}
+.radial-edge-trigger:focus-visible {outline:2px solid #d7835b;outline-offset:-2px}
+.radial-edge-trigger[aria-expanded="true"] {pointer-events:none}
+
+/* Cinematic darkness surrounding a four-point navigation dial. */
+.radial-nav-overlay {
+  position:fixed;
+  inset:0;
+  z-index:80;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  visibility:hidden;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s ease,visibility 0s linear .25s;
+}
+.radial-nav-overlay.is-open {
+  visibility:visible;
+  opacity:1;
+  pointer-events:auto;
+  transition:opacity .25s ease,visibility 0s;
+}
+.radial-nav-backdrop {
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(ellipse at 50% 46%,#1a0d0bca 0%,#080607ed 68%),
+    #050505d9;
+  backdrop-filter:blur(8px) saturate(.62);
+  -webkit-backdrop-filter:blur(8px) saturate(.62);
+  cursor:default;
+}
+.radial-nav-shell {
+  --radial-distance:clamp(100px,29vw,155px);
+  position:relative;
+  width:min(520px,calc(100vw - 24px),calc(100dvh - 64px));
+  aspect-ratio:1;
+  min-width:0;
+  border-radius:50%;
+  pointer-events:none;
+  transform:scale(.88) rotate(-7deg);
+  opacity:0;
+  filter:drop-shadow(0 15px 35px #000a);
+  transition:transform .34s cubic-bezier(.16,.8,.25,1),opacity .28s ease;
+}
+.radial-nav-overlay.is-open .radial-nav-shell {
+  transform:scale(1) rotate(0);
+  opacity:1;
+}
+.radial-nav-shell::before {
+  content:"";
+  position:absolute;
+  inset:17px;
+  border-radius:50%;
+  border:1px solid #8e5e488e;
+  background:
+    radial-gradient(circle at center,#0a0909c9 0 28%,transparent 29%),
+    radial-gradient(circle,#632d2624 37%,#201311d6 38% 60%,#0f0d0cda 71%),
+    conic-gradient(from 20deg,#672f26c4,#26201de0 23%,#956649a8 26%,#211713d6 50%,#7b3f30b9 75%,#672f26c4);
+  box-shadow:
+    0 0 0 5px #100c0ab0,
+    0 0 0 7px #8855446d,
+    0 0 35px #ab443025,
+    inset 0 0 55px #000c,
+    inset 0 0 0 4px #6e403342;
+}
+.radial-nav-shell::after {
+  content:"";
+  position:absolute;
+  inset:74px;
+  border:1px dashed #ba856244;
+  border-radius:50%;
+  box-shadow:0 0 0 1px #1a1211b8,0 0 0 26px #8f4c2612;
+}
+.radial-game-tabs.game-tabs {
+  position:absolute;
+  display:block;
+  inset:0;
+  width:100%;
+  height:100%;
+  margin:0;
+  padding:0;
+  border:0;
+  background:transparent;
+  pointer-events:none;
+  box-shadow:none;
+  z-index:2;
+}
+.radial-game-tabs .game-tab,
+.radial-game-tabs .game-tab.active {
+  --tab-scale:1;
+  --x:-50%;
+  --y:-50%;
+  position:absolute;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  top:50%;
+  left:50%;
+  width:142px;
+  height:105px;
+  min-width:0;
+  max-width:none;
+  min-height:0;
+  flex:0 0 auto;
+  box-sizing:border-box;
+  padding:11px 9px 10px;
+  color:#e9d3b8;
+  text-shadow:0 2px 4px #000d;
+  border:1px solid #91614c;
+  border-radius:10px;
+  background:
+    linear-gradient(157deg,#4f3229f2,#1d1713f6 55%,#100d0ce9),
+    url("../assets/ui/textures/metal_worn_texture_2048.webp") center/cover;
+  box-shadow:inset 0 1px #e3b58a43,inset 0 -3px #130d0c,0 8px 18px #000c;
+  outline:0;
+  cursor:pointer;
+  pointer-events:auto;
+  transform:translate(var(--x),var(--y)) scale(var(--tab-scale));
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,filter .18s ease;
+}
+.radial-game-tabs .game-tab::before,
+.radial-game-tabs .game-tab::after {display:none!important;content:none!important}
+.radial-game-tabs .game-tab[data-tab="story"] {--x:-50%;--y:calc(-50% - var(--radial-distance))}
+.radial-game-tabs .game-tab[data-tab="inventory"] {--x:calc(-50% + var(--radial-distance));--y:-50%}
+.radial-game-tabs .game-tab[data-tab="characters"] {--x:-50%;--y:calc(-50% + var(--radial-distance))}
+.radial-game-tabs .game-tab[data-tab="map"] {--x:calc(-50% - var(--radial-distance));--y:-50%}
+.radial-game-tabs .game-tab.active {
+  color:#fff0df;
+  border-color:#c77556;
+  background:
+    linear-gradient(145deg,#853d32ed,#472520f2 62%,#231310eb),
+    url("../assets/ui/textures/metal_worn_texture_2048.webp") center/cover;
+  box-shadow:inset 0 1px #f2c49b5c,inset 0 -3px #542720,0 0 18px #c2553938,0 9px 19px #000b;
+}
+.radial-game-tabs .game-tab:hover:not(:disabled) {
+  --tab-scale:1.06;
+  filter:brightness(1.12);
+  border-color:#ed9b72;
+  box-shadow:inset 0 1px #f2c49b6e,0 0 23px #e05e3c62,0 8px 21px #000c;
+  background:
+    linear-gradient(145deg,#6c3b2eeb,#2b1b16f6),
+    url("../assets/ui/textures/metal_worn_texture_2048.webp") center/cover;
+}
+.radial-game-tabs .game-tab:focus-visible {
+  --tab-scale:1.04;
+  outline:2px solid #f6b58d!important;
+  outline-offset:4px;
+}
+.radial-game-tabs .game-tab img {
+  display:block;
+  flex:0 0 auto;
+  width:50px;
+  height:50px;
+  max-width:60px;
+  object-fit:contain;
+  filter:drop-shadow(0 2px 5px #000b);
+}
+.radial-game-tabs .game-tab.active img {
+  filter:drop-shadow(0 0 7px #d96646) drop-shadow(0 2px 5px #000d);
+}
+.radial-game-tabs .game-tab .tab-caption,
+.radial-game-tabs .game-tab.active .tab-caption {
+  display:block;
+  color:inherit;
+  font:600 17px/1.14 var(--font-display);
+  letter-spacing:.07em;
+  text-align:center;
+  white-space:nowrap;
+}
+.radial-nav-hub {
+  position:absolute;
+  top:50%;left:50%;
+  z-index:3;
+  width:141px;height:141px;
+  border-radius:50%;
+  border:1px solid #96654c;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:5px;
+  padding:12px;
+  margin:0;
+  color:#f6d8bc;
+  text-shadow:0 2px 3px #000e;
+  background:
+    radial-gradient(circle at 44% 32%,#5c3128e3,#241611f9 58%,#120b0af5),
+    url("../assets/ui/textures/metal_worn_texture_2048.webp") center/cover;
+  box-shadow:inset 0 0 17px #000c,0 0 0 4px #17100db3,0 0 0 5px #84503a92,0 5px 20px #000b;
+  pointer-events:auto;
+  cursor:pointer;
+  transform:translate(-50%,-50%);
+}
+.radial-nav-hub strong {
+  font:700 19px/1 var(--font-display);
+  letter-spacing:.14em;
+}
+.radial-nav-hub small {
+  font:600 10px/1.35 var(--font-ui);
+  color:#c69a7b;
+  letter-spacing:.08em;
+}
+.radial-nav-hub .radial-nav-emblem {
+  color:#cf7356;
+  font-size:25px;
+  line-height:1;
+}
+.radial-nav-hub:hover {filter:brightness(1.14)}
+.radial-nav-hub:focus-visible {outline:2px solid #eeb28a;outline-offset:6px}
+.radial-nav-close {
+  position:absolute;
+  top:3px;right:8px;
+  z-index:4;
+  width:40px;height:40px;
+  display:grid;place-items:center;
+  border-radius:50%;
+  border:1px solid #805744;
+  background:#261915e8;
+  color:#ead1b9;
+  font:22px/1 var(--font-ui);
+  box-shadow:0 5px 12px #0007;
+  cursor:pointer;
+  pointer-events:auto;
+}
+.radial-nav-close:hover,.radial-nav-close:focus-visible {
+  border-color:#d88464;
+  color:#fff3df;
+  background:#5e2d24;
+}
+.radial-nav-hint {
+  position:absolute;
+  left:50%;bottom:-27px;
+  transform:translateX(-50%);
+  width:max-content;
+  max-width:96vw;
+  color:#b99c83;
+  font:600 11px/1.3 var(--font-ui);
+  letter-spacing:.12em;
+  text-align:center;
+  pointer-events:none;
+}
+
+@media(max-height:820px){
+  #game-shell>.game-layout{padding:0 10px 8px;gap:10px}
+  .sidebar-brand{flex-basis:78px;min-height:78px}
+  .sidebar-brand .brand-art{height:69px}
+  #game-shell .content>.scene-heading{min-height:74px;padding:7px 15px}
+  #game-shell .scene-heading #service-toggle{height:45px;width:45px;flex-basis:45px}
+  #game-shell .scene-heading .world-status{padding:6px 9px;font-size:14px}
+}
+@media(max-width:1090px){
+  #game-shell>.game-layout{grid-template-columns:250px minmax(0,1fr);gap:9px;padding:0 8px 8px}
+  .sidebar-brand .brand-art{width:min(220px,90%);flex-basis:220px}
+  #game-shell .content>.scene-heading{gap:8px;padding:9px 12px}
+  #game-shell .scene-heading .header-right{gap:7px}
+  #game-shell .scene-heading .world-status{gap:5px;font-size:13px;padding:6px 8px}
+  .scene-heading-main .chapter-mark{display:none}
+}
+@media(max-width:720px){
+  #game-shell>.game-layout{grid-template-columns:minmax(0,1fr);gap:0;padding:0 5px 5px}
+  #game-shell .hero-sidebar{display:none}
+  #game-shell .content>.scene-heading{min-height:67px;gap:5px;padding:7px 9px}
+  #game-shell .scene-heading .header-right{gap:4px}
+  #game-shell .scene-heading .world-status{font-size:11px;gap:4px;padding:4px 6px}
+  #game-shell .scene-heading .world-weather{font-size:18px;min-width:18px}
+  #game-shell .scene-heading #service-toggle{width:37px;flex-basis:37px;height:39px;padding:5px}
+  .scene-heading-main h1{font-size:20px}
+  .scene-heading-main p{font-size:12px}
+}
+@media(max-width:520px){
+  .radial-nav-shell{--radial-distance:clamp(88px,29vw,128px)}
+  .radial-game-tabs .game-tab,
+  .radial-game-tabs .game-tab.active{
+    width:clamp(92px,31vw,118px);
+    height:clamp(72px,24vw,87px);
+    gap:2px;
+    padding:5px;
+    border-radius:7px;
+  }
+  .radial-game-tabs .game-tab img{height:34px;width:34px}
+  .radial-game-tabs .game-tab .tab-caption,
+  .radial-game-tabs .game-tab.active .tab-caption{font-size:13px;letter-spacing:.03em}
+  .radial-nav-hub{width:clamp(94px,28vw,112px);height:clamp(94px,28vw,112px);gap:4px}
+  .radial-nav-hub strong{font-size:14px}
+  .radial-nav-hub small{font-size:9px}
+  .radial-nav-hub .radial-nav-emblem{font-size:18px}
+  .radial-nav-close{top:0;right:0;width:34px;height:34px;font-size:20px}
+  .radial-nav-shell::after{inset:55px}
+  .radial-nav-hint{font-size:9px;bottom:-23px}
+}
+@media(prefers-reduced-motion:reduce){
+  .radial-nav-overlay,.radial-nav-shell,.radial-edge-trigger::after,
+  .radial-game-tabs .game-tab,.radial-game-tabs .game-tab img{transition:none!important}
+}
