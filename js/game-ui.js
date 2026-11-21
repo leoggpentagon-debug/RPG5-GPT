@@ -52,7 +52,10 @@
   next.addEventListener("click",()=>{pageIndex=Math.min(pages.length-1,pageIndex+1);showPage()});
   function refreshPages() {
     const built=[];
+    const sceneText=$("scene-text").textContent.trim();
+    if(sceneText)for(const piece of splitNarrative(sceneText))built.push({speaker:"ТЕКУЩАЯ СЦЕНА",text:piece});
     for(const entry of chat.querySelectorAll(":scope > .chat-entry")) {
+      if(entry.classList.contains("system"))continue;
       const bubble=entry.querySelector(".bubble");if(!bubble)continue;
       const label=bubble.querySelector("b")?.textContent||"История";
       const body=bubble.querySelector("div")?.textContent||"";
