@@ -31,9 +31,10 @@
     const key=String(id||"").trim().toLowerCase();
     if(namedColors[key])return namedColors[key];
     const identity=String(name||key);
-    if(/^(оливер|oliver)\b/i.test(identity))return namedColors.oliver_hayes;
-    if(/^(бекс|bex)\b/i.test(identity))return namedColors.bex;
-    if(/^(иэн|ian)\b/i.test(identity))return namedColors.ian_calder;
+    const n=identity.trim().toLowerCase();
+    if(n.startsWith("оливер")||n.startsWith("oliver"))return namedColors.oliver_hayes;
+    if(n.startsWith("бекс")||n.startsWith("bex"))return namedColors.bex;
+    if(n.startsWith("иэн")||n.startsWith("ian"))return namedColors.ian_calder;
     let hash=0;for(const ch of identity)hash=((hash*33)+ch.charCodeAt(0))>>>0;
     return colorPalette[hash%colorPalette.length];
   }
