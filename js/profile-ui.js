@@ -172,27 +172,41 @@
     clone.style.position="fixed";
     clone.style.left=rect.x+"px";clone.style.top=rect.y+"px";
     clone.style.width=rect.width+"px";clone.style.height=rect.height+"px";
+    // The flight uses measured visible bounds and center-based transforms.
     clone.style.transform="none";
+    clone.style.transformOrigin="center center";
+    clone.style.backfaceVisibility="hidden";
     clone.style.margin="0";
     document.body.append(clone);
     flyingPhoto=clone;
     return clone;
   }
   function flightFrames(from,to,closing=false){
-    const dx=to.x-from.x,dy=to.y-from.y;
+    // Measure the VISIBLE centres (getBoundingClientRect includes CSS scaling).
+    // Offsetting by top-left coordinates shifted the old flight when the diary
+    // photo and sidebar portrait had different sizes.
+    const dx=to.centerX-from.centerX,dy=to.centerY-from.centerY;
     const scaleX=to.width/Math.max(1,from.width);
     const scaleY=to.height/Math.max(1,from.height);
-    const final="translate("+dx+"px,"+dy+"px) scale("+scaleX+","+scaleY+") rotate(-1deg)";
+    const pose=(t,lift,rotation)=>{
+      const x=(dx*t).toFixed(2),y=(dy*t-lift).toFixed(2);
+      const sx=(1+(scaleX-1)*t).toFixed(5),sy=(1+(scaleY-1)*t).toFixed(5);
+      return "translate3d("+x+"px,"+y+"px,0) rotate("+rotation+"deg) scale("+sx+","+sy+")";
+    };
+    // A short lift, a small natural tilt, and a precise flat landing.
+    // The photo, paper and tape move as ONE physical object.
     if(closing)return [
-      {offset:0,opacity:1,transform:"translate(0px,0px) scale(1) rotate(-2deg)",filter:"drop-shadow(2px 8px 10px #000a)"},
-      {offset:.45,opacity:1,transform:"translate("+(dx*.47)+"px,"+(dy*.43-12)+"px) scale("+((1+scaleX)/2)+","+((1+scaleY)/2)+") rotate(3deg)",filter:"drop-shadow(6px 19px 14px #000c)"},
-      {offset:1,opacity:1,transform:final,filter:"drop-shadow(2px 5px 5px #0008)"}
+      {offset:0,opacity:1,transform:pose(0,0,-2),filter:"drop-shadow(2px 6px 7px #000a)"},
+      {offset:.37,opacity:1,transform:pose(.36,15,1.1),filter:"drop-shadow(4px 14px 12px #000b)"},
+      {offset:.82,opacity:1,transform:pose(.84,5,-2.5),filter:"drop-shadow(3px 10px 9px #000b)"},
+      {offset:1,opacity:1,transform:pose(1,0,-2),filter:"drop-shadow(2px 5px 6px #0009)"}
     ];
     return [
-      {offset:0,opacity:1,transform:"translate(0px,0px) scale(1) rotate(-2deg)",filter:"drop-shadow(2px 7px 9px #000b)"},
-      {offset:.42,opacity:1,transform:"translate("+(dx*.48)+"px,"+(dy*.4-22)+"px) scale("+((1+scaleX)/2)+","+((1+scaleY)/2)+") rotate(4deg)",filter:"drop-shadow(7px 22px 17px #000d)"},
-      {offset:.81,opacity:1,transform:"translate("+(dx*.91)+"px,"+(dy*.88)+"px) scale("+(scaleX*1.055)+","+(scaleY*1.055)+") rotate(-3deg)",filter:"drop-shadow(4px 12px 12px #000b)"},
-      {offset:1,opacity:1,transform:final,filter:"drop-shadow(2px 7px 8px #000a)"}
+      {offset:0,opacity:1,transform:pose(0,0,-2),filter:"drop-shadow(2px 6px 7px #000a)"},
+      {offset:.38,opacity:1,transform:pose(.37,19,1.2),filter:"drop-shadow(5px 17px 13px #000b)"},
+      {offset:.84,opacity:1,transform:pose(.86,4,-2.7),filter:"drop-shadow(3px 11px 10px #000b)"},
+      {offset:.9,opacity:1,transform:pose(.92,1,-2.3),filter:"drop-shadow(2px 8px 8px #000a)"},
+      {offset:1,opacity:0,transform:pose(1,0,-2),filter:"drop-shadow(2px 5px 6px #0008)"}
     ];
   }
   function animateIcons(outward,photoCenter){
@@ -304,7 +318,7 @@
     photoFrame.classList.add("dossier-source-hidden","dossier-source-lift");
     dossierPhoto.style.opacity="0";
     animatePart(ghost,flightFrames(sourceBounds,destinationBounds),{
-      delay:50,duration:795,easing:"cubic-bezier(.16,.72,.18,1)"
+      delay:35,duration:900,easing:"cubic-bezier(.2,.77,.24,1)"
     });
     animatePart(panel,[
       {offset:0,opacity:.62,clipPath:"inset(0 97% 0 0 round 5px)",transform:"translateX(-20px) scale(.965) rotate(-1.2deg)"},
@@ -312,7 +326,10 @@
       {offset:.79,opacity:1,clipPath:"inset(0 0 0 0 round 5px)",transform:"translateX(3px) scale(1.012) rotate(.3deg)"},
       {offset:1,opacity:1,clipPath:"inset(0 0 0 0 round 4px)",transform:"translate(0px,0px) scale(1) rotate(0deg)"}
     ],{delay:250,duration:665,easing:"cubic-bezier(.2,.8,.22,1)"});
-    animatePart(dossierPhoto,[{opacity:0},{opacity:1}],{delay:785,duration:185,easing:"ease-out"});
+    // Fade in the real matching paper Polaroid as the travelling copy lands.
+    animatePart(dossierPhoto,[{opacity:0},{opacity:1}],{
+      delay:780,duration:185,easing:"ease-in-out"
+    });
     animateIcons(true,destinationBounds);
     animateSections(true);
     // Opening reaches its final resting state after the last radial icon.
@@ -348,9 +365,10 @@
       {offset:1,opacity:.42,clipPath:"inset(0 97% 0 0 round 4px)",transform:"translateX(-15px) scale(.965) rotate(-1deg)"}
     ],{delay:170,duration:530,easing:"cubic-bezier(.42,0,.85,.25)"});
     animatePart(ghost,flightFrames(startingBounds,endBounds,true),{
-      delay:200,duration:680,easing:"cubic-bezier(.2,.7,.35,1)"
+      delay:120,duration:770,easing:"cubic-bezier(.4,.12,.26,1)"
     });
-    finishTimer=setTimeout(()=>finishClosing(serial),950);
+    // Reveal the sidebar photograph only once the physical clone has landed.
+    finishTimer=setTimeout(()=>finishClosing(serial),995);
   }
   closeButton.addEventListener("click",closeProfile);
   $("profile-backdrop").addEventListener("click",closeProfile);
