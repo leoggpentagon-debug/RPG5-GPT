@@ -5,10 +5,9 @@
   const edge=document.getElementById("radial-edge-trigger");
   const scrim=document.getElementById("radial-nav-backdrop");
   const hub=document.getElementById("radial-nav-hub");
-  const closeButton=document.getElementById("radial-nav-close");
   const menuToggle=document.getElementById("service-toggle");
   const tabs=Array.from(overlay?.querySelectorAll(".radial-game-tabs .game-tab")||[]);
-  if(!overlay||!edge||!scrim||!hub||!closeButton||tabs.length!==4)return;
+  if(!overlay||!edge||!scrim||!hub||tabs.length!==4)return;
 
   let open=false,previousFocus=null,hoverTimer=null;
   const visible=(element)=>element&&element.isConnected&&!element.closest("[hidden],.game-pane[hidden],[aria-hidden='true']");
@@ -64,10 +63,9 @@
   edge.addEventListener("click",()=>setOpen(true)); // Also available for touch.
   scrim.addEventListener("click",()=>setOpen(false));
   hub.addEventListener("click",()=>setOpen(false));
-  closeButton.addEventListener("click",()=>setOpen(false));
   tabs.forEach(tab=>tab.addEventListener("click",()=>setOpen(false)));
 
-  const focusable=()=>[closeButton,...tabs,hub].filter(button=>!button.disabled);
+  const focusable=()=>[...tabs,hub].filter(button=>!button.disabled);
   window.addEventListener("keydown",event=>{
     if(event.key==="Escape"){
       if(open){event.preventDefault();event.stopPropagation();setOpen(false)}
