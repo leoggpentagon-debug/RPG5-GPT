@@ -5,9 +5,10 @@
   const edge=document.getElementById("radial-edge-trigger");
   const scrim=document.getElementById("radial-nav-backdrop");
   const hub=document.getElementById("radial-nav-hub");
+  const wheel=overlay?.querySelector(".radial-nav-shell");
   const menuToggle=document.getElementById("service-toggle");
   const tabs=Array.from(overlay?.querySelectorAll(".radial-game-tabs .game-tab")||[]);
-  if(!overlay||!edge||!scrim||!hub||tabs.length!==4)return;
+  if(!overlay||!edge||!scrim||!hub||!wheel||tabs.length!==4)return;
 
   let open=false,previousFocus=null,hoverTimer=null;
   const visible=(element)=>element&&element.isConnected&&!element.closest("[hidden],.game-pane[hidden],[aria-hidden='true']");
@@ -22,6 +23,7 @@
     if(next===open)return;
     if(next&&busyOverlay())return;
     open=next;
+    wheel.removeAttribute("data-hover");
     if(open){
       previousFocus=document.activeElement instanceof HTMLElement?document.activeElement:null;
       overlay.inert=false;
@@ -63,7 +65,19 @@
   edge.addEventListener("click",()=>setOpen(true)); // Also available for touch.
   scrim.addEventListener("click",()=>setOpen(false));
   hub.addEventListener("click",()=>setOpen(false));
-  tabs.forEach(tab=>tab.addEventListener("click",()=>setOpen(false)));
+  function clearHovered(tab){
+    if(wheel.dataset.hover===tab.dataset.tab)wheel.removeAttribute("data-hover");
+  }
+  // Hit targets are invisible pie slices. Their corresponding full-canvas
+  // feathered hover images are OUTSIDE the clipped buttons, so the entire
+  // sector changes color without cutting off its soft smoke edges.
+  tabs.forEach(tab=>{
+    tab.addEventListener("pointerenter",()=>{if(open)wheel.dataset.hover=tab.dataset.tab});
+    tab.addEventListener("pointerleave",()=>clearHovered(tab));
+    tab.addEventListener("focus",()=>{if(open)wheel.dataset.hover=tab.dataset.tab});
+    tab.addEventListener("blur",()=>clearHovered(tab));
+    tab.addEventListener("click",()=>setOpen(false));
+  });
 
   const focusable=()=>[...tabs,hub].filter(button=>!button.disabled);
   window.addEventListener("keydown",event=>{
