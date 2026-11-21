@@ -1,54 +1,140 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0d0f12">
-  <title>28 DAYS LATER: SURVIVAL · RPG6</title>
-  <link rel="stylesheet" href="css/style.css?v=RPG6-UI-20261121">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#171410">
+  <meta name="description" content="28 Days Later Survival — интерактивная история выживания">
+  <title>28 Days Later Survival</title>
+  <link rel="stylesheet" href="css/style.css?v=survival-ui-2">
 </head>
 <body>
- <header class="header"><div class="identity"><span class="hazard">☣</span><div><strong>28 DAYS LATER:<em>SURVIVAL</em></strong><small>RPG6 · GEMINI API</small></div></div>
-  <nav aria-label="Режим игры"><span class="mode-label">GEMINI · RPG6</span></nav>
-  <div class="top-version">RPG6 · ONLINE</div></header>
- <div class="threecol">
-  <aside class="left-col">
-   <section class="panel hero-panel"><div class="eyebrow">УПРАВЛЯЕМЫЙ ГЕРОЙ</div>
-    <div class="hero-identity"><button type="button" class="portrait-button" id="hero-portrait-button" aria-label="Увеличить портрет Оливера"><img id="hero-portrait" src="assets/portraits/oliver_hayes.png" alt="Оливер Хейз"></button><div><h2>Оливер Хейз</h2><p>Решения принимает игрок</p></div></div>
-    <div id="hero-stats" class="stat-list"><p class="muted">Загрузи настоящее сохранение RPG6.</p></div>
-   </section>
-   <section class="panel"><h3>РЯДОМ С ГЕРОЕМ</h3><div id="party" class="party-list"><p class="muted">Состав будет загружен из базы.</p></div></section>
-   <section class="panel"><h3>ИНВЕНТАРЬ</h3><div id="inventory" class="inventory-list"><p class="muted">Инвентарь будет загружен из базы.</p></div><p id="weight-label" class="small-label"></p></section>
-  </aside>
-  <main class="center-col">
-   <section class="panel scene-panel"><div class="section-row"><span class="eyebrow" id="scene-counter">RPG6 · ИСХОДНОЕ СОХРАНЕНИЕ</span><span class="pill">СОХРАНЕНИЕ В RPG6</span></div>
-    <h1 id="scene-title">Продолжить сохранённую историю</h1><div id="scene-location" class="scene-location">Сведения появятся после подключения</div>
-    <p id="scene-text" class="scene-text">Здесь откроется настоящая текущая сцена из RPG6. Никаких новых тестовых эпизодов.</p>
-    <div class="scene-foot"><span id="canon-revision">Каноническая ревизия: —</span><span id="draft-count">Несохранённых ходов: —</span></div>
-   </section>
-   <section class="panel narrative-panel"><div class="section-row"><h3>ПОВЕСТВОВАНИЕ И ДИАЛОГИ</h3><small>GEMINI API · ЗАПИСЬ ПО КОМАНДЕ</small></div><div id="chat" role="log" aria-live="polite"><div class="empty-story">Нажми «Продолжить RPG6» справа. После загрузки появится реальная сохранённая сцена.</div></div></section>
-  </main>
-  <aside class="right-col">
-   <section class="panel launch-panel"><div class="eyebrow">ТВОЯ ИСТОРИЯ, НЕ НОВАЯ ИГРА</div><h2>RPG6 · Gemini</h2><p>Продолжение текущей истории: персонажи, память, события и последствия загружаются из RPG6.</p>
-    <button type="button" id="start" class="primary big">▶ ПРОДОЛЖИТЬ RPG6</button><p id="status" class="status-text">Кнопка загрузит текущее сохранение. Почта и пароль не нужны.</p>
-   </section>
-   <section class="panel"><div class="section-row"><h3>ДЕЙСТВИЕ ОЛИВЕРА</h3><small>ПОЛНАЯ СВОБОДА</small></div>
-    <div id="choices" class="choices"></div>
-    <label for="action">Что делает или говорит Оливер?</label>
-    <textarea id="action" rows="5" maxlength="2500" disabled placeholder="Опиши любое физически возможное действие или реплику..."></textarea>
-    <button type="button" class="primary" id="send" disabled>ОТПРАВИТЬ ДЕЙСТВИЕ</button>
-    <div id="roll-panel" class="roll-panel" hidden><div class="roll-header">🎲 АВТОМАТИЧЕСКИЙ d20</div><pre id="roll-details"></pre><button type="button" id="send-roll" disabled>ВЫПОЛНИТЬ АВТОБРОСОК</button></div>
-    <p class="hint">d20 бросается автоматически на сервере. Бонусы, штрафы и итог проверки рассчитываются игровыми правилами, а не придумываются ИИ.</p>
-   </section>
-   <section class="panel"><div class="section-row"><h3>СОХРАНЕНИЕ</h3><small>ТОЛЬКО RPG6</small></div><p>Черновые ходы хранятся отдельно. Только команда «сохранить» передаёт подтверждённые события в канон через SQL-проверки.</p>
-    <button type="button" id="save" disabled>💾 СОХРАНИТЬ RPG6</button><button type="button" id="export" class="secondary" disabled>СКАЧАТЬ ОТЧЁТ</button>
-    <p id="save-info" class="small-label">Не загружено.</p></section>
-   <section class="panel mini-diagnostic"><h3>ДИАГНОСТИКА</h3><p id="diagnostic">Ожидаю подключения к RPG6.</p><small>Если сервер вернёт ошибку, она будет показана здесь без сокрытия причины.</small></section>
-  </aside>
- </div>
- <footer>28 DAYS LATER: SURVIVAL · RPG6</footer>
- <dialog id="portrait-dialog"><button type="button" id="portrait-close">Закрыть ×</button><img id="portrait-full" alt="Портрет"></dialog>
- <script src="js/portraits.js?v=RPG6-UI-20261121"></script>
- <script src="js/config.js?v=RPG6-UI-20261121"></script>
- <script src="js/app.js?v=RPG6-AUTO-D20"></script>
+<div class="game-shell" id="game-shell">
+  <header class="game-header">
+    <div class="brand"><div class="brand-art" aria-hidden="true"></div><div class="brand-text">28 DAYS LATER <strong>SURVIVAL</strong></div></div>
+    <div class="world-status" aria-label="Текущая обстановка">
+      <span>◷ <b id="world-day">День —</b></span>
+      <span>⌚ <b id="world-time">Время —</b></span>
+      <span class="world-location" id="world-location">Местоположение не установлено</span>
+    </div>
+    <button type="button" id="service-toggle" class="icon-button menu-toggle" aria-label="Открыть служебное меню" aria-expanded="false" aria-controls="service-drawer"><span></span><span></span><span></span></button>
+  </header>
+
+  <nav class="game-tabs" aria-label="Разделы игры">
+    <button type="button" class="game-tab active" data-tab="story" aria-selected="true"><img src="assets/ui/icons/tab_story.webp" alt="">Сюжет</button>
+    <button type="button" class="game-tab" data-tab="inventory" aria-selected="false"><img src="assets/ui/icons/tab_inventory.webp" alt="">Инвентарь</button>
+    <button type="button" class="game-tab" data-tab="characters" aria-selected="false"><img src="assets/ui/icons/tab_characters.webp" alt="">Персонажи</button>
+    <button type="button" class="game-tab" data-tab="map" aria-selected="false"><img src="assets/ui/icons/tab_map.webp" alt="">Карта</button>
+    <button type="button" class="game-tab" data-tab="journal" aria-selected="false"><img src="assets/ui/icons/tab_journal.webp" alt="">Журнал</button>
+  </nav>
+
+  <div class="game-layout">
+    <aside class="hero-sidebar" aria-label="Игрок и персонажи рядом">
+      <section class="sidebar-card hero-card">
+        <div class="card-title">ВЫЖИВШИЙ</div>
+        <div class="hero-identity">
+          <div class="polaroid polaroid-player">
+            <button id="hero-portrait-button" type="button" class="portrait-button" aria-label="Увеличить портрет игрока"><img id="hero-portrait" src="assets/portraits/oliver_hayes.png" alt="Портрет игрока"></button>
+          </div>
+          <div class="hero-name"><strong id="hero-name">Оливер Хейз</strong><small>Игрок</small></div>
+        </div>
+        <div id="hero-stats" class="stat-list" aria-label="Характеристики">Характеристики загружаются…</div>
+      </section>
+      <section class="sidebar-card companions-card">
+        <div class="card-title">РЯДОМ</div>
+        <div id="party" class="party-list"><p class="muted">Персонажи появятся после загрузки.</p></div>
+      </section>
+    </aside>
+
+    <main class="content" id="main-content">
+      <section class="game-pane visible story-pane" id="pane-story" data-pane="story">
+        <div class="scene-heading">
+          <div><h1 id="scene-title">Продолжение истории</h1><p id="scene-location">Загрузка текущей локации…</p></div>
+          <span class="chapter-mark" aria-hidden="true">☣</span>
+        </div>
+        <div id="scene-image-wrap" class="scene-image-wrap" hidden>
+          <img id="scene-image" alt="Изображение текущей сцены" referrerpolicy="no-referrer">
+        </div>
+        <p id="scene-text" hidden></p>
+        <div id="story-viewer" class="story-viewer">
+          <article id="story-page" class="story-page" aria-live="polite"><p class="story-empty">Загружаю сохранённую историю…</p></article>
+          <div class="story-pagination">
+            <button id="page-prev" type="button" class="page-button" aria-label="Предыдущая страница">‹</button>
+            <span id="page-count" aria-live="off">— / —</span>
+            <button id="page-next" type="button" class="page-button" aria-label="Следующая страница">›</button>
+          </div>
+        </div>
+        <div id="chat" class="history-source" role="log" aria-label="Сохранённая история" aria-live="off"></div>
+        <section class="action-area" aria-label="Действия">
+          <div id="choices" class="choices"></div>
+          <details id="custom-action-panel" class="custom-action" open>
+            <summary>Своё действие <span>▾</span></summary>
+            <div class="action-compose">
+              <label for="action" class="sr-only">Что делает или говорит персонаж</label>
+              <textarea id="action" rows="2" maxlength="2500" disabled placeholder="Опиши любое действие или реплику…"></textarea>
+              <button type="button" id="send" class="primary" disabled>Отправить</button>
+            </div>
+          </details>
+        </section>
+      </section>
+
+      <section class="game-pane utility-pane" id="pane-inventory" data-pane="inventory" hidden>
+        <div class="pane-heading"><h2>Инвентарь</h2><p>Предметы и снаряжение</p></div>
+        <div id="inventory" class="inventory-list"></div>
+        <p id="weight-label" class="small-label"></p>
+      </section>
+
+      <section class="game-pane utility-pane" id="pane-characters" data-pane="characters" hidden>
+        <div class="pane-heading"><h2>Персонажи</h2><p>Люди, с которыми ты сейчас взаимодействуешь</p></div>
+        <div id="character-cards" class="character-cards"><p class="muted">Данные появятся после загрузки.</p></div>
+      </section>
+
+      <section class="game-pane utility-pane" id="pane-map" data-pane="map" hidden>
+        <div class="pane-heading"><h2>Карта</h2><p id="map-coordinates">Координаты текущей сцены пока неизвестны</p></div>
+        <div class="map-holder" id="map-holder"><iframe id="map-frame" title="Географическая карта" loading="lazy" referrerpolicy="no-referrer" hidden></iframe>
+          <p id="map-placeholder">Карта покажет точное место, когда в данных сцены появятся координаты. Мы не выдумываем местоположение.</p>
+        </div>
+      </section>
+
+      <section class="game-pane utility-pane" id="pane-journal" data-pane="journal" hidden>
+        <div class="pane-heading"><h2>Журнал</h2><p>Текущие задачи</p></div>
+        <div id="journal-entries" class="journal-entries"><p class="muted">Задачи появятся, если они есть в данных сцены.</p></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="drawer-scrim" id="drawer-scrim" hidden></div>
+<aside id="service-drawer" class="service-drawer" aria-label="Служебные функции" aria-hidden="true">
+  <div class="service-head"><h2>Служебное меню</h2><button type="button" id="service-close" class="icon-button" aria-label="Закрыть служебное меню">✕</button></div>
+  <div class="service-body">
+    <section class="service-block">
+      <h3>Сохранение игры</h3>
+      <button type="button" id="save" class="primary" disabled>Сохранить игру</button>
+      <button type="button" id="export" class="secondary" disabled>Скачать отчёт</button>
+      <button type="button" id="start" class="secondary">Повторно загрузить сохранение</button>
+      <p id="save-info" class="small-label">Ожидаю подключения.</p>
+    </section>
+    <section class="service-block">
+      <h3>Соединение и обработка</h3><p id="status" class="status-text">Инициализация…</p>
+      <div class="technical-details"><span id="scene-counter"></span><span id="canon-revision"></span><span id="draft-count"></span></div>
+    </section>
+    <section id="roll-panel" class="service-block roll-panel" hidden>
+      <h3>Автоматическая проверка d20</h3><pre id="roll-details"></pre>
+      <button type="button" id="send-roll" class="secondary" disabled>Продолжить проверку</button>
+    </section>
+    <section class="service-block">
+      <div class="section-row"><h3>Диагностика</h3><button type="button" id="clear-log" class="quiet-button">Очистить записи</button></div>
+      <p id="diagnostic" class="small-label"></p>
+      <div id="system-log" class="system-log" role="log" aria-live="off"></div>
+    </section>
+  </div>
+</aside>
+
+<dialog id="portrait-dialog" class="portrait-dialog"><button type="button" id="portrait-close" class="icon-button">Закрыть ×</button><img id="portrait-full" alt="Портрет персонажа"></dialog>
+<script src="js/portraits.js?v=survival-ui-2"></script>
+<script src="js/config.js?v=survival-ui-2"></script>
+<script src="js/game-ui.js?v=survival-ui-2"></script>
+<script src="js/app.js?v=survival-ui-2"></script>
 </body>
 </html>
