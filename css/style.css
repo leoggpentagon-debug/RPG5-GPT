@@ -16,7 +16,7 @@ html,body {margin:0;width:100%;height:100%;overflow:hidden}
 body {
   font:18px/1.42 var(--font-ui); color:var(--text);
   background:linear-gradient(#0e0c0bc9,#0e0d0cda),
-    url("../assets/ui/background/background_dark_grunge_2k.webp") center/cover no-repeat fixed,
+    url("../assets/ui/background/background_ivy_survival.webp") center/cover no-repeat fixed,
     #191714;
 }
 body:before {content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;

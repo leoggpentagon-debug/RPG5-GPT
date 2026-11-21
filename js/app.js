@@ -77,8 +77,8 @@
   function child(tag, className="", text="") {const el=document.createElement(tag);if(className)el.className=className;if(text)el.textContent=word(text);return el;}
   function msg(label,text,kind="gm",speakerId=""){
     if(!word(text))return;
-    const wrap=child("div","chat-entry "+kind);wrap.dataset.speakerId=speakerId||"";const avatar=portrait(speakerId);
-    if(avatar){const img=child("img","avatar");img.src=avatar;img.alt=label;img.addEventListener("click",()=>zoom(img.src,label));wrap.append(img)}
+    // Dialogue now uses speaker names only; portraits belong on the nearby dossier board.
+    const wrap=child("div","chat-entry "+kind);wrap.dataset.speakerId=speakerId||"";
     const bubble=child("div","bubble");bubble.append(child("b","",label),child("div","",text));wrap.append(bubble);$("chat").append(wrap);
   }
   function zoom(src,label){$("portrait-full").src=src;$("portrait-full").alt=label;$("portrait-dialog").showModal()}
@@ -127,12 +127,47 @@
       icon.addEventListener("error",()=>{const fb=child("span","stat-fallback",({health:"♥",stamina:"⚡",stress:"◉",hunger:"◴",thirst:"💧"})[key]);icon.replaceWith(fb)},{once:true});
       box.append(icon,child("strong","",(v.current??"—")+"/"+(v.max??"—")));$("hero-stats").append(box);
     }
-    $("party").replaceChildren();const party=many(observable.characters).filter(x=>x?.character_id!=="oliver_hayes");
-    for(const person of party){const id=person?.character_id,name=person?.name||person?.display_name||nameById[id]||"Человек рядом";const row=child("div","party-person");
-      const imagePath=portrait(id);if(imagePath){const img=child("img");img.src=imagePath;img.alt=name;const frame=child("div","polaroid polaroid-npc");const portraitButton=child("button","portrait-button");portraitButton.type="button";portraitButton.setAttribute("aria-label","Увеличить портрет "+name);portraitButton.append(img);portraitButton.addEventListener("click",()=>zoom(imagePath,name));frame.append(portraitButton);row.append(frame)}
-      const details=child("div");details.append(child("strong","",name));row.append(details);$("party").append(row);
+    // Dynamic companions dossier board. Every confirmed nearby character gets
+    // a Polaroid, including characters who do not have an approved photograph.
+    const party=many(observable.characters).filter(x=>
+      x && typeof x==="object" && x.character_id!=="oliver_hayes");
+    const partyFragment=document.createDocumentFragment();
+    for(const person of party){
+      const id=person.character_id;
+      const name=person.name||person.display_name||nameById[id]||"Человек рядом";
+      const row=child("div","party-person");
+      const frame=child("div","polaroid polaroid-npc");
+      const imagePath=portrait(id);
+      // A known photograph can be enlarged. Unknown photographs show a
+      // non-interactive question mark without inventing a face.
+      const holder=child(imagePath?"button":"div","portrait-button");
+      const placeholder=()=>{
+        holder.classList.add("portrait-is-unknown");
+        holder.replaceChildren(child("span","party-portrait-unknown","?"));
+        holder.setAttribute("aria-label","Фотография персонажа "+name+" неизвестна");
+        if(holder.tagName==="BUTTON")holder.disabled=true;
+      };
+      if(imagePath){
+        holder.type="button";
+        holder.setAttribute("aria-label","Увеличить портрет "+name);
+        const img=child("img");img.src=imagePath;img.alt=name;img.loading="lazy";
+        img.addEventListener("error",placeholder,{once:true});
+        holder.append(img);
+        holder.addEventListener("click",()=>{
+          if(!holder.disabled && img.isConnected && img.complete && img.naturalWidth>0)
+            zoom(imagePath,name);
+        });
+      }else{
+        placeholder();
+      }
+      const label=child("div","party-portrait-name");
+      label.append(child("strong","",name));
+      frame.append(holder,label);
+      row.append(frame);
+      partyFragment.append(row);
     }
-    if(!party.length)$("party").append(child("p","muted","Никого рядом не установлено"));
+    if(!party.length)partyFragment.append(child("p","muted","Никого рядом не установлено"));
+    $("party").replaceChildren(partyFragment);
     $("inventory").replaceChildren();const inv=safeObj(hero.inventory);const items=many(inv.items);
     for(const item of items){const wrap=child("div","inventory-item");wrap.append(child("strong","",item.name||item.item_id||"Предмет"),child("small","",`Количество: ${item.quantity??"не уточнено"} ${item.unit||""} · ${item.location||item.location_scope||"место неизвестно"}`));$("inventory").append(wrap)}
     if(!items.length)$("inventory").append(child("p","muted","Инвентарь пока пуст или не указан"));

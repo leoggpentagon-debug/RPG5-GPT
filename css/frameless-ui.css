@@ -1,4 +1,4 @@
-/* Survival UI v40 — sharp scene image with narrowly feathered edges.
+/* Survival UI v46 — approved leafy grunge backdrop and preserved scene feather.
    Presentation only: retain all DOM, RPG state, Polaroid artwork, health/stat
    chips, status badges, buttons, textarea, journal/dossier and resize logic.
    No new image files; restore the originally approved dark-grunge background. */
@@ -118,14 +118,11 @@
   box-shadow:none;
 }
 
-/* The global page backdrop is the original grunge texture, NEVER the scene
-   photograph. Overrides the legacy fullscreen-street rule in cinematic.css. */
+/* The new approved leafy grunge is a background asset, not a scene image.
+   Keep its original contrast and composition, including the ivy on the left. */
 body {
-  background:
-    radial-gradient(ellipse at 58% 25%,#a34a3412,transparent 60%),
-    linear-gradient(110deg,#130e0b55,#0b090930 44%,#170b0955),
-    url("../assets/ui/background/background_dark_grunge_2k.webp") center/cover no-repeat fixed,
-    #19110e;
+  background:#19110e url("../assets/ui/background/background_ivy_survival.webp")
+    center center / cover no-repeat fixed;
 }
 
 /* Feather ONLY the image edges. The entire center is fully opaque,

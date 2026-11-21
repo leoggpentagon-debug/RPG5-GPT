@@ -1,0 +1,181 @@
+/* Survival UI v46: Nearby survivors as a two-column dossier board.
+   This stylesheet deliberately DOES NOT resize the sidebar or companions card.
+   It only changes the content inside the existing fixed-height scroll area. */
+
+/* Two photographs per row; further survivors create additional scrollable rows. */
+#game-shell .companions-card .party-list {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-content:start;
+  justify-items:center;
+  column-gap:5px;
+  row-gap:10px;
+  min-height:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+  scrollbar-width:thin;
+  padding:7px 3px 10px;
+}
+#game-shell .companions-card .party-person {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:0;
+  min-height:0;
+  min-width:0;
+  width:100%;
+  padding:0;
+  margin:0;
+  background:none;
+  border:0;
+  box-shadow:none;
+}
+#game-shell .companions-card .party-list > .muted {
+  grid-column:1 / -1;
+  text-align:center;
+  margin:8px 0;
+}
+#game-shell .companions-card .polaroid-npc {
+  position:relative;
+  display:block;
+  flex:0 0 auto;
+  width:min(132px,98%);
+  height:auto;
+  aspect-ratio:1261 / 1247;
+  margin:0;
+  padding:0;
+  isolation:isolate;
+  overflow:visible;
+  transform:rotate(-2deg);
+  background:transparent;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  filter:none;
+}
+/* Use exactly the approved player paper asset for every companion. */
+#game-shell .companions-card .polaroid-npc::after {
+  content:"";
+  position:absolute;
+  z-index:4;
+  inset:0;
+  pointer-events:none;
+  background:url("../assets/ui/portraits/polaroid_player_paper_frame.webp")
+    center / 100% 100% no-repeat;
+  border:0;
+  box-shadow:none;
+  opacity:1;
+}
+#game-shell .companions-card .polaroid-npc::before {
+  content:"";
+  position:absolute;
+  z-index:6;
+  top:-6.67%;
+  left:-5.33%;
+  width:46%;
+  height:auto;
+  aspect-ratio:749 / 415;
+  pointer-events:none;
+  background:url("../assets/ui/portraits/polaroid_player_tape.webp")
+    center / contain no-repeat;
+  opacity:1;
+  transform:none;
+  filter:none;
+  box-shadow:none;
+}
+#game-shell .companions-card .polaroid-npc > .portrait-button {
+  position:absolute;
+  z-index:2;
+  top:9.1%;
+  left:13.1%;
+  width:73.8%;
+  height:72%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  background:linear-gradient(150deg,#39312d,#171413 75%);
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  cursor:zoom-in;
+}
+#game-shell .companions-card .polaroid-npc > .portrait-button:where(div),
+#game-shell .companions-card .polaroid-npc > .portrait-button.portrait-is-unknown {
+  cursor:default;
+}
+#game-shell .companions-card .polaroid-npc .portrait-button img {
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position:center 35%;
+  border:0;
+  box-shadow:none;
+}
+#game-shell .companions-card .polaroid-npc .party-portrait-unknown {
+  display:grid;
+  place-items:center;
+  width:100%;
+  height:100%;
+  font:700 clamp(42px,4.2vw,58px)/1 Georgia,serif;
+  color:#d5c0a0;
+  text-shadow:0 2px 8px #000a;
+  background:radial-gradient(circle at 52% 38%,#5b51434f,transparent 70%);
+  user-select:none;
+}
+/* HTML name printed on the frame's lower paper label, directly below the photo. */
+#game-shell .companions-card .polaroid-npc .party-portrait-name {
+  position:absolute;
+  z-index:8;
+  top:79.6%;
+  left:7.2%;
+  width:69%;
+  height:14%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  padding:0 2px;
+  margin:0;
+  overflow:visible;
+  pointer-events:none;
+  text-align:center;
+  transform:rotate(-1deg);
+  background:transparent;
+  border:0;
+  box-shadow:none;
+}
+#game-shell .companions-card .polaroid-npc .party-portrait-name strong {
+  display:block;
+  max-width:100%;
+  padding:0;
+  margin:0;
+  font:700 clamp(10px,.85vw,14px)/1.07 Georgia,serif;
+  color:#261b13;
+  text-shadow:none;
+  letter-spacing:-.035em;
+  overflow-wrap:anywhere;
+  white-space:normal;
+  text-align:center;
+}
+/* Keep the region height unchanged on smaller monitors. */
+@media(max-width:1090px) and (min-width:721px) {
+  #game-shell .companions-card .party-list {column-gap:3px;padding-left:1px;padding-right:1px}
+  #game-shell .companions-card .polaroid-npc {width:min(113px,98%)}
+  #game-shell .companions-card .polaroid-npc .party-portrait-name strong {font-size:11px}
+}
+@media(max-height:750px) {
+  #game-shell .companions-card .party-list {row-gap:6px}
+  #game-shell .companions-card .polaroid-npc {width:min(116px,98%)}
+}
+@media(max-width:720px) {
+  /* Existing site design hides the whole companion rail on narrow screens. */
+  #game-shell .companions-card .party-list {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+/* Defensive fallback for any dialogue avatar inserted by a stale DOM source. */
+#game-shell .story-page .dialogue-avatar {display:none!important}

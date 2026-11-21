@@ -59,16 +59,7 @@
     label=label.replace(/\s*[·—-]\s*(?:ЧЕРНОВОЙ|ЧЕРНОВОЙ|СОХРАНЁННЫЙ|ЧАСТИЧНО ВОССТАНОВЛЕННЫЙ).*$/i,"").trim()||"Персонаж";
     const nameColor=getSpeakerColor(speakerId,label);
     block.style.setProperty("--speaker-color",nameColor);
-    const avatar=entry.querySelector("img.avatar");
-    if(avatar&&avatar.getAttribute("src")){
-      const img=document.createElement("img");img.className="dialogue-avatar";
-      img.src=avatar.src;img.alt=label;
-      img.addEventListener("click",()=>{
-        const modal=$("portrait-dialog"),full=$("portrait-full");
-        full.src=img.src;full.alt=label;if(!modal.open)modal.showModal();
-      });
-      block.append(img);
-    }
+    // No mini-portraits in story dialogue: keep the colored speaker name.
     const body=document.createElement("div");body.className="dialogue-body";
     const name=document.createElement("strong");name.className="dialogue-name";name.textContent=label;
     const content=document.createElement("p");content.className="dialogue-text";content.textContent=text;
