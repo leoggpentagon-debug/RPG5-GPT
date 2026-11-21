@@ -82,7 +82,7 @@
     const bubble=child("div","bubble");bubble.append(child("b","",label),child("div","",text));wrap.append(bubble);$("chat").append(wrap);
   }
   function zoom(src,label){$("portrait-full").src=src;$("portrait-full").alt=label;$("portrait-dialog").showModal()}
-  $("hero-portrait-button").addEventListener("click",()=>zoom($("hero-portrait").src,"Оливер Хейз"));
+  // The hero portrait now opens the animated dossier on a 500ms hold (profile-ui.js).
   $("portrait-close").addEventListener("click",()=>$("portrait-dialog").close());
   function showReply(reply){
     const r=safeObj(reply);
