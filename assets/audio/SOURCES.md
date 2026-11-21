@@ -1,6 +1,6 @@
 # Sound effects in 28 Days Later: Survival
 
-All 17 OGG samples in this directory are original unmodified audio from **Kenney**,
+The 17 listed legacy OGG samples below are original unmodified audio from **Kenney**,
 distributed under **Creative Commons Zero (CC0 1.0 Universal)**. Attribution is
 not required, but their sources are preserved here for provenance and re-use.
 
@@ -32,21 +32,26 @@ not required, but their sources are preserved here for provenance and re-use.
 
 Audio is client-only feedback; sounds do not modify game state or imply success.
 
-## Character stat sounds (November 2026)
+## User-selected character stat effects (2026-11-21)
 
-Hover/focus previews use five distinct short effects. They do not modify RPG6 state.
+These five new clips are **edited from MP3 recordings supplied by the player**.
+They are not the rejected SFXMint effects. Each clip is mono OGG/Opus,
+with a short fade at the beginning/end and restrained peak limiting.
+They are used solely for one-shot hover/focus feedback; audio is muted by
+the game's existing UI sound settings.
 
-| Stat | Sound / Source | License |
-| --- | --- | --- |
-| Health | [Muffled Through Wall Heartbeat 52](https://sfxmint.com/sounds/horror-heartbeat-52) | CC0 1.0 |
-| Stamina | Kenney [Digital Audio](https://kenney.nl/assets/digital-audio) (zap1.ogg), locally copied as assets/audio/stat_electric.ogg | CC0 1.0 |
-| Stress | [Trembling Whisper 09](https://sfxmint.com/sounds/whisper) | CC0 1.0 |
-| Hunger | [Fork on Ceramic 01](https://sfxmint.com/sounds/cutlery) | CC0 1.0 |
-| Thirst | [Single Water Drip 75](https://sfxmint.com/sounds/water-drip-75) | CC0 1.0 |
+| Stat | Original uploaded file | Source range (seconds) | Duration |
+| --- | --- | --- | --- |
+| Health | `u_akyu645azf-heartbeat-sound-effects-for-you-122458.mp3` | 0.12–1.05 | 0.93s |
+| Stamina | `ribhavagrawal-heavy-breathing-sound-effect-type-02-294195.mp3` | 1.80–3.13 | 1.33s |
+| Stress | `u_5hx6qi66bg-strange-whispers-415245.mp3` | 5.25–6.97 | 1.72s |
+| Hunger | `shut_up_ghost-frying-food-cooking-kitchen-free-sound-effect-382865.mp3` | 7.04–8.53 | 1.49s |
+| Thirst | `soul_serenity_sounds-random-water-drop-ripple-241044.mp3` | 1.93–2.89 | 0.96s |
 
-SFXMint audio streams (health, stress, hunger, thirst) use external direct MP3 hotlinks,
-not repository copies. They require internet and are subject to remote-host uptime.
-SFXMint permits hotlinking and distributes these AI-generated effects under CC0:
-https://sfxmint.com/license
+Output filenames follow `assets/audio/stat_<name>.ogg`.
+The uploaded source filenames resemble Pixabay recordings, but the specific
+license of each user-uploaded file was not independently verified here; do
+not infer CC0 licensing merely from a filename.
 
-Kenney's stamina zap is self-hosted, using the same CC0 mirror as the other Kenney audio.
+Legacy file `stat_electric.ogg` (Kenney Digital Audio, zap1.ogg)
+remains in the repository but is no longer played for stamina.
