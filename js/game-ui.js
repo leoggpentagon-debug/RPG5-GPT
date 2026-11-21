@@ -188,6 +188,97 @@
       const info=document.createElement("div");info.textContent=row.querySelector("strong")?.textContent||"Персонаж";card.append(info);target.append(card);
     }
   }
+  // Adjustable scene image / narrative split.
+  // The preferred ratio is local to this browser and does not touch RPG6 state.
+  const scenePane=$("pane-story");
+  const imagePane=$("scene-image-wrap");
+  const divider=$("stage-divider");
+  const sceneHeading=scenePane.querySelector(".scene-heading");
+  const actionPane=scenePane.querySelector(".action-area");
+  const sizeStorageKey="28days.scene-image-ratio.v1";
+  const defaultImageRatio=0.25;
+  let imageRatio=defaultImageRatio;
+  const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
+  try {
+    const saved=Number(localStorage.getItem(sizeStorageKey));
+    if(Number.isFinite(saved)&&saved>=0.10&&saved<=0.55)imageRatio=saved;
+  } catch(error) { /* Storage is optional. */ }
+
+  function imageSizeLimits() {
+    const fullHeight=Math.max(1,scenePane.clientHeight-sceneHeading.getBoundingClientRect().height);
+    const actionHeight=actionPane.getBoundingClientRect().height;
+    const dividerHeight=divider.getBoundingClientRect().height||12;
+    const minStory=Math.min(175,Math.max(105,fullHeight*0.25));
+    const minImage=Math.min(110,Math.max(50,fullHeight*0.10));
+    const maxImage=Math.max(minImage,Math.min(fullHeight*0.55,fullHeight-actionHeight-dividerHeight-minStory));
+    return {fullHeight,minImage,maxImage};
+  }
+  function applyImageRatio() {
+    const b=imageSizeLimits();
+    const px=clamp(b.fullHeight*imageRatio,b.minImage,b.maxImage);
+    imagePane.style.setProperty("--scene-resized-height",Math.round(px)+"px");
+    const percentage=Math.round(100*px/b.fullHeight);
+    divider.setAttribute("aria-valuenow",String(percentage));
+    divider.setAttribute("aria-valuetext","Изображение сцены: "+percentage+"% высоты");
+  }
+  function saveImageRatio(){
+    try{localStorage.setItem(sizeStorageKey,String(imageRatio))}catch(error){/* Private browsing or disabled storage. */}
+  }
+  let dragging=false,dragOriginY=0,dragOriginHeight=0;
+  divider.addEventListener("pointerdown",event=>{
+    if(event.button!==0)return;
+    event.preventDefault();
+    const bounds=imageSizeLimits();
+    dragOriginY=event.clientY;
+    dragOriginHeight=clamp(bounds.fullHeight*imageRatio,bounds.minImage,bounds.maxImage);
+    dragging=true;
+    divider.classList.add("dragging");
+    divider.setPointerCapture(event.pointerId);
+  });
+  divider.addEventListener("pointermove",event=>{
+    if(!dragging)return;
+    const b=imageSizeLimits();
+    const pixels=clamp(dragOriginHeight+event.clientY-dragOriginY,b.minImage,b.maxImage);
+    imageRatio=clamp(pixels/b.fullHeight,0.10,0.55);
+    applyImageRatio();
+  });
+  function finishDrag(){
+    if(!dragging)return;
+    dragging=false;
+    divider.classList.remove("dragging");
+    saveImageRatio();
+  }
+  divider.addEventListener("pointerup",finishDrag);
+  divider.addEventListener("pointercancel",finishDrag);
+  divider.addEventListener("lostpointercapture",finishDrag);
+  divider.addEventListener("dblclick",()=>{
+    imageRatio=defaultImageRatio;
+    applyImageRatio();
+    saveImageRatio();
+  });
+  divider.addEventListener("keydown",event=>{
+    const b=imageSizeLimits();
+    const current=clamp(imageRatio*b.fullHeight,b.minImage,b.maxImage);
+    let next=null;
+    if(event.key==="ArrowUp")next=current-14;
+    else if(event.key==="ArrowDown")next=current+14;
+    else if(event.key==="PageUp")next=current-42;
+    else if(event.key==="PageDown")next=current+42;
+    else if(event.key==="Home")next=b.minImage;
+    else if(event.key==="End")next=b.maxImage;
+    if(next===null)return;
+    event.preventDefault();
+    imageRatio=clamp(clamp(next,b.minImage,b.maxImage)/b.fullHeight,0.10,0.55);
+    applyImageRatio();
+    saveImageRatio();
+  });
+  if(typeof ResizeObserver!=="undefined"){
+    const resizeObserver=new ResizeObserver(applyImageRatio);
+    resizeObserver.observe(scenePane);
+    resizeObserver.observe(actionPane);
+  }else window.addEventListener("resize",applyImageRatio);
+  requestAnimationFrame(applyImageRatio);
+
   window.addEventListener("rpg6:render",event=>{
     // An explicit refresh after a verified load prevents stale "loading" text even
     // when MutationObserver callbacks are delayed by rendering or tab visibility.
@@ -199,10 +290,15 @@
     const d=obj(event.detail),scene=obj(d.scene),observable=obj(d.observable),hero=obj(d.hero);
     putText("world-day",scene.day===undefined?"День —":"День "+scene.day);
     putText("world-time",scene.time_label||"—:—");
-    const weatherSource=scene.weather_label||scene.weather||observable.weather_label||observable.weather||"";
-    const weather=typeof weatherSource==="string"?weatherSource:
-      String(weatherSource?.description||weatherSource?.condition||weatherSource?.summary||"");
-    let glyph="—";
+    // Prefer explicit data from RPG6; no fictional weather is generated by the browser.
+    const sceneEnv=obj(scene.environment),observableEnv=obj(observable.environment);
+    const weatherSource=scene.weather_label||scene.weather||sceneEnv.weather||
+      sceneEnv.weather_label||observable.weather_label||observable.weather||
+      observableEnv.weather||observableEnv.weather_label||"";
+    const rawWeather=typeof weatherSource==="string"?weatherSource:
+      String(weatherSource?.description||weatherSource?.condition||weatherSource?.summary||weatherSource?.label||"");
+    const weather=rawWeather.trim();
+    let glyph="🌡️?";
     if(/гроз|storm|thunder/i.test(weather))glyph="⛈️";
     else if(/снег|snow|blizzard/i.test(weather))glyph="🌨️";
     else if(/дожд|rain|shower|осадк/i.test(weather))glyph="🌧️";
@@ -210,9 +306,14 @@
     else if(/ветер|wind/i.test(weather))glyph="💨";
     else if(/облач|cloud|пасмур/i.test(weather))glyph="☁️";
     else if(/ясно|солн|sun|clear/i.test(weather))glyph="☀️";
-    putText("world-weather",glyph);
-    $("world-weather").title=weather||"Погода неизвестна";
-    $("world-weather").setAttribute("aria-label",weather||"Погода неизвестна");
+    else if(weather)glyph="🌦️";
+    const temperatureValue=weatherSource?.temperature_c??scene.temperature_c??sceneEnv.temperature_c??observable.temperature_c??observableEnv.temperature_c;
+    const temperature=temperatureValue===undefined||temperatureValue===null||temperatureValue===""?null:Number(temperatureValue);
+    const degree=temperature!==null&&Number.isFinite(temperature)?" "+(temperature>0?"+":"")+Math.round(temperature)+"°":"";
+    putText("world-weather",glyph+degree);
+    const weatherTitle=weather||"Погода пока не указана в игровом состоянии";
+    $("world-weather").title=weatherTitle;
+    $("world-weather").setAttribute("aria-label",weatherTitle);
     updateMap(scene,observable);updateImage(scene,observable);updateJournal(scene,observable,hero);updateCharacters();
   });
   new MutationObserver(updateCharacters).observe($("party"),{childList:true});
