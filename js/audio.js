@@ -1,6 +1,6 @@
 (() => {
   "use strict";
-  // CC0 Kenney OGG effects; provenance in assets/audio/SOURCES.md.
+  // Kenney CC0 UI effects and user-approved stress MP3s; see assets/audio/SOURCES.md.
   // Optional client-only audio. No contact with Gemini or the RPG6 save API.
   const ROOT="assets/audio/";
   const sources=Object.freeze({
@@ -12,15 +12,40 @@
     ui_confirm:"ui_confirm.ogg",ui_back:"ui_back.ogg",
     ui_error:"ui_error.ogg",ui_toggle:"ui_toggle.ogg",
     stat_health:"stat_health.ogg",stat_stamina:"stat_stamina.ogg",
-    stat_stress:"stat_stress.ogg",stat_hunger:"stat_hunger.ogg",stat_thirst:"stat_thirst.ogg"
+    stat_hunger:"stat_hunger.ogg",stat_thirst:"stat_thirst.ogg",
+    stress_calm:"stress/woodland_birdies_stress_0-1_8s_fade.mp3",
+    stress_2:"stress/universfield-old-wooden-door-402153.mp3",
+    stress_3:"stress/dragon-studio-scary-bells-359875.mp3",
+    stress_4:"stress/freeeverythingxx-open-the-door-horror-268582.mp3",
+    stress_5_demonic:"stress/freesound_community-demonic-whisper-100425.mp3",
+    stress_5_behind:"stress/freesound_community-075283_quotbehind-youquot-whisper-86744.mp3",
+    stress_5_ghost:"stress/dragon-studio-ghost-whisper-351569.mp3",
+    stress_5_voices:"stress/freesound_community-four_voices_whispering-6943.mp3",
+    stress_5_spell:"stress/yodguard-dark-spell-chant-3-533018.mp3",
+    stress_5_moan:"stress/freesound_community-creepy-moan-87456.mp3"
   });
   const baseGain={
     book_open:.75,book_close:.75,page_turn:.85,page_turn_alt:.7,
     paper_stamp:.52,paper_rustle:.52,leather_creak:.4,
     ui_click:.5,ui_hover:.19,ui_confirm:.48,
     ui_back:.4,ui_error:.37,ui_toggle:.45,
-    stat_health:.86,stat_stamina:.72,stat_stress:.8,stat_hunger:.6,stat_thirst:.95
+    stat_health:.86,stat_stamina:.72,stat_hunger:.6,stat_thirst:.95,
+    stress_calm:1,stress_2:1,stress_3:1,stress_4:1,
+    stress_5_demonic:1,stress_5_behind:1,stress_5_ghost:1,
+    stress_5_voices:1,stress_5_spell:1,stress_5_moan:1
   };
+  // At 0/5 and 1/5 use exactly the same approved eight-second woodland clip.
+  const STRESS_BY_LEVEL=Object.freeze(["stress_calm","stress_calm","stress_2","stress_3","stress_4"]);
+  // Six equally likely candidates; pick ONE at playback time, never a mix.
+  const STRESS_AT_FIVE=Object.freeze([
+    "stress_5_demonic","stress_5_behind","stress_5_ghost",
+    "stress_5_voices","stress_5_spell","stress_5_moan"
+  ]);
+  function stressSound(level) {
+    if(!Number.isInteger(level)||level<0||level>5)return null;
+    if(level===5)return STRESS_AT_FIVE[Math.floor(Math.random()*STRESS_AT_FIVE.length)];
+    return STRESS_BY_LEVEL[level];
+  }
   const STORE_ENABLED="survival.audio.enabled.v1",STORE_VOLUME="survival.audio.volume.v1";
   let enabled=true,volume=.35;
   const active=new Set();
@@ -48,7 +73,7 @@
     // Reject the unwanted selection, drawer-open and drawer-close tones globally.
     if(name==="ui_select"||name==="ui_open"||name==="ui_close")return;
     if(!enabled||volume<=0||!Object.hasOwn(sources,name)||typeof Audio==="undefined")return;
-    const now=performance.now(),isStat=name.startsWith("stat_"),minimum=name==="ui_hover"?165:45;
+    const now=performance.now(),isStat=name.startsWith("stat_")||name.startsWith("stress_"),minimum=name==="ui_hover"?165:45;
     if(isStat&&(now-lastStatTime<300||(name===lastStatKey&&now-lastStatTime<1000)))return;
     if(now-(lastPlayed.get(name)||-10000)<minimum)return;
     lastPlayed.set(name,now);
@@ -101,20 +126,31 @@
     try{activeStat.pause();activeStat.currentTime=0}catch(error){}
     active.delete(activeStat);activeStat=null;
   }
-  // Prime the browser cache when the user opens the diary, not on every visit.
-  // This only downloads five tiny clips; it never starts audible playback.
-  const statPreloads=[];
-  function preloadStats(){
-    if(statPreloads.length||typeof Audio==="undefined")return;
-    for(const key of ["health","stamina","stress","hunger","thirst"]){
-      const audio=new Audio(ROOT+sources["stat_"+key]);
-      audio.preload="auto";
-      statPreloads.push(audio);
-      audio.load();
+  // Preload the four unchanged stat clips plus ONLY the relevant stress tier.
+  // At 5/5 all six files may be downloaded, but only ONE is ever played.
+  const statPreloads=new Map();
+  function preloadOne(name) {
+    if(typeof Audio==="undefined"||!Object.hasOwn(sources,name)||statPreloads.has(name))return;
+    const sound=new Audio(ROOT+sources[name]);
+    sound.preload="auto";
+    statPreloads.set(name,sound);
+    sound.load();
+  }
+  function preloadStats(stressLevel) {
+    for(const key of ["health","stamina","hunger","thirst"])preloadOne("stat_"+key);
+    if(!Number.isInteger(stressLevel)||stressLevel<0||stressLevel>5)return;
+    const cues=stressLevel===5?STRESS_AT_FIVE:[STRESS_BY_LEVEL[stressLevel]];
+    for(const name of cues)preloadOne(name);
+  }
+  function playStat(key,level) {
+    if(key==="stress") {
+      const name=stressSound(level);
+      return name?play(name):null;
     }
+    return play("stat_"+key);
   }
   window.RPG6_SFX=Object.freeze({
-    play,playStat:key=>play("stat_"+key),preloadStats,stopStat,setEnabled,setVolume,
+    play,playStat,preloadStats,stopStat,setEnabled,setVolume,
     get enabled(){return enabled},get volume(){return volume}
   });
 

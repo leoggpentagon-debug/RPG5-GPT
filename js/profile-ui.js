@@ -60,7 +60,11 @@
       const angle=(-90+index*72)*Math.PI/180;
       block.style.setProperty("--ring-x",(50+35*Math.cos(angle)).toFixed(2)+"%");
       block.style.setProperty("--ring-y",(50+35*Math.sin(angle)).toFixed(2)+"%");
-      const selectAndPlay=()=>{chooseStat(block);window.RPG6_SFX?.playStat(key);};
+      const selectAndPlay=()=>{
+        chooseStat(block);
+        // RPG6's actual stress 0..5 decides the approved sound; unknown is silent.
+        window.RPG6_SFX?.playStat(key,key==="stress"&&valid?number:undefined);
+      };
       block.addEventListener("mouseenter",selectAndPlay);
       block.addEventListener("focus",selectAndPlay);
       block.addEventListener("click",()=>chooseStat(block));
@@ -271,7 +275,8 @@
     wasOpen=true;phase="opening";
     const serial=++sequence;
     previousFocus=document.activeElement;
-    window.RPG6_SFX?.preloadStats();
+    const stressData=getObj(getObj(latestHero.stats).stress);
+    window.RPG6_SFX?.preloadStats(stressData.current==null?undefined:Number(stressData.current));
     panel.style.opacity="";
     setProfileValues();
     stopMotion();
