@@ -1,0 +1,277 @@
+/* RPG6 radial petals v35 — exact filenames and geometry of the approved ZIP.
+   Artwork is independent of hit targets: a clipped click area NEVER clips the
+   feathered WebP art. Every hover picture exactly covers its base image. */
+
+/* The game must stay visible underneath the menu. */
+.radial-nav-overlay .radial-nav-backdrop {
+  background:rgba(11,8,7,.59);
+  backdrop-filter:blur(3px) saturate(.78) sepia(.15);
+  -webkit-backdrop-filter:blur(3px) saturate(.78) sepia(.15);
+}
+.radial-nav-overlay .radial-nav-shell {
+  position:relative;
+  width:min(654px,calc(100vw - 28px),calc(100dvh - 56px));
+  aspect-ratio:1;
+  height:auto;
+  min-width:0;
+  overflow:visible;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  filter:none;
+  transform:scale(.94);
+  transition:transform .27s ease,opacity .24s ease;
+}
+.radial-nav-overlay.is-open .radial-nav-shell {transform:scale(1)}
+/* Remove all historical metal backgrounds, rims, separators and smoke base. */
+.radial-nav-overlay .radial-nav-shell::before,
+.radial-nav-overlay .radial-nav-shell::after {
+  content:none!important;
+  display:none!important;
+  background:none!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.radial-sector-art {
+  position:absolute;
+  z-index:1;
+  inset:0;
+  overflow:visible;
+  pointer-events:none;
+}
+.radial-sector-art .radial-petal {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  margin:0;
+  padding:0;
+  object-fit:contain;
+  border:0;
+  border-radius:0;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.radial-sector-art .radial-petal-base {
+  opacity:1;
+  transition:opacity .23s ease;
+}
+.radial-sector-art .radial-petal-hover {
+  opacity:0;
+  filter:saturate(1.12);
+  transition:opacity .23s ease;
+}
+/* The ZIP guarantees pixel-identical alpha for each sector / hover pair. */
+.radial-nav-shell[data-hover="story"] .radial-petal-base[data-for="story"],
+.radial-nav-shell[data-hover="inventory"] .radial-petal-base[data-for="inventory"],
+.radial-nav-shell[data-hover="characters"] .radial-petal-base[data-for="characters"],
+.radial-nav-shell[data-hover="map"] .radial-petal-base[data-for="map"] {opacity:0}
+.radial-nav-shell[data-hover="story"] .radial-petal-hover[data-for="story"],
+.radial-nav-shell[data-hover="inventory"] .radial-petal-hover[data-for="inventory"],
+.radial-nav-shell[data-hover="characters"] .radial-petal-hover[data-for="characters"],
+.radial-nav-shell[data-hover="map"] .radial-petal-hover[data-for="map"] {opacity:1}
+
+/* ONLY transparent hit targets are clipped; visible smoke stays untouched. */
+.radial-nav-overlay .radial-game-tabs.game-tabs {
+  position:absolute;
+  inset:0;
+  z-index:3;
+  display:block;
+  width:100%;
+  height:100%;
+  min-width:0;
+  margin:0;
+  padding:0;
+  overflow:visible;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  background:none;
+  pointer-events:none;
+  clip-path:circle(49% at 50% 50%);
+}
+.radial-nav-overlay .radial-game-tabs.game-tabs::before,
+.radial-nav-overlay .radial-game-tabs.game-tabs::after {
+  content:none!important;
+  display:none!important;
+}
+.radial-nav-overlay .radial-game-tabs .game-tab,
+.radial-nav-overlay .radial-game-tabs .game-tab.active {
+  position:absolute;
+  inset:0;
+  top:0!important;
+  left:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:none!important;
+  flex:none!important;
+  margin:0!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  outline:none;
+  color:#e9d9c5;
+  text-shadow:none;
+  transform:none!important;
+  filter:none!important;
+  pointer-events:auto;
+  cursor:pointer;
+}
+.radial-nav-overlay .radial-game-tabs .game-tab::before,
+.radial-nav-overlay .radial-game-tabs .game-tab::after {
+  content:none!important;
+  display:none!important;
+  background:none!important;
+}
+/* Four equally sized pie-slice click targets. All share the same origin. */
+.radial-game-tabs .game-tab[data-tab="story"] {
+  clip-path:polygon(50% 50%,0 0,100% 0);
+  --petal-x:50%;
+  --petal-icon-y:19%;
+  --petal-label-y:32%;
+}
+.radial-game-tabs .game-tab[data-tab="inventory"] {
+  clip-path:polygon(50% 50%,100% 0,100% 100%);
+  --petal-x:79%;
+  --petal-icon-y:43%;
+  --petal-label-y:56%;
+}
+.radial-game-tabs .game-tab[data-tab="characters"] {
+  clip-path:polygon(50% 50%,100% 100%,0 100%);
+  --petal-x:50%;
+  --petal-icon-y:71%;
+  --petal-label-y:84%;
+}
+.radial-game-tabs .game-tab[data-tab="map"] {
+  clip-path:polygon(50% 50%,0 100%,0 0);
+  --petal-x:21%;
+  --petal-icon-y:43%;
+  --petal-label-y:56%;
+}
+/* New high-resolution SVG assets in the v35 pack; no old WebP crop icons. */
+.radial-nav-overlay .radial-game-tabs .game-tab .radial-tab-icon {
+  position:absolute!important;
+  display:block!important;
+  top:var(--petal-icon-y)!important;
+  left:var(--petal-x)!important;
+  width:clamp(58px,16%,111px)!important;
+  height:clamp(58px,16%,111px)!important;
+  max-width:none!important;
+  object-fit:contain!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:none!important;
+  opacity:1;
+  transform:translate(-50%,-50%)!important;
+  filter:drop-shadow(0 2px 5px #080503a8)!important;
+  pointer-events:none;
+  transition:filter .18s ease!important;
+}
+.radial-nav-overlay .radial-game-tabs .game-tab .tab-caption,
+.radial-nav-overlay .radial-game-tabs .game-tab.active .tab-caption {
+  position:absolute!important;
+  display:block!important;
+  top:var(--petal-label-y)!important;
+  left:var(--petal-x)!important;
+  width:max-content;
+  max-width:34%;
+  margin:0!important;
+  padding:0!important;
+  background:none!important;
+  border:0!important;
+  color:#e7d6bf!important;
+  font:700 clamp(14px,1.6vw,21px)/1.15 var(--font-display)!important;
+  letter-spacing:.06em!important;
+  text-align:center;
+  text-transform:uppercase;
+  white-space:nowrap;
+  text-shadow:0 2px 4px #070504,0 0 10px #100a07!important;
+  transform:translate(-50%,-50%)!important;
+  pointer-events:none;
+  transition:color .18s ease,text-shadow .18s ease;
+}
+.radial-nav-overlay .radial-game-tabs .game-tab:hover .tab-caption,
+.radial-nav-overlay .radial-game-tabs .game-tab:focus-visible .tab-caption {
+  color:#ffdfcd!important;
+  text-shadow:0 0 14px #b5291dc4,0 2px 5px #070403!important;
+}
+.radial-nav-overlay .radial-game-tabs .game-tab:hover .radial-tab-icon,
+.radial-nav-overlay .radial-game-tabs .game-tab:focus-visible .radial-tab-icon {
+  filter:drop-shadow(0 0 8px #b52d23b8) drop-shadow(0 2px 4px #080503)!important;
+}
+.radial-nav-overlay .radial-game-tabs .game-tab:focus-visible {
+  outline:0!important;
+}
+/* Transparent hit button with only a separate high-resolution infection emblem. */
+.radial-nav-overlay .radial-nav-hub {
+  position:absolute;
+  top:50%;left:50%;z-index:5;
+  width:clamp(70px,16%,110px);
+  height:clamp(70px,16%,110px);
+  min-width:0;
+  min-height:0;
+  display:grid;
+  place-items:center;
+  margin:0;
+  padding:0;
+  border:0!important;
+  border-radius:0!important;
+  background:none!important;
+  box-shadow:none!important;
+  color:transparent;
+  text-shadow:none;
+  transform:translate(-50%,-50%);
+  pointer-events:auto;
+  cursor:pointer;
+}
+.radial-nav-overlay .radial-nav-hub img {
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;
+  filter:drop-shadow(0 0 12px #a9584050);
+  transition:filter .18s ease;
+}
+.radial-nav-overlay .radial-nav-hub:hover img,
+.radial-nav-overlay .radial-nav-hub:focus-visible img {
+  filter:drop-shadow(0 0 15px #d85a3b96) brightness(1.13);
+}
+.radial-nav-overlay .radial-nav-hub:focus-visible {
+  outline:2px solid #e9af89;
+  outline-offset:0;
+  border-radius:50%!important;
+}
+.radial-nav-overlay .radial-nav-close,
+.radial-nav-overlay .radial-nav-hint {display:none!important}
+
+@media(max-width:600px) {
+  .radial-nav-overlay .radial-nav-shell {
+    width:min(calc(100vw - 12px),calc(100dvh - 28px));
+  }
+  .radial-nav-overlay .radial-game-tabs .game-tab .radial-tab-icon {
+    width:clamp(43px,16%,74px)!important;
+    height:clamp(43px,16%,74px)!important;
+  }
+  .radial-nav-overlay .radial-game-tabs .game-tab .tab-caption,
+  .radial-nav-overlay .radial-game-tabs .game-tab.active .tab-caption {
+    font-size:clamp(10px,3.2vw,15px)!important;
+    letter-spacing:.01em!important;
+  }
+  .radial-nav-overlay .radial-nav-hub {width:16%;height:16%;min-width:48px;min-height:48px}
+}
+@media(prefers-reduced-motion:reduce) {
+  .radial-nav-overlay .radial-nav-shell,
+  .radial-sector-art .radial-petal,
+  .radial-nav-overlay .radial-game-tabs .game-tab .radial-tab-icon {
+    transition:none!important;
+  }
+}
