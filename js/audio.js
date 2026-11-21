@@ -29,6 +29,7 @@
   const STORE_ENABLED="survival.audio.enabled.v1",STORE_VOLUME="survival.audio.volume.v1";
   let enabled=true,volume=.35;
   const active=new Set();
+  let activeStatSound=null;
   const lastPlayed=new Map();
   const $=id=>document.getElementById(id);
   try{
@@ -47,6 +48,7 @@
   function silence(){
     for(const sound of active){try{sound.pause();sound.currentTime=0}catch(error){}}
     active.clear();
+    activeStatSound=null;
   }
   function play(name,options={}){
     if(!enabled||volume<=0||!Object.hasOwn(sources,name)||typeof Audio==="undefined")return;
@@ -56,14 +58,19 @@
     const gain=Number.isFinite(Number(options.gain))?Math.max(0,Math.min(1,Number(options.gain))):1;
     if(active.size>=8){const first=active.values().next().value;if(first){try{first.pause()}catch(error){}active.delete(first)}}
     try{
+      if(name.startsWith("stat_")&&activeStatSound){
+        try{activeStatSound.pause();activeStatSound.currentTime=0}catch(error){}
+        active.delete(activeStatSound);activeStatSound=null;
+      }
       const url=sources[name];
       const sound=new Audio(/^https:\/\//.test(url)?url:ROOT+url);
       sound.preload="auto";
       sound.volume=Math.max(0,Math.min(1,volume*(baseGain[name]??.5)*gain));
-      const cleanup=()=>active.delete(sound);
+      const cleanup=()=>{active.delete(sound);if(activeStatSound===sound)activeStatSound=null};
       sound.addEventListener("ended",cleanup,{once:true});
       sound.addEventListener("error",cleanup,{once:true});
       active.add(sound);
+      if(name.startsWith("stat_"))activeStatSound=sound;
       // The clip's audible playback, not its network loading, determines duration.
       const limit=Number(options.maxMs);
       if(Number.isFinite(limit)&&limit>100){
