@@ -60,8 +60,9 @@
       const angle=(-90+index*72)*Math.PI/180;
       block.style.setProperty("--ring-x",(50+35*Math.cos(angle)).toFixed(2)+"%");
       block.style.setProperty("--ring-y",(50+35*Math.sin(angle)).toFixed(2)+"%");
-      block.addEventListener("mouseenter",()=>chooseStat(block));
-      block.addEventListener("focus",()=>chooseStat(block));
+      const selectAndPlay=()=>{chooseStat(block);window.RPG6_SFX?.playStat(key);};
+      block.addEventListener("mouseenter",selectAndPlay);
+      block.addEventListener("focus",selectAndPlay);
       block.addEventListener("click",()=>chooseStat(block));
       target.append(block);
     });
@@ -312,6 +313,7 @@
     finishTimer=setTimeout(()=>finishOpening(serial),1780);
   }
   function closeProfile(){
+    window.RPG6_SFX?.stopStat();
     if(!wasOpen||phase==="closed"||phase==="closing")return;
     if(phase==="opening"){
       // Allow Escape even during the reveal; settle at the correct geometry.
