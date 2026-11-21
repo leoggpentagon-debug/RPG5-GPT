@@ -1,74 +1,57 @@
-/* Wheel menu v32 — uses the user's actual metal-dial reference artwork.
-   The four sections are sectors of ONE physical wheel, never floating cards.
-   Geometry and art only; existing keyboard and game logic remain unchanged. */
+/* v33 — modular artwork traced/extracted from the user's approved screenshot.
+   No invented cloud silhouette, hard metal rim, backing panel or visible crosshair. */
 .radial-nav-backdrop {
-  background:radial-gradient(ellipse at 50% 48%,#0a0e12da 0%,#030609f2 69%),#020407ed;
-  backdrop-filter:blur(9px) saturate(.58);
-  -webkit-backdrop-filter:blur(9px) saturate(.58);
+  background:
+    radial-gradient(ellipse at 50% 45%,#20171385 0%,#0b0908b5 75%),
+    #100c0957;
+  backdrop-filter:blur(2.7px) saturate(.76) sepia(.12);
+  -webkit-backdrop-filter:blur(2.7px) saturate(.76) sepia(.12);
 }
 .radial-nav-shell {
-  width:min(506px,calc(100vw - 34px),calc(100dvh - 76px));
-  filter:drop-shadow(0 20px 38px #000e) drop-shadow(0 0 22px #7f8c941d);
+  width:min(640px,calc(100vw - 30px),calc(100dvh - 45px));
+  aspect-ratio:1;
+  border:0;
+  border-radius:0;
+  filter:drop-shadow(0 18px 28px #09060466);
+  overflow:visible;
 }
-/* The supplied 317x292 metallic reference is the actual wheel surface.
-   Radial masking keeps its original atmosphere without square picture edges. */
 .radial-nav-shell::before {
   content:"";
   position:absolute;
-  inset:1.5%;
+  inset:0;
   z-index:0;
-  border-radius:50%;
-  border:2px solid #737777;
-  background:
-    radial-gradient(circle at center,transparent 24%,#05080c15 57%,#020507aa 96%),
-    url("../assets/ui/navigation/radial_wheel_reference.webp") center/cover no-repeat,
-    url("../assets/ui/textures/metal_worn_texture_2048.webp") center/cover,
-    #1b2023;
-  box-shadow:
-    0 0 0 4px #0b0f11,
-    0 0 0 6px #6667669c,
-    0 0 0 8px #030507,
-    0 0 26px #9aa8b020,
-    inset 0 0 15px #f7eee836,
-    inset 0 0 38px #000c;
-}
-/* The thin etched rim is over the four interactive metal sectors. */
-.radial-nav-shell::after {
-  content:"";
   pointer-events:none;
-  position:absolute;
-  inset:2.7%;
-  z-index:4;
-  border-radius:50%;
-  border:1px solid #c9ceca52;
-  background:
-    repeating-conic-gradient(from 3deg,#dde5e82a 0deg .32deg,transparent .32deg 9deg);
-  -webkit-mask:radial-gradient(circle,transparent 0 88%,#000 90% 100%);
-  mask:radial-gradient(circle,transparent 0 88%,#000 90% 100%);
-  opacity:.68;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  background:url("../assets/ui/navigation/smoke-wheel-base.webp") center/100% 100% no-repeat;
+  opacity:.97;
+}
+.radial-nav-shell::after {
+  content:none!important;
+  display:none!important;
+  border:0!important;
+  background:none!important;
 }
 .radial-game-tabs.game-tabs {
-  inset:4.7%;
-  width:90.6%;
-  height:90.6%;
-  display:block;
-  overflow:hidden;
-  border-radius:50%;
-  isolation:isolate;
-  background:transparent;
-  box-shadow:inset 0 0 21px #0008;
-  pointer-events:none;
-}
-/* Both diagonal engraved seams make four continuous pie-shaped wedges. */
-.radial-game-tabs.game-tabs::after {
-  content:"";
   position:absolute;
   z-index:2;
+  display:block;
   inset:0;
+  width:100%;
+  height:100%;
+  overflow:visible;
+  isolation:auto;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
   pointer-events:none;
-  background:
-    linear-gradient(45deg,transparent calc(50% - 2px),#070a0dcc calc(50% - 1px),#b7bcb752 50%,#090b0ebd calc(50% + 1px),transparent calc(50% + 2px)),
-    linear-gradient(-45deg,transparent calc(50% - 2px),#070a0dcc calc(50% - 1px),#b7bcb752 50%,#090b0ebd calc(50% + 1px),transparent calc(50% + 2px));
+}
+.radial-game-tabs.game-tabs::after {
+  content:none!important;
+  display:none!important;
+  background:none!important;
 }
 .radial-game-tabs .game-tab,
 .radial-game-tabs .game-tab.active {
@@ -76,26 +59,26 @@
   inset:0;
   top:0!important;
   left:0!important;
+  display:block!important;
   width:100%!important;
   height:100%!important;
+  max-width:none!important;
   min-width:0!important;
   min-height:0!important;
-  max-width:none!important;
-  display:block!important;
-  flex:none!important;
   margin:0!important;
   padding:0!important;
+  flex:none!important;
   border:0!important;
   border-radius:0!important;
-  outline:0;
+  outline:0!important;
   box-shadow:none!important;
-  background:linear-gradient(160deg,#aeb2b312,#070b0f29)!important;
-  color:#e4e3da;
-  cursor:pointer;
+  background:none!important;
+  color:#e6d7c1;
   pointer-events:auto;
   transform:none!important;
-  transition:filter .18s ease,background .18s ease!important;
-  text-shadow:0 2px 3px #000f;
+  transition:none!important;
+  filter:none!important;
+  cursor:pointer;
 }
 .radial-game-tabs .game-tab[data-tab="story"] {
   clip-path:polygon(50% 50%,0 0,100% 0);
@@ -109,123 +92,163 @@
 .radial-game-tabs .game-tab[data-tab="map"] {
   clip-path:polygon(50% 50%,0 100%,0 0);
 }
-.radial-game-tabs .game-tab.active {
-  background:radial-gradient(circle at 50% 50%,#c958312a,#713b271b 52%,#ffffff08 100%)!important;
-  color:#f5e7d5;
-}
-.radial-game-tabs .game-tab:hover:not(:disabled),
-.radial-game-tabs .game-tab:focus-visible {
-  background:
-    radial-gradient(circle at 50% 45%,#c78d626b,#b8bec438 57%,#b5c1bd16 90%)!important;
-  filter:brightness(1.19);
-}
-.radial-game-tabs .game-tab:focus-visible {
-  outline:0!important;
-  box-shadow:none!important;
-}
-/* Text stays upright; graphic and caption are engraved separately on the
-   four cardinal sectors. No rotations of the player's readable labels. */
-.radial-game-tabs .game-tab img {
-  position:absolute!important;
-  width:clamp(34px,10%,54px)!important;
-  height:clamp(34px,10%,54px)!important;
+/* One independently hosted crimson asset is rotated to each compass segment.
+   The PNG/WebP itself already has feathered, irregular boundaries. */
+.radial-game-tabs .game-tab::before {
+  content:""!important;
   display:block!important;
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  background:url("../assets/ui/navigation/smoke-hover-inventory.webp") center/100% 100% no-repeat;
+  opacity:0;
+  transform:rotate(var(--blood-angle,0deg));
+  transform-origin:50% 50%;
+  transition:opacity .18s ease!important;
+  mix-blend-mode:screen;
+  filter:saturate(1.28) brightness(1.07);
+}
+.radial-game-tabs .game-tab::after {
+  content:none!important;
+  display:none!important;
+}
+.radial-game-tabs .game-tab[data-tab="story"] {--blood-angle:-90deg}
+.radial-game-tabs .game-tab[data-tab="inventory"] {--blood-angle:0deg}
+.radial-game-tabs .game-tab[data-tab="characters"] {--blood-angle:90deg}
+.radial-game-tabs .game-tab[data-tab="map"] {--blood-angle:180deg}
+.radial-game-tabs .game-tab:hover:not(:disabled)::before,
+.radial-game-tabs .game-tab:focus-visible::before {
+  opacity:1!important;
+}
+.radial-game-tabs .game-tab.active::before {opacity:0}
+.radial-game-tabs .game-tab.active:hover::before,
+.radial-game-tabs .game-tab.active:focus-visible::before {opacity:1!important}
+.radial-game-tabs .game-tab img,
+.radial-game-tabs .game-tab.active img {
+  position:absolute!important;
+  display:block!important;
+  top:var(--icon-top)!important;
+  left:var(--icon-left)!important;
+  width:clamp(58px,16%,110px)!important;
+  height:clamp(51px,14%,83px)!important;
   max-width:none!important;
   margin:0!important;
   padding:0!important;
-  object-fit:contain;
-  transform:translate(-50%,-50%)!important;
-  filter:grayscale(.55) sepia(.12) drop-shadow(0 2px 3px #000e)!important;
+  border:0!important;
+  object-fit:contain!important;
   pointer-events:none;
+  transform:translate(-50%,-50%)!important;
+  filter:drop-shadow(0 2px 5px #0d0a0899)!important;
+  opacity:.90;
+  transition:opacity .18s ease,filter .18s ease!important;
+}
+.radial-game-tabs .game-tab:hover img,
+.radial-game-tabs .game-tab:focus-visible img {
+  filter:drop-shadow(0 0 8px #e05c4099) brightness(1.23)!important;
+  opacity:1;
 }
 .radial-game-tabs .game-tab .tab-caption,
 .radial-game-tabs .game-tab.active .tab-caption {
   position:absolute!important;
   display:block!important;
+  top:var(--caption-top)!important;
+  left:var(--icon-left)!important;
   width:max-content;
-  max-width:30%;
+  max-width:29%;
   margin:0!important;
   padding:0!important;
-  font:700 clamp(12px,1.5vw,17px)/1.15 var(--font-display)!important;
-  letter-spacing:.09em;
-  color:#dce0df!important;
-  text-shadow:0 1px 2px #000,0 2px 6px #000e;
+  color:#e4d9cb!important;
+  background:none!important;
+  text-shadow:0 1px 3px #080605,0 2px 7px #0a0806;
+  text-align:center;
+  font:600 clamp(15px,1.6vw,21px)/1.2 var(--font-display)!important;
+  letter-spacing:.045em;
   text-transform:uppercase;
   white-space:nowrap;
-  text-align:center;
-  transform:translate(-50%,-50%)!important;
   pointer-events:none;
+  transform:translate(-50%,-50%)!important;
+  transition:color .18s ease!important;
 }
-.radial-game-tabs .game-tab.active .tab-caption {color:#efc6a7!important}
-.radial-game-tabs .game-tab[data-tab="story"] img {left:50%;top:19%}
-.radial-game-tabs .game-tab[data-tab="story"] .tab-caption {left:50%;top:32%}
-.radial-game-tabs .game-tab[data-tab="inventory"] img {left:77%;top:43%}
-.radial-game-tabs .game-tab[data-tab="inventory"] .tab-caption {left:77%;top:58%}
-.radial-game-tabs .game-tab[data-tab="characters"] img {left:50%;top:72%}
-.radial-game-tabs .game-tab[data-tab="characters"] .tab-caption {left:50%;top:85%}
-.radial-game-tabs .game-tab[data-tab="map"] img {left:23%;top:43%}
-.radial-game-tabs .game-tab[data-tab="map"] .tab-caption {left:23%;top:58%}
-/* Smaller central steel boss, with subtle fasteners and engraved title. */
+.radial-game-tabs .game-tab:hover .tab-caption,
+.radial-game-tabs .game-tab:focus-visible .tab-caption {
+  color:#ffe7d9!important;
+  text-shadow:0 0 13px #d94a347d,0 2px 4px #0b0604;
+}
+.radial-game-tabs .game-tab[data-tab="story"] {
+  --icon-left:50%;
+  --icon-top:18%;
+  --caption-top:29%;
+}
+.radial-game-tabs .game-tab[data-tab="inventory"] {
+  --icon-left:83%;
+  --icon-top:42%;
+  --caption-top:55%;
+}
+.radial-game-tabs .game-tab[data-tab="characters"] {
+  --icon-left:50%;
+  --icon-top:73%;
+  --caption-top:84%;
+}
+.radial-game-tabs .game-tab[data-tab="map"] {
+  --icon-left:19%;
+  --icon-top:42%;
+  --caption-top:55%;
+}
+/* Only the infection glyph, no button disc, center title, instructions or X. */
 .radial-nav-hub {
+  position:absolute;
   z-index:5;
-  width:26%;
-  height:26%;
-  padding:5%;
-  gap:3px;
-  border:2px solid #8d9090;
-  color:#e4e6e1;
-  background:
-    radial-gradient(circle at 45% 34%,#919699cf 0%,#494e50df 30%,#22282af7 56%,#090c0efa 84%),
-    url("../assets/ui/navigation/radial_wheel_reference.webp") center/cover;
-  box-shadow:
-    inset 0 0 11px #000b,
-    inset 0 2px 4px #e7e7e651,
-    0 0 0 4px #111718d9,
-    0 0 0 6px #787b7bb5,
-    0 8px 19px #000c;
-}
-.radial-nav-hub .radial-nav-emblem {
-  font-size:clamp(18px,3.1vw,30px);
-  color:#e3b5a2;
-  text-shadow:0 0 11px #c4523a8a;
-}
-.radial-nav-hub strong {
-  font:700 clamp(11px,1.6vw,17px)/1 var(--font-display);
-  color:#e2e4df;
-  letter-spacing:.11em;
-}
-.radial-nav-hub small {
-  font-size:clamp(7px,.75vw,9px);
-  line-height:1.15;
-  color:#c6c6c0;
+  top:50%;
+  left:50%;
+  width:clamp(60px,13%,92px);
+  height:clamp(60px,13%,92px);
+  min-width:0;
+  padding:0;
+  margin:0;
+  display:block;
+  overflow:visible;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  background:url("../assets/ui/navigation/smoke-icon-infection.svg") center/contain no-repeat!important;
+  color:transparent;
+  text-shadow:none;
+  cursor:pointer;
+  pointer-events:auto;
+  transform:translate(-50%,-50%);
+  transition:filter .2s ease!important;
 }
 .radial-nav-hub:hover,
 .radial-nav-hub:focus-visible {
-  filter:brightness(1.13);
+  filter:brightness(1.4) drop-shadow(0 0 11px #ba403b7a);
+  outline:0;
 }
-.radial-nav-close {
-  z-index:6;
-  top:0;right:0;
-  border-color:#81878a;
-  color:#d2d9db;
-  background:linear-gradient(#404649,#14191b);
-}
-.radial-nav-hint {
-  bottom:-26px;
-  color:#9ca6a9;
-  letter-spacing:.11em;
-}
-@media(max-width:520px){
-  .radial-nav-shell {width:min(calc(100vw - 16px),calc(100dvh - 42px))}
-  .radial-game-tabs .game-tab img {width:clamp(29px,10%,42px)!important;height:clamp(29px,10%,42px)!important}
+.radial-nav-hub .radial-nav-emblem,
+.radial-nav-hub strong,
+.radial-nav-hub small,
+.radial-nav-hint,
+.radial-nav-close {display:none!important}
+@media(max-width:600px){
+  .radial-nav-shell {width:min(calc(100vw - 12px),calc(100dvh - 28px))}
+  .radial-game-tabs .game-tab img,
+  .radial-game-tabs .game-tab.active img {
+    width:clamp(42px,16%,70px)!important;
+    height:clamp(39px,14%,62px)!important;
+  }
   .radial-game-tabs .game-tab .tab-caption,
-  .radial-game-tabs .game-tab.active .tab-caption {font-size:clamp(10px,3vw,12px)!important;letter-spacing:.03em}
-  .radial-nav-hub strong {font-size:clamp(10px,3.8vw,13px)}
-  .radial-nav-hub small {display:none}
-  .radial-nav-hub .radial-nav-emblem {font-size:20px}
-  .radial-nav-hint {font-size:9px;bottom:-22px}
+  .radial-game-tabs .game-tab.active .tab-caption {
+    font-size:clamp(12px,3.1vw,16px)!important;
+    letter-spacing:.015em;
+  }
+  .radial-nav-hub{width:14%;height:14%;min-width:48px;min-height:48px}
 }
 @media(prefers-reduced-motion:reduce){
-  .radial-game-tabs .game-tab,
-  .radial-game-tabs .game-tab img{transition:none!important}
+  .radial-game-tabs .game-tab::before,
+  .radial-game-tabs .game-tab img,
+  .radial-game-tabs .game-tab .tab-caption {transition:none!important}
 }
