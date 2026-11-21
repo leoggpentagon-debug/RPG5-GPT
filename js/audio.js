@@ -117,7 +117,7 @@
   document.addEventListener("click",event=>{
     const el=event.target instanceof Element?event.target.closest("button,summary"):null;
     if(!el||el.disabled||el.closest("#sound-settings"))return;
-    if(el.closest(".profile-book-tabs")||el.closest("#hero-portrait-button")||
+    if(el.closest(".profile-book-tabs")||el.closest(".profile-stat")||el.closest("#hero-portrait-button")||
        el.closest("#profile-close")||el.closest("#profile-backdrop"))return;
     const id=el.id;
     if(id==="service-toggle")return play("ui_open");
