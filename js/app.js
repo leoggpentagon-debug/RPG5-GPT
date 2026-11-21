@@ -87,9 +87,9 @@
   function showReply(reply){
     const r=safeObj(reply);
     if(r.roll){const v=r.roll;msg("🎲 ПРОВЕРКА d20",`Натуральный: ${v.natural}\n${v.natural} − ${v.negative} + ${v.positive} = ${v.total}; DC ${v.dc}\n${v.category}: ${v.consequence}`,"system")}
-    msg("GEMINI · ВЕДУЩАЯ",r.narration||"","gm");
+    msg("ВЕДУЩАЯ",r.narration||"","gm");
     for(const line of many(r.dialogue)){const a=safeObj(line);msg(a.name||nameById[a.speaker_id]||a.speaker_id||"NPC",a.text||"","npc",a.speaker_id)}
-    $("choices").replaceChildren();for(const choice of many(r.choices)){const b=child("button","",choice);b.addEventListener("click",()=>{$("action").value=choice;$("action").focus()});$("choices").append(b)}
+    $("choices").replaceChildren();for(const choice of many(r.choices)){const b=child("button","",choice);b.addEventListener("click",()=>{if(state.busy||!state.loaded)return;$("action").value=choice;void act()});$("choices").append(b)}
   }
   function showRoll(){
     const savedRoll=safeObj(safeObj(state.scene).pending_roll);
@@ -121,11 +121,15 @@
     $("canon-revision").textContent="Каноническая ревизия RPG6: "+state.revision;
     $("draft-count").textContent="Черновых ходов: "+state.sequence;
     const stats=safeObj(hero.stats);$("hero-stats").replaceChildren();for(const [key,label] of Object.entries({health:"Здоровье",stamina:"Выносливость",stress:"Стресс",hunger:"Голод",thirst:"Жажда"})){
-      const v=safeObj(stats[key]);const box=child("div","stat-chip");box.append(child("small","",label),child("strong","",`${v.current??"—"}/${v.max??"—"}`));$("hero-stats").append(box);
+      const v=safeObj(stats[key]);const box=child("div","stat-chip");
+      const icon=child("img","stat-icon");const current=Number(v.current);
+      icon.alt="";icon.src="assets/status/"+key+"/"+key+"_"+(Number.isFinite(current)?current:"unknown")+".webp";
+      icon.addEventListener("error",()=>{const fb=child("span","stat-fallback",({health:"♥",stamina:"⚡",stress:"◉",hunger:"◴",thirst:"💧"})[key]);icon.replaceWith(fb)},{once:true});
+      box.append(icon,child("small","",label),child("strong","",(v.current??"—")+"/"+(v.max??"—")));$("hero-stats").append(box);
     }
     $("party").replaceChildren();const party=many(observable.characters).filter(x=>x?.character_id!=="oliver_hayes");
     for(const person of party){const id=person?.character_id,name=nameById[id]||"Человек рядом";const row=child("div","party-person");
-      const imagePath=portrait(id);if(imagePath){const img=child("img");img.src=imagePath;img.alt=name;img.addEventListener("click",()=>zoom(imagePath,name));row.append(img)}
+      const imagePath=portrait(id);if(imagePath){const img=child("img");img.src=imagePath;img.alt=name;img.addEventListener("click",()=>zoom(imagePath,name));const frame=child("div","polaroid polaroid-npc");const portraitButton=child("button","portrait-button");portraitButton.type="button";portraitButton.setAttribute("aria-label","Увеличить портрет "+name);portraitButton.append(img);portraitButton.addEventListener("click",()=>zoom(imagePath,name));frame.append(portraitButton);row.append(frame)}
       const details=child("div");details.append(child("strong","",name),child("small","",id));row.append(details);$("party").append(row);
     }
     if(!party.length)$("party").append(child("p","muted","Никого рядом не установлено"));
@@ -134,7 +138,7 @@
     if(!items.length)$("inventory").append(child("p","muted","Инвентарь пока пуст или не указан"));
     $("weight-label").textContent=inv.complete?"Инвентарь полностью учтён":"Инвентарь может быть неполным";
     $("chat").replaceChildren();
-    msg("АКТУАЛЬНОЕ СОСТОЯНИЕ RPG6",observable.scene_text||scene.scene_text||"Сцена загружена.","system");
+    msg("ТЕКУЩАЯ СЦЕНА",observable.scene_text||scene.scene_text||"Сцена загружена.","system");
     const history=safeObj(data.saved_history);
     const saved=many(history.saved_turns);
     if(saved.length){
@@ -163,6 +167,7 @@
     for(const turn of state.draft){msg("ОЛИВЕР · ЧЕРНОВОЙ ХОД "+turn.turn,turn.action,"player","oliver_hayes");showReply(turn.reply)}
     $("save-info").textContent=`Канон: ревизия ${state.revision}. ${state.sequence} несохранённых ходов. Сохранение только по явной команде.`;
     state.pending=data.pending_roll||null;showRoll();busy(false);
+    window.dispatchEvent(new CustomEvent("rpg6:render",{detail:{scene,observable,hero}}));
     $("chat").scrollTop=$("chat").scrollHeight;
   }
   async function start(){busy(true);report("Загружаю настоящую сохранённую сцену RPG6…");try{
@@ -229,5 +234,6 @@
   $("export").addEventListener("click",exportDraft);
   $("send-roll").addEventListener("click",()=>{if(!state.pending?.saved){save();return;}act("auto")});
   $("action").addEventListener("keydown",event=>{if(event.key==="Enter"&&event.ctrlKey){event.preventDefault();act()}});
-  report("Сборка "+BUILD+" загружена. Нажми «ПРОДОЛЖИТЬ RPG6».");
+  report("Автоматически загружаю игровое сохранение…");
+  void start();
 })();
