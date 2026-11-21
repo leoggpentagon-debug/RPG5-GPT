@@ -1,6 +1,6 @@
 # Sound effects in 28 Days Later: Survival
 
-All 16 OGG samples in this directory are original unmodified audio from **Kenney**,
+All 17 OGG samples in this directory are original unmodified audio from **Kenney**,
 distributed under **Creative Commons Zero (CC0 1.0 Universal)**. Attribution is
 not required, but their sources are preserved here for provenance and re-use.
 
@@ -12,6 +12,7 @@ not required, but their sources are preserved here for provenance and re-use.
 
 | RPG6 file | Kenney source file |
 | --- | --- |
+| `assets/audio/paper_brush.ogg` | `audio/rpg-audio/bookFlip1.ogg` |
 | `assets/audio/book_open.ogg` | `audio/rpg-audio/bookOpen.ogg` |
 | `assets/audio/book_close.ogg` | `audio/rpg-audio/bookClose.ogg` |
 | `assets/audio/page_turn.ogg` | `audio/rpg-audio/bookFlip2.ogg` |
