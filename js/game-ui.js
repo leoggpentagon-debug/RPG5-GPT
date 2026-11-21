@@ -19,80 +19,84 @@
     panes.forEach(p=>{const active=p.dataset.pane===name;p.hidden=!active;p.classList.toggle("visible",active)});
   }
   tabs.forEach(b=>b.addEventListener("click",()=>openTab(b.dataset.tab)));
-  // #chat contains actual saved and staged history; the visible viewer reads it in pages.
-  const story=$("story-page"),counter=$("page-count"),prev=$("page-prev"),next=$("page-next");
-  let pages=[],pageIndex=0,wasEmpty=true;
-  function splitNarrative(raw) {
-    let rest=String(raw||"").trim();
-    if(!rest)return [""];
-    const chunks=[];
-    while(rest.length>530) {
-      let cut=rest.lastIndexOf("\n",530);
-      if(cut<200)cut=rest.lastIndexOf(" ",530);
-      if(cut<200)cut=530;
-      chunks.push(rest.slice(0,cut).trim());
-      rest=rest.slice(cut).trimStart();
-    }
-    if(rest)chunks.push(rest);
-    return chunks;
+  // The original conversation is a read-only DOM source. No extra server requests.
+  // Render it as one scrollable story, preserving the latest turn and portrait links.
+  const story=$("story-page"),viewer=$("story-viewer");
+  let firstRender=true,renderQueued=false;
+  const colorPalette=["#c9b79d","#d7a97d","#a8c5c2","#d1b6c4","#acc397","#d9ba87","#aeb5d2"];
+  const namedColors={oliver_hayes:"#f6efe5",bex:"#e3a69c",ian_calder:"#cbbf8a",
+    may_walker:"#abc4a2",tom_walker:"#d8bd87",sarah:"#bfa8cc",david:"#9ebed0",
+    ellie_morgan:"#e4c296",arthur_morgan:"#c1b3dc"};
+  function getSpeakerColor(id,name){
+    const key=String(id||"").trim().toLowerCase();
+    if(namedColors[key])return namedColors[key];
+    const identity=String(name||key);
+    if(/^(оливер|oliver)\b/i.test(identity))return namedColors.oliver_hayes;
+    if(/^(бекс|bex)\b/i.test(identity))return namedColors.bex;
+    if(/^(иэн|ian)\b/i.test(identity))return namedColors.ian_calder;
+    let hash=0;for(const ch of identity)hash=((hash*33)+ch.charCodeAt(0))>>>0;
+    return colorPalette[hash%colorPalette.length];
   }
-  function showPage() {
-    story.replaceChildren();
-    if(!pages.length) {
-      const p=document.createElement("p");p.textContent="Подключаюсь к сохранённой истории…";story.append(p);
-    } else {
-      for(const entry of pages[pageIndex]) {
-        const speaker=document.createElement("span"),p=document.createElement("p");
-        speaker.className="story-speaker";speaker.textContent=entry.speaker;
-        p.textContent=entry.text||"…";story.append(speaker,p);
-      }
-    }
-    counter.textContent=pages.length?(pageIndex+1)+" / "+pages.length:"— / —";
-    prev.disabled=pageIndex<=0;next.disabled=pageIndex>=pages.length-1;
+  function buildNarration(text){
+    const block=document.createElement("section");
+    block.className="narrative-block role-narrator";
+    const body=document.createElement("div");body.className="dialogue-body";
+    const content=document.createElement("p");content.className="dialogue-text";content.textContent=text;
+    body.append(content);block.append(body);return block;
   }
-  prev.addEventListener("click",()=>{pageIndex=Math.max(0,pageIndex-1);showPage()});
-  next.addEventListener("click",()=>{pageIndex=Math.min(pages.length-1,pageIndex+1);showPage()});
-  function refreshPages() {
-    const built=[];
+  function buildDialogue(entry){
+    const bubble=entry.querySelector(".bubble");if(!bubble)return null;
+    const kind=entry.classList.contains("player")?"player":entry.classList.contains("npc")?"npc":
+      entry.classList.contains("gm")?"narrator":"system";
+    if(kind==="system")return null;
+    const text=bubble.querySelector("div")?.textContent||"";
+    if(!text.trim())return null;
+    if(kind==="narrator")return buildNarration(text);
+    const block=document.createElement("section");block.className="narrative-block role-"+kind;
+    const speakerId=entry.dataset.speakerId||"";
+    let label=kind==="player"?"Оливер":bubble.querySelector("b")?.textContent?.trim()||"Персонаж";
+    label=label.replace(/\s*[·—-]\s*(?:ЧЕРНОВОЙ|ЧЕРНОВОЙ|СОХРАНЁННЫЙ|ЧАСТИЧНО ВОССТАНОВЛЕННЫЙ).*$/i,"").trim()||"Персонаж";
+    const nameColor=getSpeakerColor(speakerId,label);
+    block.style.setProperty("--speaker-color",nameColor);
+    const avatar=entry.querySelector("img.avatar");
+    if(avatar&&avatar.getAttribute("src")){
+      const img=document.createElement("img");img.className="dialogue-avatar";
+      img.src=avatar.src;img.alt=label;
+      img.addEventListener("click",()=>{
+        const modal=$("portrait-dialog"),full=$("portrait-full");
+        full.src=img.src;full.alt=label;if(!modal.open)modal.showModal();
+      });
+      block.append(img);
+    }
+    const body=document.createElement("div");body.className="dialogue-body";
+    const name=document.createElement("strong");name.className="dialogue-name";name.textContent=label;
+    const content=document.createElement("p");content.className="dialogue-text";content.textContent=text;
+    body.append(name,content);block.append(body);return block;
+  }
+  function refreshStory(){
+    const stayBottom=firstRender||viewer.scrollHeight-viewer.clientHeight-viewer.scrollTop<95;
+    const fragment=document.createDocumentFragment();
+    let count=0;
     const sceneText=$("scene-text").textContent.trim();
-    if(sceneText)for(const piece of splitNarrative(sceneText))built.push({speaker:"ТЕКУЩАЯ СЦЕНА",text:piece});
-    for(const entry of chat.querySelectorAll(":scope > .chat-entry")) {
-      if(entry.classList.contains("system"))continue;
-      const bubble=entry.querySelector(".bubble");if(!bubble)continue;
-      const label=bubble.querySelector("b")?.textContent||"История";
-      const body=bubble.querySelector("div")?.textContent||"";
-      for(const piece of splitNarrative(body))built.push({speaker:label,text:piece});
+    if(sceneText){fragment.append(buildNarration(sceneText));count++;}
+    for(const entry of chat.querySelectorAll(":scope > .chat-entry")){
+      const block=buildDialogue(entry);
+      if(block){fragment.append(block);count++;}
     }
-    // Pack nearby dialogue and narration into actual pages, not one bubble per page.
-    const grouped=[];let group=[],used=0;
-    for(const item of built) {
-      const size=item.text.length + Math.min(70,item.speaker.length);
-      if(group.length && (used+size>1450 || group.length>=4)) {
-        grouped.push(group);group=[];used=0;
-      }
-      group.push(item);used+=size;
+    story.replaceChildren(fragment);
+    if(!count){
+      const empty=document.createElement("p");empty.className="story-empty";
+      empty.textContent="Загружаю сохранённую историю…";story.append(empty);
     }
-    if(group.length)grouped.push(group);
-    // Avoid a last page consisting of just one short NPC sentence.
-    if(grouped.length>1) {
-      const last=grouped[grouped.length-1],lastLength=last.reduce((n,e)=>n+e.text.length,0);
-      const previous=grouped[grouped.length-2];
-      if(lastLength<350 && previous.length>1) {
-        last.unshift(previous.pop());
-        if(!previous.length)grouped.splice(grouped.length-2,1);
-      }
-    }
-    const latest=wasEmpty || pageIndex>=pages.length-1;
-    pages=grouped;pageIndex=pages.length?(latest?pages.length-1:Math.min(pageIndex,pages.length-1)):0;
-    wasEmpty=pages.length===0;showPage();
+    firstRender=false;
+    if(stayBottom)viewer.scrollTop=viewer.scrollHeight;
   }
-  let scheduled=false;
   new MutationObserver(()=>{
-    if(scheduled)return;
-    scheduled=true;
-    requestAnimationFrame(()=>{scheduled=false;refreshPages()});
+    if(renderQueued)return;
+    renderQueued=true;
+    requestAnimationFrame(()=>{renderQueued=false;refreshStory()});
   }).observe(chat,{childList:true});
-  refreshPages();
+  refreshStory();
   const systemLog=$("system-log"),status=$("status");let lastStatus="";
   function pushLog(message,bad=false) {
     const content=String(message||"").trim();if(!content || content===lastStatus)return;
@@ -159,6 +163,8 @@
       const p=document.createElement("p");p.className="muted";p.textContent="Персонажи рядом пока не установлены.";target.append(p);return;
     }
     for(const row of rows) {
+      const speaker=row.querySelector("strong")?.textContent||"";
+      row.style.setProperty("--speaker-color",getSpeakerColor("",speaker));
       const card=document.createElement("div");card.className="character-card";
       const img=row.querySelector("img");
       if(img) {const avatar=document.createElement("img");avatar.src=img.src;avatar.alt=img.alt;card.append(avatar)}
@@ -168,8 +174,21 @@
   window.addEventListener("rpg6:render",event=>{
     const d=obj(event.detail),scene=obj(d.scene),observable=obj(d.observable),hero=obj(d.hero);
     putText("world-day",scene.day===undefined?"День —":"День "+scene.day);
-    putText("world-time",scene.time_label||"Время —");
-    putText("world-location",scene.location_detail||observable.location_detail||"Местоположение неизвестно");
+    putText("world-time",scene.time_label||"—:—");
+    const weatherSource=scene.weather_label||scene.weather||observable.weather_label||observable.weather||"";
+    const weather=typeof weatherSource==="string"?weatherSource:
+      String(weatherSource?.description||weatherSource?.condition||weatherSource?.summary||"");
+    let glyph="—";
+    if(/гроз|storm|thunder/i.test(weather))glyph="⛈️";
+    else if(/снег|snow|blizzard/i.test(weather))glyph="🌨️";
+    else if(/дожд|rain|shower|осадк/i.test(weather))glyph="🌧️";
+    else if(/туман|fog|mist|дымк/i.test(weather))glyph="🌫️";
+    else if(/ветер|wind/i.test(weather))glyph="💨";
+    else if(/облач|cloud|пасмур/i.test(weather))glyph="☁️";
+    else if(/ясно|солн|sun|clear/i.test(weather))glyph="☀️";
+    putText("world-weather",glyph);
+    $("world-weather").title=weather||"Погода неизвестна";
+    $("world-weather").setAttribute("aria-label",weather||"Погода неизвестна");
     updateMap(scene,observable);updateImage(scene,observable);updateJournal(scene,observable,hero);updateCharacters();
   });
   new MutationObserver(updateCharacters).observe($("party"),{childList:true});
