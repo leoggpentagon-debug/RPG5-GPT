@@ -1,0 +1,176 @@
+/* Survival UI v36 — frameless visual cleanup.
+   Presentation only: retain all DOM, RPG state, Polaroid artwork, health/stat
+   chips, status badges, buttons, textarea, journal/dossier and resize logic.
+   No new image files or site background changes. */
+
+/* The page remains one continuous backdrop instead of bordered cards. */
+#game-shell .hero-sidebar .sidebar-brand,
+#game-shell .hero-sidebar .sidebar-card,
+#game-shell .content {
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+#game-shell .hero-sidebar .sidebar-brand::after {content:none;display:none}
+
+/* Preserve the physical Polaroids, labels and survival-stat panels unchanged.
+   Only their redundant outer card frames are removed. */
+#game-shell .hero-sidebar .sidebar-card.hero-card,
+#game-shell .hero-sidebar .sidebar-card.companions-card {
+  border:0;
+  background:transparent;
+  box-shadow:none;
+}
+#game-shell .hero-sidebar .companions-card .card-title {
+  border:0;
+  background:none;
+  box-shadow:none;
+}
+/* No changes here to .polaroid, .polaroid-player, .polaroid-npc,
+   .stat-list, .stat-chip, .world-status, or their descendants. */
+
+/* The scene title, image, story text and action controls now form a single
+   composition. Keep the exact text/layout measurements and scroll containers. */
+#game-shell .content > .scene-heading {
+  border:0;
+  background:transparent;
+  box-shadow:none;
+}
+#game-shell .content > .game-pane,
+#game-shell .content > .game-pane.story-pane {
+  border:0;
+  background:transparent;
+  box-shadow:none;
+}
+#game-shell .content > .story-pane::before {
+  content:none;
+  display:none;
+}
+#game-shell .content .story-viewer,
+#game-shell .content .action-area,
+#game-shell .content .custom-action {
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+/* Remove the boxy narrator strip; author/avatar/name/text stay as they were. */
+#game-shell .content .story-page .narrative-block,
+#game-shell .content .story-page .narrative-block.role-narrator,
+#game-shell .content .story-page .narrative-block.role-player,
+#game-shell .content .story-page .narrative-block.role-npc {
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+#game-shell .content .story-page .narrative-block.role-narrator::before {
+  content:none;
+  display:none;
+}
+/* Preserve narrator spacing/indents; a soft typographic tint replaces the bar. */
+#game-shell .content .story-page .narrative-block.role-narrator {
+  color:#f0ded0;
+}
+
+/* Panes that are not the diary: inventory and character data read as content
+   rather than separate tile boxes. No generated values or labels are changed. */
+#game-shell .content .utility-pane .pane-heading {
+  border:0;
+  background:transparent;
+  box-shadow:none;
+}
+#game-shell .content .inventory-item,
+#game-shell .content .character-card,
+#game-shell .content .map-holder {
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+/* Service-drawer cards are visual containers, not interactive elements.
+   Keep controls, indicators, and the service drawer itself intact. */
+#game-shell ~ .service-drawer .service-block,
+.service-drawer .service-body > .service-block {
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+
+/* Existing scene image: a slightly wider cinematic crop with an organic,
+   left-only feather. The right edge remains sharp; no asset replacement.
+   Existing --scene-resized-height and draggable separator are untouched. */
+#pane-story .scene-image-wrap {
+  position:relative;
+  isolation:isolate;
+  border:0;
+  background:transparent;
+  box-shadow:none;
+}
+#pane-story .scene-image-wrap #scene-image {
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transform:scale(1.045);
+  transform-origin:60% 50%;
+  -webkit-mask-image:linear-gradient(to right,
+    transparent 0%,rgba(0,0,0,.32) 2.5%,rgba(0,0,0,.80) 7%,#000 11.5%,#000 100%);
+  mask-image:linear-gradient(to right,
+    transparent 0%,rgba(0,0,0,.32) 2.5%,rgba(0,0,0,.80) 7%,#000 11.5%,#000 100%);
+}
+#pane-story .scene-image-wrap::before {
+  content:"";
+  position:absolute;
+  z-index:1;
+  top:0;
+  left:0;
+  bottom:0;
+  width:13%;
+  pointer-events:none;
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  -webkit-mask-image:linear-gradient(to right,#000,transparent);
+  mask-image:linear-gradient(to right,#000,transparent);
+}
+#pane-story .scene-image-wrap::after {
+  content:"";
+  position:absolute;
+  z-index:2;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(180deg,#08080824,transparent 26%,transparent 76%,#0807088c 100%),
+    linear-gradient(90deg,#100c0c20,transparent 17%);
+}
+/* The resizer remains usable but no longer looks like a thick panel border. */
+#pane-story .stage-divider {
+  border:0;
+  background:transparent;
+  box-shadow:none;
+}
+#pane-story .stage-divider-grip {
+  box-shadow:none;
+  opacity:.45;
+}
+#pane-story .stage-divider:hover,
+#pane-story .stage-divider.dragging,
+#pane-story .stage-divider:focus-visible {
+  border:0;
+  background:linear-gradient(90deg,transparent,#7d46312b 45%,transparent);
+}
+#pane-story .stage-divider:hover .stage-divider-grip,
+#pane-story .stage-divider.dragging .stage-divider-grip,
+#pane-story .stage-divider:focus-visible .stage-divider-grip {opacity:.88}
+
+/* Preserve native focus indication on editable and clickable controls. */
+#game-shell button:focus-visible,
+#game-shell textarea:focus-visible,
+#game-shell summary:focus-visible {
+  outline-offset:2px;
+}
+@media(prefers-reduced-motion:reduce) {
+  #pane-story .scene-image-wrap #scene-image {transition:none}
+}
