@@ -159,7 +159,8 @@
     }
   }
   function updateJournal(scene,observable,hero) {
-    const target=$("journal-entries");target.replaceChildren();
+    // Journal tab is now the Objectives section inside the survivor dossier.
+    const target=$("profile-objectives");if(!target)return;target.replaceChildren();
     const quests=list(observable.objectives).length?observable.objectives:
       list(observable.quests).length?observable.quests:
       list(scene.objectives).length?scene.objectives:
