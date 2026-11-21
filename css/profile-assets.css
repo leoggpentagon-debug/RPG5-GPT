@@ -1,9 +1,9 @@
-/* Survivor Dossier asset hook v23.
+/* Survivor Dossier asset hook v24.
    Works immediately with procedural backgrounds. If the image assets ZIP is
    later uploaded at assets/ui/dossier/, image layers automatically appear.
-   Vertical index cards live OUTSIDE the right leaf. */
+   Landscape index cards stack OUTSIDE the right leaf; their text stays horizontal. */
 .profile-dossier {
-  width:min(1100px,calc(100vw - 146px));margin-right:72px;overflow:visible;
+  width:min(1100px,calc(100vw - 232px));margin-right:134px;overflow:visible;
   background-image:linear-gradient(100deg,#21120fd4,#3d2820a8 40%,#1b120fd9),url("../assets/ui/dossier/cover/leather_cover.webp"),url("../assets/ui/textures/metal_worn_texture_2048.webp");
   background-position:center;background-size:cover;
 }
@@ -44,22 +44,22 @@
 }
 /* Browser buttons remain accessible, only their physical position changes. */
 .book-right-page .profile-book-tabs {
-  position:absolute;top:clamp(44px,12%,96px);right:-66px;bottom:auto;left:auto;
+  position:absolute;top:clamp(42px,12%,94px);right:-126px;bottom:auto;left:auto;
   z-index:35;display:flex;flex-direction:column;align-items:flex-start;
-  justify-content:flex-start;width:66px;height:auto;min-height:0;
-  padding:0;margin:0;gap:9px;border:none;background:transparent;overflow:visible;
+  justify-content:flex-start;width:140px;height:auto;min-height:0;
+  padding:0;margin:0;gap:14px;border:none;background:transparent;overflow:visible;
 }
 .profile-book-tabs .profile-book-tab{
   box-sizing:border-box;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
-  width:66px;height:112px;min-height:0;padding:10px 5px 10px 8px;
-  writing-mode:vertical-rl;text-orientation:mixed;letter-spacing:.025em;
-  font:700 16px/1.1 var(--font-display);
-  border:0;border-radius:0;color:#39241b;text-shadow:0 1px 0 #e4ccacb5;
+  width:140px;height:54px;min-height:0;padding:7px 11px 7px 18px;
+  writing-mode:horizontal-tb;text-orientation:initial;white-space:nowrap;direction:ltr;letter-spacing:.025em;
+  font:700 17px/1.1 var(--font-display);
+  border:0;border-radius:2px 8px 8px 2px;color:#39241b;text-shadow:0 1px 0 #e4ccacb5;
   background:linear-gradient(100deg,#b19a79,#95755b);
   background-position:center;background-size:100% 100%;background-repeat:no-repeat;
   box-shadow:4px 4px 9px #24120c33;cursor:pointer;
   transform:translateX(0);
-  transition:transform .2s ease,filter .2s ease;
+  transition:transform .2s ease,filter .2s ease,box-shadow .2s ease;
 }
 .profile-book-tabs .profile-book-tab:hover{
   color:#4c271c;filter:brightness(1.10);transform:translateX(5px);
@@ -115,23 +115,23 @@
  background-image:url("../assets/ui/dossier/tabs/tab_objectives_active.webp"),linear-gradient(#96534a,#62352e);
 }
 @media(max-width:950px){
- .profile-dossier{width:min(770px,calc(100vw - 110px));margin-right:62px}
- .book-right-page .profile-book-tabs{width:55px;right:-55px;top:50px;gap:6px}
- .profile-book-tabs .profile-book-tab{width:55px;height:96px;padding:7px 4px;font-size:14px}
+ .profile-dossier{width:min(770px,calc(100vw - 200px));margin-right:116px}
+ .book-right-page .profile-book-tabs{width:124px;right:-110px;top:45px;gap:10px}
+ .profile-book-tabs .profile-book-tab{width:124px;height:48px;padding:6px 9px 6px 16px;font-size:15px}
  .book-right-page{padding-top:18px}
 }
 @media(max-height:720px) and (min-width:581px){
- .book-right-page .profile-book-tabs{top:30px;gap:5px}
- .profile-book-tabs .profile-book-tab{height:74px;font-size:13px}
+ .book-right-page .profile-book-tabs{top:26px;gap:8px}
+ .profile-book-tabs .profile-book-tab{height:42px;font-size:14px}
  .book-right-page{padding-top:11px}
 }
 @media(max-width:580px){
- .profile-dossier{width:calc(100vw - 63px);margin-right:42px;height:calc(100dvh - 14px)}
+ .profile-dossier{width:calc(100vw - 148px);margin-right:104px;height:calc(100dvh - 14px)}
  .profile-body{overflow:visible}
  .book-left-page{flex:0 0 auto;min-height:0;max-height:185px}
  .book-right-page{min-height:0;flex:1 1 auto;padding:10px 9px}
- .book-right-page .profile-book-tabs{top:17px;right:-40px;width:40px;gap:4px}
- .profile-book-tabs .profile-book-tab{width:40px;height:76px;font-size:11px;padding:5px 2px}
+ .book-right-page .profile-book-tabs{top:17px;right:-96px;width:108px;gap:8px}
+ .profile-book-tabs .profile-book-tab{width:108px;height:42px;font-size:12px;padding:4px 5px 4px 12px}
  .book-left-note::after{display:none}
  .profile-book-pages{min-height:0}
 }
