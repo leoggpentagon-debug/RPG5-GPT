@@ -136,26 +136,41 @@
     if(frame.getAttribute("src")!==src)frame.src=src;
     frame.hidden=false;placeholder.hidden=true;
   }
-  // Keep the scenic stage visible, even when the save has no generated image.
-  // Never treat an absent picture as an absent scene.
+  // The grunge texture belongs to the PAGE, not the scene photo.
+  // If no real image is supplied, the story uses the whole area: no stock street.
   function updateImage(scene,observable) {
-    const fallback="assets/ui/background/background_cinematic_street_2k.webp";
-    const url=scene.image_url||scene.scene_image_url||observable.scene_image_url||observable.image_url;
-    const wrap=$("scene-image-wrap"),image=$("scene-image");
-    wrap.hidden=false;
-    image.onerror=null;
+    const source=scene.image_url||scene.scene_image_url||observable.scene_image_url||observable.image_url;
+    const url=typeof source==="string"?source.trim():"";
+    const wrap=$("scene-image-wrap"),image=$("scene-image"),divider=$("stage-divider");
     image.onload=null;
-    if(typeof url==="string" && /^https:\/\//i.test(url)) {
-      image.onerror=()=>{
-        image.onerror=null;
-        image.alt="Атмосферный фон сцены";
-        image.src=fallback;
-      };
-      image.alt="Изображение текущей сцены";
+    image.onerror=null;
+    function hideSceneImage() {
+      image.onload=null;
+      image.onerror=null;
+      image.removeAttribute("src");
+      image.alt="";
+      wrap.hidden=true;
+      if(divider)divider.hidden=true;
+    }
+    if(!/^https:\/\//i.test(url)) {
+      hideSceneImage();
+      return;
+    }
+    image.alt="Изображение текущей сцены";
+    image.onload=()=>{
+      wrap.hidden=false;
+      if(divider)divider.hidden=false;
+      applyImageRatio();
+    };
+    image.onerror=hideSceneImage;
+    if(image.getAttribute("src")!==url) {
+      wrap.hidden=true;
+      if(divider)divider.hidden=true;
       image.src=url;
-    } else {
-      image.alt="Атмосферный фон сцены";
-      if(image.getAttribute("src")!==fallback) image.src=fallback;
+    } else if(image.complete && image.naturalWidth>0) {
+      wrap.hidden=false;
+      if(divider)divider.hidden=false;
+      applyImageRatio();
     }
   }
   function updateJournal(scene,observable,hero) {
