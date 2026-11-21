@@ -1,0 +1,133 @@
+/* v12 — cinematic dossier choreography. No extra image assets.
+   The portrait physically flies out via Web Animations; the folder unfolds behind it. */
+
+/* The new timeline owns panel movement. Disable the former simple scale-in. */
+body.dossier-cinematic .profile-overlay .profile-dossier {
+  opacity:1;
+  transform:none;
+  transform-origin:center;
+  transition:none;
+  will-change:transform,clip-path,opacity;
+}
+body.dossier-cinematic .profile-overlay.is-open .profile-dossier {
+  opacity:1;
+  transform:none;
+}
+.profile-overlay .profile-backdrop {
+  transition:opacity .4s ease,backdrop-filter .4s ease;
+}
+.profile-overlay.is-exiting .profile-backdrop {
+  opacity:.75;
+  backdrop-filter:blur(3px) saturate(.6);
+}
+.profile-flight-ghost {
+  position:fixed;
+  z-index:130;
+  margin:0;
+  pointer-events:none!important;
+  user-select:none;
+  will-change:transform,filter,opacity;
+  overflow:visible;
+  isolation:isolate;
+}
+.profile-flight-ghost * {pointer-events:none!important}
+.polaroid-player.dossier-source-hidden {
+  opacity:0!important;
+}
+.polaroid-player.dossier-source-lift {
+  filter:drop-shadow(0 0 17px #d3513a85) drop-shadow(4px 8px 9px #0009);
+}
+.polaroid-player .portrait-button {
+  position:absolute;
+  overflow:hidden;
+}
+.polaroid-player.hold-progress {
+  filter:drop-shadow(0 0 10px #bf493796) drop-shadow(4px 7px 7px #000a);
+}
+.polaroid-player.hold-progress::after {
+  box-shadow:inset 0 0 16px #bc49333c;
+}
+/* A single moving light scan: appears only while the dossier opens. */
+.profile-dossier::after {
+  content:"";
+  position:absolute;
+  z-index:9;
+  top:0;left:0;right:0;
+  height:2px;
+  background:linear-gradient(90deg,transparent,#ef8d69bf 45%,#f8b28a99 55%,transparent);
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(0);
+}
+.profile-overlay.is-entering .profile-dossier::after {
+  animation:dossier-reading-scan .83s .30s ease-out both;
+}
+@keyframes dossier-reading-scan {
+  0%{opacity:0;transform:translateY(0)}
+  15%{opacity:.58}
+  73%{opacity:.35}
+  100%{opacity:0;transform:translateY(min(72vh,690px))}
+}
+/* Rings wake up as the icons fly into position. */
+.profile-overlay.is-entering .profile-ring::before {
+  animation:dossier-ring-appear .65s .60s cubic-bezier(.16,.75,.18,1) both;
+}
+.profile-overlay.is-entering .profile-ring::after {
+  animation:dossier-ring-appear .62s .71s cubic-bezier(.16,.75,.18,1) both;
+}
+@keyframes dossier-ring-appear {
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
+  58%{opacity:.85;transform:translate(-50%,-50%) scale(1.06)}
+  100%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+.profile-overlay.is-entering .profile-ring-core {
+  animation:dossier-core-appear .55s .64s cubic-bezier(.16,.75,.2,1) both;
+}
+@keyframes dossier-core-appear {
+  from{opacity:0;transform:translate(-50%,-50%) scale(.65);filter:blur(6px)}
+  75%{opacity:1;transform:translate(-50%,-50%) scale(1.05);filter:blur(0)}
+  to{opacity:1;transform:translate(-50%,-50%) scale(1);filter:blur(0)}
+}
+.profile-overlay.is-exiting .profile-ring-core {
+  animation:dossier-core-close .30s ease-in both;
+}
+@keyframes dossier-core-close {
+  from{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  to{opacity:0;transform:translate(-50%,-50%) scale(.7)}
+}
+.profile-stat {
+  transition:transform .2s cubic-bezier(.2,.75,.3,1),
+    filter .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+.profile-stat:hover,.profile-stat.selected,.profile-stat:focus-visible {
+  transform:translate(-50%,-50%) scale(1.065);
+}
+.profile-stat-tooltip {
+  max-width:220px;
+  white-space:normal;
+  overflow-wrap:break-word;
+  text-align:left;
+  line-height:1.36;
+}
+.profile-stat-health .profile-stat-tooltip {
+  top:calc(100% + 7px);
+  bottom:auto;
+}
+.profile-stats-section {overflow:visible}
+.profile-photo-column {
+  box-shadow:inset 0 1px #c9996f30,0 6px 15px #0004;
+}
+.profile-polaroid {will-change:opacity}
+.profile-overlay.is-entering .profile-kicker {
+  text-shadow:0 0 13px #c85a4440;
+}
+/* Polished action, no idle shaking or perpetual glows. */
+.profile-close:hover {transition:background .15s ease,box-shadow .15s ease}
+@media(prefers-reduced-motion:reduce) {
+  .profile-overlay.is-entering .profile-dossier::after,
+  .profile-overlay.is-entering .profile-ring::before,
+  .profile-overlay.is-entering .profile-ring::after,
+  .profile-overlay.is-entering .profile-ring-core,
+  .profile-overlay.is-exiting .profile-ring-core {animation:none!important}
+  .profile-stat,.polaroid-player.hold-progress {transition:none!important}
+}
