@@ -1,0 +1,213 @@
+{
+  "package": "28 Days Later — Survivor Dossier",
+  "version": "1.0",
+  "source": "Original project-specific materials generated for the user; originals: image atlas 2 panels. Custom alpha masks and text overlays processed with Pillow.",
+  "third_party_cc0_textures_included": false,
+  "note": "AmbientCG and Poly Haven were researched as alternatives, but their texture downloads are NOT part of this zip. No license claims for those downloaded materials.",
+  "assets": [
+    {
+      "file": "assets/ui/dossier/cover/leather_cover.webp",
+      "width": 800,
+      "height": 1130,
+      "bytes": 165332
+    },
+    {
+      "file": "assets/ui/dossier/cover/leather_spine.webp",
+      "width": 100,
+      "height": 1120,
+      "bytes": 21318
+    },
+    {
+      "file": "assets/ui/dossier/pages/page_left.webp",
+      "width": 900,
+      "height": 1160,
+      "bytes": 113224
+    },
+    {
+      "file": "assets/ui/dossier/pages/page_right.webp",
+      "width": 900,
+      "height": 1160,
+      "bytes": 121640
+    },
+    {
+      "file": "assets/ui/dossier/pages/page_turn.webp",
+      "width": 900,
+      "height": 1160,
+      "bytes": 81314
+    },
+    {
+      "file": "assets/ui/dossier/overlays/paper_wear.webp",
+      "width": 900,
+      "height": 1160,
+      "bytes": 20406
+    },
+    {
+      "file": "assets/ui/dossier/tabs/tab_condition_idle.webp",
+      "width": 144,
+      "height": 196,
+      "bytes": 6110
+    },
+    {
+      "file": "assets/ui/dossier/tabs/tab_condition_hover.webp",
+      "width": 144,
+      "height": 196,
+      "bytes": 6230
+    },
+    {
+      "file": "assets/ui/dossier/tabs/tab_condition_active.webp",
+      "width": 144,
+      "height": 196,
+      "bytes": 5538
+    },
+    {
+      "file": "assets/ui/dossier/tabs/tab_status_idle.webp",
+      "width": 144,
+      "height": 196,
+      "bytes": 6250
+    },
+    {
+      "file": "assets/ui/dossier/tabs/tab_status_hover.webp",
+      "width": 144,
+      "height": 196,
+      "bytes": 6204
+    },
+    {
+      "file": "assets/ui/dossier/tabs/tab_status_active.webp",
+      "width": 144,
+      "height": 196,
+      "bytes": 5718
+    },
+    {
+      "file": "assets/ui/dossier/tabs/tab_skills_idle.webp",
+      "width": 144,
+      "height": 196,
+      "bytes": 6156
+    },
+    {
+      "file": "assets/ui/dossier/tabs/tab_skills_hover.webp",
+      "width": 144,
+      "height": 196,
+      "bytes": 6194
+    },
+    {
+      "file": "assets/ui/dossier/tabs/tab_skills_active.webp",
+      "width": 144,
+      "height": 196,
+      "bytes": 5632
+    },
+    {
+      "file": "assets/ui/dossier/tabs/tab_objectives_idle.webp",
+      "width": 144,
+      "height": 196,
+      "bytes": 6132
+    },
+    {
+      "file": "assets/ui/dossier/tabs/tab_objectives_hover.webp",
+      "width": 144,
+      "height": 196,
+      "bytes": 6172
+    },
+    {
+      "file": "assets/ui/dossier/tabs/tab_objectives_active.webp",
+      "width": 144,
+      "height": 196,
+      "bytes": 5706
+    },
+    {
+      "file": "assets/ui/dossier/decor/tape_worn.webp",
+      "width": 490,
+      "height": 110,
+      "bytes": 11958
+    },
+    {
+      "file": "assets/ui/dossier/decor/tape_cross.webp",
+      "width": 370,
+      "height": 320,
+      "bytes": 13092
+    },
+    {
+      "file": "assets/ui/dossier/stamps/stamp_survivor.webp",
+      "width": 678,
+      "height": 278,
+      "bytes": 53808
+    },
+    {
+      "file": "assets/ui/dossier/stamps/stamp_notes.webp",
+      "width": 678,
+      "height": 278,
+      "bytes": 42618
+    },
+    {
+      "file": "assets/ui/dossier/stamps/stamp_updated.webp",
+      "width": 678,
+      "height": 278,
+      "bytes": 51616
+    },
+    {
+      "file": "assets/ui/dossier/stamps/stamp_ink_ring.webp",
+      "width": 512,
+      "height": 512,
+      "bytes": 189160
+    },
+    {
+      "file": "assets/ui/dossier/photo/polaroid_frame.webp",
+      "width": 590,
+      "height": 760,
+      "bytes": 23830
+    },
+    {
+      "file": "assets/ui/dossier/photo/corner_brass.webp",
+      "width": 200,
+      "height": 200,
+      "bytes": 442
+    },
+    {
+      "file": "assets/ui/dossier/decor/divider_ink.webp",
+      "width": 760,
+      "height": 48,
+      "bytes": 498
+    },
+    {
+      "file": "assets/ui/dossier/overlays/surface_scratches.webp",
+      "width": 680,
+      "height": 850,
+      "bytes": 10032
+    },
+    {
+      "file": "assets/ui/dossier/reference/asset_moodboard.webp",
+      "width": 1280,
+      "height": 853,
+      "bytes": 145038
+    },
+    {
+      "file": "assets/ui/dossier/icons/icon_condition.webp",
+      "width": 128,
+      "height": 128,
+      "bytes": 6556
+    },
+    {
+      "file": "assets/ui/dossier/icons/icon_status.webp",
+      "width": 128,
+      "height": 128,
+      "bytes": 5136
+    },
+    {
+      "file": "assets/ui/dossier/icons/icon_skills.webp",
+      "width": 128,
+      "height": 128,
+      "bytes": 7118
+    },
+    {
+      "file": "assets/ui/dossier/icons/icon_objectives.webp",
+      "width": 128,
+      "height": 128,
+      "bytes": 7018
+    },
+    {
+      "file": "assets/ui/dossier/reference/material_atlas.webp",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 380420
+    }
+  ]
+}
