@@ -183,3 +183,23 @@ body:after {
   .game-tabs {gap:3px}
   .game-tab {font-size:11px}
 }
+
+/* Optional full-screen environmental photograph.
+   If this one new WebP has not been uploaded yet, the approved grunge WebP remains as fallback. */
+body {
+  background:
+    linear-gradient(90deg,#0a0807a8,#0d09087f 42%,#0a0706b2),
+    url("../assets/ui/background/background_cinematic_street_2k.webp") center/cover no-repeat fixed,
+    url("../assets/ui/background/background_dark_grunge_2k.webp") center/cover no-repeat fixed,
+    #160f0c;
+}
+.story-pane:before {
+  background:
+    linear-gradient(180deg,#0a0b0ba1,#0e0b0b91 74%,#090807d4),
+    url("../assets/ui/background/background_cinematic_street_2k.webp") center/cover no-repeat,
+    url("../assets/ui/background/background_dark_grunge_2k.webp") center/cover no-repeat;
+  opacity:1;
+}
+.story-viewer {
+  background:linear-gradient(180deg,#0a08082e,#09070659 90%);
+}
