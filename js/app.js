@@ -10,7 +10,7 @@
   try { token = sessionStorage.getItem(ACCESS_KEY) || ""; } catch { /* storage disabled */ }
   function getAccessToken() {
     if (token) return token;
-    const entered = window.prompt("Введи личный код доступа RPG6. Код не публикуется на GitHub.");
+    const entered = window.prompt("Введи личный код доступа к игре. Он не публикуется на сайте.");
     if (entered === null || !entered.trim()) throw new Error("Для продолжения игры требуется личный код доступа RPG6.");
     const next = entered.trim();
     if (!/^RPG6-[A-Za-z0-9_-]{30,100}$/.test(next))
@@ -73,7 +73,7 @@
       throw new Error("Неизвестный результат сохранения RPG6: "+word(val?.status||"отсутствует"));
     return val;
   }
-  function busy(flag){state.busy=flag;$("start").disabled=flag;$("send").disabled=flag||!state.loaded||!!state.pending;$("save").disabled=flag||!state.loaded||state.sequence===0;$("export").disabled=flag||!state.loaded;$("action").disabled=flag||!state.loaded||!!state.pending;$("send-roll").disabled=flag||!state.loaded||!state.pending?.saved;$("send").textContent=flag?"GEMINI ОТВЕЧАЕТ…":"ОТПРАВИТЬ ДЕЙСТВИЕ";}
+  function busy(flag){state.busy=flag;$("start").disabled=flag;$("send").disabled=flag||!state.loaded||!!state.pending;$("save").disabled=flag||!state.loaded||state.sequence===0;$("export").disabled=flag||!state.loaded;$("action").disabled=flag||!state.loaded||!!state.pending;$("send-roll").disabled=flag||!state.loaded||!state.pending?.saved;$("send").textContent=flag?"Обрабатывается…":"Отправить действие";}
   function child(tag, className="", text="") {const el=document.createElement(tag);if(className)el.className=className;if(text)el.textContent=word(text);return el;}
   function msg(label,text,kind="gm",speakerId=""){
     if(!word(text))return;
