@@ -4,6 +4,7 @@ const $=id=>document.getElementById(id);
 const status=$("gpt-remote-status"),packetLabel=$("bridge-last-packet");
 const feedback=$("action-feedback");
 const CACHE_KEY="rpg5_extension_latest_scene_v1";
+const LAST_ROLL_KEY="rpg5_last_submitted_roll_v1";
 const portraits=Object.freeze({oliver_hayes:"assets/portraits/oliver_hayes.png",bex:"assets/portraits/bex.png"});
 const knownNames=Object.freeze({oliver_hayes:"Оливер Хейз",bex:"Бекс",ian_calder:"Иэн"});
 const object=x=>(x&&typeof x==="object"&&!Array.isArray(x))?x:{};
@@ -56,7 +57,16 @@ function dispatchAction(action,rollReceipt=null){
   // The extension switches to the ChatGPT tab; successful autofill is silent.
   clearActionFeedback();
   bridge.send(prepared,lastRenderedSequence,
-   clearActionFeedback,
+   ()=>{
+    if(rollReceipt){
+     try{localStorage.setItem(LAST_ROLL_KEY,JSON.stringify({check_id:rollReceipt.check_id,packet_sha:lastRenderedSequence}));}
+     catch(e){console.warn("RPG5 roll acknowledgement cache:",e);}
+     activeRoll=null;
+     const rollButton=$("send-roll");if(rollButton)rollButton.disabled=true;
+     const hint=$("roll-error");if(hint)hint.textContent="Бросок передан в ChatGPT. Дождись следующего JSON-пакета.";
+    }
+    clearActionFeedback();
+   },
    error=>{
     const why=String(error||"Не удалось вставить сообщение");
     if(why.startsWith("Действие для этой сцены уже вставлено")||why.startsWith("Предыдущий запрос"))
@@ -266,7 +276,9 @@ function renderRoll(packet) {
  try {
   if(!window.RPG5_MECHANICS)throw Error("Модуль механики не загружен.");
   const pre=window.RPG5_MECHANICS.preview(plan,packet.hero);
-  activeRoll=plan;button.disabled=false;
+   const last=(()=>{try{return JSON.parse(localStorage.getItem(LAST_ROLL_KEY)||"null");}catch{return null;}})();
+  const alreadySubmitted=last?.check_id===plan.check_id;
+  activeRoll=alreadySubmitted?null:plan;button.disabled=alreadySubmitted;
   details.textContent=[
    "Действие: "+plan.action,
    "Базовый DC: "+pre.base_dc+" · Итоговый DC: "+pre.dc,
@@ -279,7 +291,8 @@ function renderRoll(packet) {
    "Бонус до броска: "+pre.bonus+"/"+pre.bonus_limit,
    "Штраф: "+pre.penalty+"/"+pre.penalty_limit,
    pre.insurance_possible?"При d20 от 1 до 9 возможна страховка +1.":"Страховка отсутствует.",
-   "Число получи самостоятельно во внешнем генераторе; сайт его не генерирует."
+   alreadySubmitted?"Результат этой проверки уже был передан. Ожидай следующую сцену.":
+     "Число получи самостоятельно во внешнем генераторе; сайт его не генерирует."
   ].join("\n");
  }catch(e){
   details.textContent="Нельзя открыть проверку: "+String(e?.message||e);
