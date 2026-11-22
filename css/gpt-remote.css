@@ -88,3 +88,22 @@
 #game-shell #pane-story .custom-action { padding:0; border:0; background:transparent; }
 #game-shell #pane-story .custom-action .action-compose { padding:4px 10px 10px; }
 #game-shell #pane-story .action-compose textarea { overflow-y:auto; }
+
+/* RPG5 → ChatGPT manual handoff. Never claim a message was sent. */
+#game-shell #pane-story .bridge-action-handoff {
+  padding:10px 12px 5px;
+  border-top:1px solid rgba(155,113,89,.38);
+  font-size:14px;
+  color:#dbc9b6;
+}
+#game-shell #pane-story .bridge-action-handoff[hidden] { display:none !important; }
+#game-shell .bridge-action-handoff p { margin:0 0 9px;line-height:1.35;overflow-wrap:anywhere; }
+#game-shell .bridge-handoff-buttons { display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px; }
+#game-shell .bridge-handoff-buttons button { flex:1 1 148px;min-height:34px;padding:5px 10px;font-size:14px; }
+#game-shell .bridge-action-handoff details summary { cursor:pointer; font-size:13px; opacity:.85; padding:4px 0; }
+#game-shell .bridge-action-handoff textarea {
+  display:block;box-sizing:border-box; width:100%;min-height:100px;
+  padding:7px 9px;margin-top:6px;resize:vertical;
+  color:#eee0cb;background:#15100e;border:1px solid #6d4c3e;
+  white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.35 Consolas,monospace;
+}
