@@ -23,6 +23,9 @@ function actionNotice(message,kind="ready"){
  if(feedback){feedback.hidden=false;feedback.textContent=message;feedback.dataset.state=kind;}
  notice(message,kind);
 }
+function clearActionFeedback(){
+ if(feedback){feedback.textContent="";feedback.hidden=true;delete feedback.dataset.state;}
+}
 function copySynchronously(value){
  const field=document.createElement("textarea"),previous=document.activeElement;
  field.value=value;field.readOnly=true;field.setAttribute("aria-hidden","true");
@@ -47,9 +50,10 @@ function dispatchAction(action){
   catch(error){actionNotice("Действие не подготовлено: "+String(error?.message||error),"error");return;}
   // Synchronous clipboard fallback while the game tab still has focus.
   const copied=copySynchronously(prepared);
-  actionNotice("Передаю действие и снимок состояния в игровой ChatGPT…","waiting");
+  // The extension switches to the ChatGPT tab; successful autofill is silent.
+  clearActionFeedback();
   bridge.send(prepared,lastRenderedSequence,
-   ()=>actionNotice("Действие вставлено в игровой ChatGPT. Проверь текст и нажми Enter — оно НЕ отправлено автоматически.","ready"),
+   clearActionFeedback,
    error=>{
     const why=String(error||"Не удалось вставить сообщение");
     if(why.startsWith("Действие для этой сцены уже вставлено")||why.startsWith("Предыдущий запрос"))
@@ -82,6 +86,14 @@ function validPacket(packet){
  &&packet.reply&&typeof packet.reply==="object"
  &&!["director_secrets","director_lens","episode_plans","loaded_characters","personal_secrets"].some(k=>Object.hasOwn(packet,k)));
 }
+function exactTime(scene) {
+  // The canonical numeric minute is authoritative; labels can include "около".
+  const minute=scene.minute_of_day;
+  if(Number.isInteger(minute)&&minute>=0&&minute<1440)
+    return String(Math.floor(minute/60)).padStart(2,"0")+":"+String(minute%60).padStart(2,"0");
+  const match=str(scene.time_label).match(/(?:^|[^\d])(2[0-3]|[01]?\d):([0-5]\d)(?!\d)/);
+  return match?match[1].padStart(2,"0")+":"+match[2]:"—:—";
+}
 function renderHeader(packet) {
   const scene=object(packet.scene||object(packet.reply).scene_state);
   if ($("scene-title")) $("scene-title").textContent="Эпизод "+(scene.episode_number??"?")+" · Сцена "+(scene.scene_number??"?");
@@ -92,7 +104,7 @@ function renderHeader(packet) {
   if ($("draft-count")) $("draft-count").textContent="Доставка JSON — не сохранение";
   if ($("save-info")) $("save-info").textContent="Канон RPG5 не меняется при получении JSON. Для сохранения отправь буквальную команду «сохранить» через ChatGPT.";
   if ($("world-day")) $("world-day").textContent=scene.day==null?"День —":"День "+scene.day;
-  if ($("world-time")) $("world-time").textContent=scene.time_label||"—:—";
+  if ($("world-time")) $("world-time").textContent=exactTime(scene);
 }
 function renderHero(hero) {
   // The HERO stats belong exclusively in Oliver's interactive diary.
@@ -211,18 +223,22 @@ function renderChoices(packet) {
   if(!area)return;
   area.replaceChildren();
   const mode=reply.choice_mode||scene.choice_mode||"Полная свобода";
-  const badge=node("p","bridge-choice-mode",mode);
-  area.append(badge);
-  const choices=array(reply.choices);
-  if(mode!=="Полная свобода")for(const choice of choices){
-    const label=typeof choice==="string"?choice:object(choice).label||object(choice).text;
-    const action=typeof choice==="string"?choice:object(choice).action||label;
+  if(mode!=="Полная свобода")area.append(node("p","bridge-choice-mode",mode));
+  // Render exactly the valid options supplied by the current game packet,
+  // regardless of choice_mode; never hide extra options by fixed height.
+  let visibleChoices=0;
+  for(const choice of array(reply.choices)){
+    const entry=object(choice);
+    const label=typeof choice==="string"?choice:entry.label||entry.text;
+    const action=typeof choice==="string"?choice:entry.action||label;
     if(!str(label).trim())continue;
     const b=node("button","bridge-action-choice",label);
     b.type="button";
     b.addEventListener("click",()=>dispatchAction(action));
-    area.append(b);
+    area.append(b);visibleChoices++;
   }
+  area.classList.toggle("single-choice",visibleChoices===1);
+  area.hidden=visibleChoices===0&&mode==="Полная свобода";
   const input=$("action"), send=$("send");
   if(input) {input.disabled=false;input.placeholder=""; }
   if(send){send.disabled=false;send.textContent="Отправить";}
