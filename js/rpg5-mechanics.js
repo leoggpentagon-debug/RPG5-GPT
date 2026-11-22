@@ -40,7 +40,9 @@
     const weight = obj(obj(hero).carried_weight);
     const kg = weight.known_kg;
     const exact = weight.exact === true &&
-      weight.inventory_complete !== false && obj(hero).inventory_complete !== false;
+      weight.inventory_complete !== false && obj(hero).inventory_complete !== false &&
+      !(Array.isArray(weight.unknown_carried_items)&&weight.unknown_carried_items.length) &&
+      !(Array.isArray(weight.unknown_placement_items)&&weight.unknown_placement_items.length);
     if (typeof kg !== "number" || !Number.isFinite(kg) || kg < 0)
       return {known_kg:null,complete:false,band:"unknown"};
     if (!exact) return {known_kg:kg,complete:false,band:"unknown"};
@@ -144,7 +146,7 @@
     const bonusRaw=chosen.base+physicalBonus+situational+(insured?1:0);
     const bonus=Math.min(bonusRaw,bonusLimit);
     const penalties=[
-      ["Здоровье",[2,1,0,0][stats.health]],
+      ["Здоровье",[0,2,1,0][stats.health]],
       ["Стресс",[0,0,0,1,2,4][stats.stress]],
       ["Выносливость",p.physical?[2,1,0,0][stats.stamina]:0],
       ["Голод",[2,1,0,0,0][stats.hunger]],
