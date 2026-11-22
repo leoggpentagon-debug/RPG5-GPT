@@ -132,7 +132,7 @@
     const party=many(observable.characters).filter(x=>
       x && typeof x==="object" && x.character_id!=="oliver_hayes");
     const partyFragment=document.createDocumentFragment();
-    for(const person of party){
+    for(const [partyIndex,person] of party.entries()){
       const id=person.character_id;
       const name=person.name||person.display_name||nameById[id]||"Человек рядом";
       const row=child("div","party-person");
@@ -140,23 +140,19 @@
       const imagePath=portrait(id);
       // A known photograph can be enlarged. Unknown photographs show a
       // non-interactive question mark without inventing a face.
-      const holder=child(imagePath?"button":"div","portrait-button");
+      const holder=child("button","portrait-button");
+      holder.type="button";
+      holder.dataset.partyIndex=String(partyIndex);
+      holder.setAttribute("aria-label","Удерживай 0,5 секунды, чтобы открыть досье "+name);
       const placeholder=()=>{
         holder.classList.add("portrait-is-unknown");
         holder.replaceChildren(child("span","party-portrait-unknown","?"));
-        holder.setAttribute("aria-label","Фотография персонажа "+name+" неизвестна");
-        if(holder.tagName==="BUTTON")holder.disabled=true;
+        holder.setAttribute("aria-label","Фотография "+name+" неизвестна. Удерживай 0,5 секунды для досье.");
       };
       if(imagePath){
-        holder.type="button";
-        holder.setAttribute("aria-label","Увеличить портрет "+name);
         const img=child("img");img.src=imagePath;img.alt=name;img.loading="lazy";
         img.addEventListener("error",placeholder,{once:true});
         holder.append(img);
-        holder.addEventListener("click",()=>{
-          if(!holder.disabled && img.isConnected && img.complete && img.naturalWidth>0)
-            zoom(imagePath,name);
-        });
       }else{
         placeholder();
       }

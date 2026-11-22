@@ -1,0 +1,336 @@
+/* Survival UI v57 — same leather book, paper, flight and page-turn assets as
+   Oliver's dossier. This second journal is isolated: no stats, physical tabs,
+   hero changes, gameplay mutation, or extra image assets. */
+
+/* The red 0.5-second scan is the same one Oliver has on his Polaroid. */
+#game-shell .companions-card .polaroid-npc .portrait-button {
+  touch-action:pan-y;
+}
+#game-shell .companions-card .polaroid-npc.hold-progress {
+  filter:drop-shadow(0 0 10px #c84f4085) drop-shadow(2px 5px 6px #0009);
+}
+#game-shell .companions-card .polaroid-npc.hold-progress > .portrait-button::after {
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  z-index:9;
+  width:0;
+  height:4px;
+  pointer-events:none;
+  background:#dd5844;
+  box-shadow:0 0 7px #ee6543;
+  animation:profile-hold-fill .5s linear forwards;
+}
+#game-shell .companions-card .polaroid-npc .portrait-button:focus-visible {
+  outline:2px solid #d97759;
+  outline-offset:-2px;
+}
+#game-shell .companions-card .polaroid-npc.companion-source-hidden {
+  opacity:0!important;
+}
+
+/* A self-contained instance of the approved physical journal. Unlike the
+   hero's book, the companion's has no protruding side index tabs. */
+.companion-overlay .profile-dossier {
+  width:min(1040px,calc(100vw - 36px));
+  height:min(755px,calc(100dvh - 32px));
+  margin:0;
+}
+.companion-overlay .profile-body {
+  grid-template-columns:minmax(0,42%) minmax(0,58%);
+  overflow:hidden;
+}
+.companion-overlay .profile-book-cover {
+  left:42%;
+}
+.companion-overlay .book-left-page {overflow:hidden;}
+.companion-overlay .book-right-page {
+  min-height:0;
+  padding:27px 32px 17px 32px;
+  overflow:hidden;
+}
+.companion-overlay .profile-book-pages {
+  display:flex;
+  flex-direction:column;
+  flex:1 1 auto;
+  min-height:0;
+  margin:0;
+  overflow:visible;
+}
+.companion-overlay .profile-book-page,
+.companion-overlay .companion-page {
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  min-height:0;
+  height:100%;
+  overflow:hidden;
+  padding:14px 4px 5px;
+  scrollbar-width:none;
+}
+.companion-overlay .profile-page-heading {
+  flex:0 0 auto;
+  margin:0 0 11px;
+  padding:0 2px 11px;
+}
+.companion-overlay .profile-page-heading h2 {
+  font-size:clamp(20px,1.9vw,27px);
+  letter-spacing:.035em;
+}
+.companion-overlay .profile-page-heading span {
+  font-size:12px;
+  letter-spacing:.13em;
+}
+.companion-overlay .companion-notes {
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  gap:8px;
+  min-height:0;
+  overflow:hidden; /* never scroll; JS repaginates measured paragraphs */
+  padding:3px 8px 9px 1px;
+}
+.companion-overlay .companion-entry {
+  margin:0;
+  padding:0 2px 5px 0;
+  flex:0 0 auto;
+  overflow-wrap:anywhere;
+  color:#39281f;
+  font:400 clamp(18px,1.63vw,24px)/1.23 "Neucha","Segoe Print","Trebuchet MS",sans-serif;
+  letter-spacing:.005em;
+  white-space:normal;
+}
+.companion-overlay .companion-entry strong {
+  display:block;
+  color:#6f3d2a;
+  font:600 clamp(15px,1.23vw,19px)/1.13 "Neucha","Trebuchet MS",sans-serif;
+  letter-spacing:.015em;
+  margin-bottom:4px;
+}
+.companion-overlay .companion-entry span {display:block;}
+.companion-overlay .companion-page-controls {
+  display:flex;
+  flex:0 0 auto;
+  align-items:center;
+  justify-content:flex-end;
+  gap:9px;
+  min-height:46px;
+  padding:3px 5px 6px;
+  color:#5d4131;
+  border-top:1px solid #886b4b80;
+}
+.companion-overlay .companion-page-controls button {
+  display:grid;
+  place-items:center;
+  width:43px;
+  height:36px;
+  padding:0;
+  border:1px solid #8a624b;
+  border-radius:3px;
+  background:linear-gradient(130deg,#ead2ab,#bd9871);
+  box-shadow:inset 0 1px #fff6,0 2px 4px #5b371f4d;
+  color:#563429;
+  font:600 27px/1 Georgia,serif;
+  cursor:pointer;
+}
+.companion-overlay .companion-page-controls button:hover:not(:disabled) {
+  border-color:#a5573c;
+  background:#f4dcb4;
+  color:#7a3324;
+}
+.companion-overlay .companion-page-controls button:disabled {
+  opacity:.35;
+  cursor:default;
+}
+.companion-overlay .companion-page-controls button:focus-visible {
+  outline:2px solid #b44836;
+  outline-offset:2px;
+}
+.companion-overlay .companion-page-controls output {
+  font:700 12px/1.1 "Trebuchet MS",sans-serif;
+  min-width:85px;
+  text-align:center;
+  letter-spacing:.07em;
+}
+.companion-overlay .profile-book-footer {margin-top:0;padding-top:6px;}
+.companion-overlay .profile-photo-label strong,
+.companion-flight-ghost.profile-polaroid .profile-photo-label strong {
+  font:400 clamp(17px,1.6vw,23px)/1.05 "Neucha","Segoe Print",sans-serif;
+  color:#261b13;
+  text-shadow:none;
+}
+.companion-overlay .book-left-note {
+  gap:8px;
+  margin-top:24px;
+}
+.companion-overlay .book-left-note-caption {font-size:17px;}
+.companion-overlay .book-left-note p {
+  font:400 19px/1.3 "Neucha","Segoe Print",sans-serif;
+  color:#5d4030;
+  max-width:300px;
+}
+.companion-overlay .book-archive-stamp {
+  max-width:100%;
+  text-align:center;
+  font-size:clamp(13px,1.5vw,20px);
+  letter-spacing:.035em;
+  overflow-wrap:anywhere;
+}
+.companion-overlay .profile-photo-placeholder {
+  position:absolute;
+  z-index:2;
+  top:9.1%;
+  left:13.1%;
+  width:73.8%;
+  height:72%;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(150deg,#39312d,#171413 75%);
+  color:#d5c0a0;
+  font:700 clamp(72px,8vw,116px)/1 Georgia,serif;
+  text-shadow:0 2px 8px #0009;
+}
+.companion-overlay .profile-photo-placeholder[hidden],
+.companion-overlay .profile-polaroid > img[hidden] {display:none!important;}
+.companion-overlay .profile-page-turn {pointer-events:none;}
+
+/* The temporary flying copy must retain the paper frame, photo and tape
+   even after moving outside #game-shell (whose selectors no longer apply). */
+.companion-flight-ghost {
+  position:fixed;
+  z-index:130;
+  margin:0;
+  box-sizing:border-box;
+  overflow:visible;
+  isolation:isolate;
+  pointer-events:none!important;
+  user-select:none;
+  will-change:transform,filter,opacity;
+}
+.companion-flight-ghost * {pointer-events:none!important;}
+.companion-flight-ghost.polaroid-npc {
+  display:block;
+  aspect-ratio:1261 / 1247;
+  border:0;
+  background:transparent;
+  box-shadow:none;
+}
+.companion-flight-ghost.polaroid-npc::after,
+.companion-flight-ghost.polaroid-npc::before {
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  background-repeat:no-repeat;
+}
+.companion-flight-ghost.polaroid-npc::after {
+  inset:0;
+  z-index:4;
+  background:url("../assets/ui/portraits/polaroid_player_paper_frame.webp") center / 100% 100% no-repeat;
+}
+.companion-flight-ghost.polaroid-npc::before {
+  z-index:6;
+  top:-3.5%;
+  left:23%;
+  width:43%;
+  height:auto;
+  aspect-ratio:749 / 415;
+  background:url("../assets/ui/portraits/polaroid_player_tape.webp") center / contain no-repeat;
+}
+.companion-flight-ghost.polaroid-npc > .portrait-button {
+  position:absolute;
+  z-index:2;
+  top:9.1%;left:13.1%;width:73.8%;height:72%;
+  border:0;padding:0;
+  display:grid;place-items:center;
+  background:linear-gradient(150deg,#39312d,#171413 75%);
+  overflow:hidden;
+}
+.companion-flight-ghost.polaroid-npc > .portrait-button img {
+  width:100%;height:100%;object-fit:cover;object-position:center 35%;
+}
+.companion-flight-ghost.polaroid-npc .party-portrait-unknown {
+  color:#d5c0a0;
+  font:700 55px Georgia,serif;
+}
+.companion-flight-ghost.polaroid-npc .party-portrait-name {
+  position:absolute;
+  z-index:8;
+  top:79.3%;left:8.3%;width:55%;height:17%;
+  display:flex;align-items:center;justify-content:center;
+  transform:rotate(-1deg);
+  color:#281b13;
+}
+.companion-flight-ghost.polaroid-npc .party-portrait-name strong {
+  font:400 20px/1 "Neucha","Trebuchet MS",sans-serif;
+  white-space:nowrap;
+}
+
+@media(max-height:810px) {
+  .companion-overlay .profile-dossier {height:min(640px,calc(100dvh - 22px));}
+  .companion-overlay .book-right-page {padding:16px 20px 12px 23px;}
+  .companion-overlay .companion-entry {font-size:19px;line-height:1.16;}
+  .companion-overlay .companion-notes {gap:4px;}
+  .companion-overlay .companion-page-controls {min-height:36px;}
+  .companion-overlay .companion-page-controls button {width:38px;height:32px;}
+}
+@media(max-width:950px) and (min-width:581px) {
+  .companion-overlay .profile-dossier {width:min(770px,calc(100vw - 26px));margin:0;}
+  .companion-overlay .profile-body {grid-template-columns:38% 62%;}
+  .companion-overlay .profile-body::before {left:38%;}
+  .companion-overlay .profile-book-cover {left:38%;}
+  .companion-overlay .book-right-page {padding:14px 15px 12px 21px;}
+}
+@media(max-width:580px) {
+  .companion-overlay .profile-dossier {
+    width:calc(100vw - 14px);
+    height:calc(100dvh - 14px);
+    margin:0;
+  }
+  .companion-overlay .profile-body {
+    display:flex;
+    flex-direction:column;
+    gap:0;
+    overflow:hidden;
+    padding:5px;
+  }
+  .companion-overlay .profile-body::before {display:none;}
+  .companion-overlay .book-left-page {
+    flex:0 0 150px;
+    min-height:0;
+    flex-direction:row;
+    justify-content:center;
+    gap:10px;
+    padding:5px 7px;
+  }
+  .companion-overlay .profile-polaroid {width:125px;flex:0 0 125px;}
+  .companion-overlay .book-left-note {
+    flex:1 1 auto;
+    margin:0;
+    padding:3px;
+    border:0;
+    justify-content:center;
+    min-width:0;
+  }
+  .companion-overlay .book-left-note-caption {display:none;}
+  .companion-overlay .book-left-note p {display:block;font-size:13px;line-height:1.1;}
+  .companion-overlay .book-archive-stamp {font-size:12px;padding:4px;}
+  .companion-overlay .book-right-page {
+    flex:1 1 auto;
+    min-height:0;
+    padding:8px 11px;
+  }
+  .companion-overlay .profile-page-heading h2 {font-size:18px;}
+  .companion-overlay .companion-entry {font-size:17px;line-height:1.12;}
+  .companion-overlay .companion-entry strong {font-size:14px;}
+  .companion-overlay .profile-book-cover {display:none;}
+  .companion-overlay .profile-book-footer {font-size:8px;}
+  .companion-overlay .companion-page-controls output {min-width:68px;font-size:11px;}
+}
+@media(prefers-reduced-motion:reduce) {
+  #game-shell .companions-card .polaroid-npc.hold-progress > .portrait-button::after {
+    animation:none!important;
+    width:100%;
+  }
+  .companion-overlay .profile-page-turn.turning {animation:none!important;visibility:hidden!important;}
+}

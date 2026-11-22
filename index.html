@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="css/background-accents.css?v=survival-ui-47">
   <link rel="stylesheet" href="css/survivor-board.css?v=survival-ui-55">
   <link rel="stylesheet" href="css/polaroid-lettering.css?v=survival-ui-56">
+  <link rel="stylesheet" href="css/companion-dossier.css?v=survival-ui-57">
 </head>
 <body>
 <div class="game-shell" id="game-shell">
@@ -217,6 +218,64 @@
   </section>
 </div>
 
+
+<!-- Separate read-only field journal for each survivor on the nearby board.
+     Reuses the existing leather cover, live Polaroid paper, page assets and SFX.
+     No tabs or hero's own status/skills controls. -->
+<div id="companion-overlay" class="profile-overlay companion-overlay" aria-hidden="true">
+  <div id="companion-backdrop" class="profile-backdrop"></div>
+  <section id="companion-dossier" class="profile-dossier" role="dialog"
+           aria-modal="true" aria-labelledby="companion-name" tabindex="-1">
+    <div class="profile-topbar">
+      <span class="profile-kicker">ПОЛЕВОЕ ДОСЬЕ · МОИ ЗАПИСИ</span>
+      <button id="companion-close" type="button" class="profile-close" aria-label="Закрыть досье персонажа">✕</button>
+    </div>
+    <div class="profile-book-cover" aria-hidden="true">
+      <div class="book-cover-emboss">28 DAYS LATER</div>
+      <div class="book-cover-center">
+        <span class="book-cover-rule"></span>
+        <span class="book-cover-title">ДОСЬЕ</span>
+        <span class="book-cover-subtitle">ЗАПИСИ О ЛЮДЯХ РЯДОМ</span>
+        <span class="book-cover-seal">SURVIVAL</span>
+      </div>
+      <span class="book-cover-corner"></span>
+    </div>
+    <div class="profile-body">
+      <div class="profile-photo-column book-left-page">
+        <div id="companion-polaroid" class="profile-polaroid">
+          <img id="companion-photo" alt="" hidden>
+          <div id="companion-photo-unknown" class="profile-photo-placeholder" aria-label="Фотография отсутствует" hidden>?</div>
+          <div class="profile-photo-label"><strong id="companion-name">Персонаж</strong></div>
+        </div>
+        <div class="book-left-note">
+          <span class="book-left-note-caption">ЗАПИСИ ОЛИВЕРА</span>
+          <span id="companion-stamp" class="book-archive-stamp">ОТНОШЕНИЕ НЕИЗВЕСТНО</span>
+          <p id="companion-relationship">Подтверждённые отношения уточняются.</p>
+        </div>
+      </div>
+      <div class="profile-content-column book-right-page">
+        <div class="profile-book-pages companion-pages">
+          <div id="companion-page-turn" class="profile-page-turn" aria-hidden="true"></div>
+          <section class="profile-book-page is-active companion-page" role="document"
+                   aria-label="Рукописные заметки об этом персонаже">
+            <header class="profile-page-heading">
+              <span>ЛИЧНЫЕ ЗАПИСИ · БЕЗ ДОГАДОК</span>
+              <h2 id="companion-page-heading">ЗАПИСИ</h2>
+            </header>
+            <div id="companion-notes" class="companion-notes" aria-live="polite"></div>
+          </section>
+        </div>
+        <nav class="companion-page-controls" aria-label="Перелистывание страниц досье">
+          <button id="companion-prev" type="button" aria-label="Предыдущая страница" disabled>‹</button>
+          <output id="companion-page-number" aria-live="polite">Лист 01 / 01</output>
+          <button id="companion-next" type="button" aria-label="Следующая страница" disabled>›</button>
+        </nav>
+        <div class="profile-book-footer"><span>28 DAYS LATER: SURVIVAL</span><span>ПОЛЕВОЕ ДОСЬЕ</span></div>
+      </div>
+    </div>
+  </section>
+</div>
+
 <div class="drawer-scrim" id="drawer-scrim" hidden></div>
 <aside id="service-drawer" class="service-drawer" aria-label="Служебные функции" aria-hidden="true">
   <div class="service-head"><h2>Служебное меню</h2><button type="button" id="service-close" class="icon-button" aria-label="Закрыть служебное меню">✕</button></div>
@@ -267,6 +326,7 @@
 <script src="js/radial-navigation.js?v=survival-ui-35"></script>
 <script src="js/profile-ui.js?v=survival-ui-45"></script>
 <script src="js/profile-book.js?v=survival-ui-18"></script>
-<script src="js/app.js?v=survival-ui-56"></script>
+<script src="js/app.js?v=survival-ui-57"></script>
+<script src="js/companion-dossier.js?v=survival-ui-57"></script>
 </body>
 </html>
