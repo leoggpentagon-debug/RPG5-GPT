@@ -6,3 +6,13 @@ window.RPG6_CONFIG = Object.freeze({
   publishableKey: '',
   edgeFunction: '',
 });
+
+// Remote GitHub Pages mode. Empty until the approved OAuth integration
+// and a secure, authenticated backend are available.
+// The browser must never contain ChatGPT OAuth credentials.
+window.RPG5_GPT_CONFIG = Object.freeze({
+  deployment: "github-pages-remote",
+  gatewayUrl: "",
+  gatewayProtocolVersion: 1,
+  access: "approval-required",
+});
