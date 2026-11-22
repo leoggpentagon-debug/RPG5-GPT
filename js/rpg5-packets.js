@@ -1,208 +1,65 @@
-// RPG5-GPT | Player-visible JSON -> existing RPG visual engine.
-// Only Supabase Auth + the private read-only Edge Function. No Gemini or paid API.
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.119.2";
-const $ = id => document.getElementById(id);
-const cfg = window.RPG5_GPT_CONFIG || {};
-const rawView = $("bridge-json"), status = $("gpt-remote-status");
-const emailField = $("bridge-email"), authPanel = $("bridge-auth");
-const signIn = $("bridge-sign-in"), signOut = $("bridge-sign-out");
-const refresh = $("gpt-remote-check");
-const chatTarget = $("bridge-chat-url"), saveChatTarget = $("bridge-chat-save");
-const preparedPreview = $("bridge-prepared-prompt");
-const handoffPanel = $("bridge-action-handoff");
-const handoffMessage = $("bridge-handoff-message");
-const handoffCopy = $("bridge-handoff-copy");
-const handoffOpen = $("bridge-handoff-open");
-const handoffRequest = $("bridge-handoff-request");
-const handoffDetails = $("bridge-handoff-details");
-let pendingPrompt = "";
-let pendingTarget = "";
-const packetLabel = $("bridge-last-packet");
-const CURSOR_KEY = "rpg5_gpt_bridge_cursor_v1";
-const CACHE_KEY = "rpg5_gpt_bridge_last_scene_v1";
-const TARGET_KEY = "rpg5_gpt_chat_target_v1";
-const portraits = Object.freeze({
-  oliver_hayes: "assets/portraits/oliver_hayes.png",
-  bex: "assets/portraits/bex.png",
-});
-const knownNames = Object.freeze({
-  oliver_hayes: "Оливер Хейз", bex: "Бекс", ian_calder: "Иэн",
-});
-const object = x => (x && typeof x === "object" && !Array.isArray(x)) ? x : {};
-const array = x => Array.isArray(x) ? x : [];
-const str = x => (typeof x === "string" ? x : "");
-let currentPacket = null, connected = false, busy = false;
-let lastRenderedSequence = null;
-
-function notice(message, kind="waiting") {
-  if (!status) return;
-  status.dataset.state = kind;
-  status.textContent = message;
+// RPG5-GPT — local Chrome extension transport. No server, chat URLs or Auth.
+"use strict";
+const $=id=>document.getElementById(id);
+const status=$("gpt-remote-status"),packetLabel=$("bridge-last-packet");
+const feedback=$("action-feedback");
+const CACHE_KEY="rpg5_extension_latest_scene_v1";
+const portraits=Object.freeze({oliver_hayes:"assets/portraits/oliver_hayes.png",bex:"assets/portraits/bex.png"});
+const knownNames=Object.freeze({oliver_hayes:"Оливер Хейз",bex:"Бекс",ian_calder:"Иэн"});
+const object=x=>(x&&typeof x==="object"&&!Array.isArray(x))?x:{};
+const array=x=>Array.isArray(x)?x:[];
+const str=x=>typeof x==="string"?x:"";
+let currentPacket=null,lastRenderedSequence=null;
+function node(tag,className="",text=""){
+ const el=document.createElement(tag);
+ if(className)el.className=className;
+ el.textContent=String(text);return el;
 }
-function node(tag, className="", text="") {
-  const el = document.createElement(tag);
-  if (className) el.className = className;
-  el.textContent = String(text);
-  return el;
+function notice(message,kind="waiting"){
+ if(status){status.dataset.state=kind;status.textContent=message;}
+ if($("status"))$("status").textContent=message;
 }
-function storageGet(key, fallback="") {
-  try { return sessionStorage.getItem(key) ?? fallback; } catch { return fallback; }
+function actionNotice(message,kind="ready"){
+ if(feedback){feedback.hidden=false;feedback.textContent=message;feedback.dataset.state=kind;}
+ notice(message,kind);
 }
-function storageSet(key, value) {
-  try { sessionStorage.setItem(key, value); } catch { /* Browsers can disable storage. */ }
+function copySynchronously(value){
+ const field=document.createElement("textarea"),previous=document.activeElement;
+ field.value=value;field.readOnly=true;field.setAttribute("aria-hidden","true");
+ Object.assign(field.style,{position:"fixed",top:"0",left:"0",width:"1px",height:"1px",opacity:"0",pointerEvents:"none"});
+ document.body.append(field);let ok=false;
+ try{field.focus({preventScroll:true});field.select();field.setSelectionRange(0,value.length);
+ ok=document.execCommand("copy")===true;}catch(e){console.warn("RPG5 clipboard:",e);}
+ field.remove();if(previous?.isConnected)try{previous.focus({preventScroll:true});}catch{}
+ return ok;
 }
-function storageDelete(key) { try { sessionStorage.removeItem(key); } catch { /* optional */ } }
-function cursor() {
-  const v=storageGet(CURSOR_KEY,"0");
-  return /^[0-9]{1,16}$/.test(v) ? v : "0";
+async function copyAction(value){
+ if(copySynchronously(value))return true;
+ try{await navigator.clipboard.writeText(value);return true;}catch{return false;}
 }
-async function checksum(text) {
-  const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return Array.from(new Uint8Array(bytes), b=>b.toString(16).padStart(2,"0")).join("");
+function dispatchAction(action){
+ if(typeof action!=="string"||!action.trim()){actionNotice("Сначала введи действие.","error");return;}
+ const message=action.trim();
+ // Nothing is sent to ChatGPT; the user pastes the plain action.
+ void copyAction(message).then(ok=>{
+  if(ok)actionNotice("Скопировано: «"+message.slice(0,90)+"». В игровом чате нажми Ctrl+V и Enter.","ready");
+  else{actionNotice("Копирование заблокировано. Выдели действие и скопируй Ctrl+C.","error");
+       const input=$("action");if(input){input.value=message;input.focus();input.select();}}
+ });
 }
-function validChatUrl(input) {
-  try {
-    const u=new URL(input);
-    if (u.protocol !== "https:" || u.hostname !== "chatgpt.com" ||
-        u.username || u.password || u.hash || u.port) return null;
-    const path=u.pathname.replace(/\/+$/,"");
-    // A personal ChatGPT conversation, including one inside a project.
-    if (!(/^\/c\/[a-z0-9-]+$/i.test(path) ||
-          /^\/g\/g-p-[a-z0-9_-]+\/c\/[a-z0-9-]+$/i.test(path))) return null;
-    return u.origin+path;
-  } catch { return null; }
+async function checksum(text){
+ const bytes=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(text));
+ return [...new Uint8Array(bytes)].map(x=>x.toString(16).padStart(2,"0")).join("");
 }
-function rememberTarget() {
-  const target=validChatUrl(chatTarget?.value?.trim() || "");
-  if (!target) {
-    notice("Вставь адрес ОТКРЫТОЙ переписки ChatGPT из адресной строки: https://chatgpt.com/c/…", "error");
-    return false;
-  }
-  try {
-    localStorage.setItem(TARGET_KEY,target);
-  } catch { /* User can still use it until page reload. */ }
-  if (chatTarget) chatTarget.value=target;
-  notice("Чат сохранён на этом устройстве. Теперь выбирай действие на игровом экране.", "ready");
-  return true;
-}
-function promptForAction(action) {
-  const p=object(currentPacket), scene=object(p.scene), reply=object(p.reply);
-  const id="web_"+crypto.randomUUID().replace(/-/g,"");
-  const message=[
-    "28 DAYS LATER: SURVIVAL — игровой ход из сайта RPG5-GPT.",
-    "ID запроса: "+id,
-    "Линия: "+String(p.storyline_id||"protagonist_oliver")+
-      "; каноническая ревизия: "+String(p.memory_revision??"неизвестна")+
-      "; эпизод: "+String(scene.episode_number??"?")+
-      "; сцена: "+String(scene.scene_number??"?")+
-      "; день: "+String(scene.day??"?")+
-      "; время: "+String(scene.time_label??"неизвестно")+".",
-    "ДЕЙСТВИЕ ИГРОКА: "+action,
-    "",
-    "Пятница, обработай только это действие управляемого героя, по engine_rules.md и ТЕХНИЧЕСКИЙ_ПРОТОКОЛ.md.",
-    "Сверь актуальный контекст rpg5 перед продолжением; не заменяй решения игрока.",
-    "После ответа опубликуй полный JSON, предназначенный игроку, в Supabase:",
-    "SELECT * FROM rpg5_bridge.publish_packet('protagonist_oliver','scene','"+id+"',<ПОЛНЫЙ_ТЕКСТ_JSON>);",
-    "JSON должен содержать schema='rpg5-gpt-packet-v1', scene, storyline_id,",
-    "memory_revision, hero, characters (только видимое игроку), reply.narration,",
-    "reply.dialogue, reply.choices, reply.choice_mode и reply.scene_state.",
-    "Не сокращай пакет и не передавай закрытые данные NPC или режиссёрские планы.",
-    "Это только доставка ответа: НЕ вызывай rpg5.commit_scene без буквальной команды «сохранить».",
-    "Если действию нужна честная d20-проверка, открой её по правилам и не придумывай результат."
-  ];
-  if (action.trim().toLowerCase()==="сохранить") {
-    return "сохранить";
-  }
-  return message.join("\n");
-}
-function copySynchronously(text) {
-  // Legacy execCommand is intentional: it completes under the initial user
-  // gesture, BEFORE opening a new tab or losing document focus.
-  const previous=document.activeElement;
-  const field=document.createElement("textarea");
-  field.value=text;
-  field.readOnly=true;
-  field.setAttribute("aria-hidden","true");
-  Object.assign(field.style,{
-    position:"fixed",top:"0",left:"0",width:"1px",height:"1px",opacity:"0",
-    pointerEvents:"none",zIndex:"-1",
-  });
-  document.body.append(field);
-  let copied=false;
-  try {
-    field.focus({preventScroll:true});
-    field.select();
-    field.setSelectionRange(0,text.length);
-    copied=document.execCommand("copy")===true;
-  } catch(error) { console.warn("RPG5: synchronous clipboard copy unavailable",error); }
-  finally {
-    field.remove();
-    if(previous && previous.isConnected && typeof previous.focus==="function")
-      try { previous.focus({preventScroll:true}); } catch { /* optional */ }
-  }
-  return copied;
-}
-function handoffNotice(message,kind="waiting") {
-  if(handoffPanel) handoffPanel.hidden=false;
-  if(handoffMessage) {
-    handoffMessage.textContent=message;
-    handoffMessage.dataset.state=kind;
-  }
-  notice(message,kind);
-}
-function openPreparedChat() {
-  if(!pendingTarget || !pendingPrompt)return;
-  const destination=new URL(pendingTarget);
-  // Unsupported/experimental prefill for existing ChatGPT chats.
-  // The full request remains on the clipboard even if ChatGPT ignores this.
-  if($("bridge-prefill")?.checked)destination.searchParams.set("prompt",pendingPrompt);
-  window.location.assign(destination.toString());
-}
-async function copyPreparedRequest() {
-  if(!pendingPrompt)return false;
-  let copied=copySynchronously(pendingPrompt);
-  if(!copied && navigator.clipboard && typeof navigator.clipboard.writeText==="function") {
-    try { await navigator.clipboard.writeText(pendingPrompt); copied=true; }
-    catch(error) { console.warn("RPG5: Clipboard API unavailable",error); }
-  }
-  if(copied) {
-    handoffNotice("Запрос скопирован. Открой чат, затем нажми Ctrl+V и Enter. Сам сайт сообщение НЕ отправляет.","ready");
-  } else {
-    if(handoffDetails) handoffDetails.open=true;
-    handoffRequest?.focus({preventScroll:true});
-    handoffRequest?.select();
-    handoffNotice("Буфер обмена заблокирован. Запрос выделен ниже: Ctrl+C, открой чат, затем Ctrl+V и Enter.","error");
-  }
-  return copied;
-}
-function dispatchAction(action) {
-  if (!currentPacket || typeof action!=="string" || !action.trim()) {
-    notice("Сначала дождись текущей сцены и введи действие.","error");return;
-  }
-  const target=validChatUrl(chatTarget?.value?.trim()||"");
-  if(!target) {
-    notice("Сначала укажи ссылку на нужную переписку ChatGPT в служебном меню.","error");
-    if(!document.getElementById("service-drawer")?.classList.contains("open"))
-      document.getElementById("service-toggle")?.click();
-    chatTarget?.focus();
-    return;
-  }
-  rememberTarget();
-  pendingPrompt=promptForAction(action.trim());
-  pendingTarget=target;
-  if(preparedPreview) preparedPreview.value=pendingPrompt;
-  if(handoffRequest) handoffRequest.value=pendingPrompt;
-  if(handoffDetails) handoffDetails.open=false;
-  // Copy BEFORE navigation: a new tab can steal clipboard permission.
-  if(copySynchronously(pendingPrompt)) {
-    handoffNotice("Запрос скопирован. Открываю этот чат в той же вкладке. Если поле пустое — Ctrl+V, Enter.","ready");
-    openPreparedChat();
-  } else {
-    void copyPreparedRequest().then(copied=>{
-      if(copied)openPreparedChat();
-      else handoffNotice("Запрос не скопирован; текст сохранён на странице. Скопируй его вручную.","error");
-    });
-  }
+function validPacket(packet){
+ return Boolean(packet&&typeof packet==="object"&&!Array.isArray(packet)
+ &&packet.schema==="rpg5-gpt-packet-v1"
+ &&packet.storyline_id==="protagonist_oliver"
+ &&object(packet.scene).scene_number!==undefined
+ &&packet.hero&&typeof packet.hero==="object"
+ &&Array.isArray(packet.characters)
+ &&packet.reply&&typeof packet.reply==="object"
+ &&!["director_secrets","director_lens","episode_plans","loaded_characters","personal_secrets"].some(k=>Object.hasOwn(packet,k)));
 }
 function renderHeader(packet) {
   const scene=object(packet.scene||object(packet.reply).scene_state);
@@ -328,9 +185,9 @@ function renderChoices(packet) {
   }
   const input=$("action"), send=$("send");
   if(input) {input.disabled=false;input.placeholder=""; }
-  if(send){send.disabled=false;send.textContent="Продолжить";}
-  if($("save")){$("save").disabled=false;$("save").textContent="Сохранить через ChatGPT";}
-  if($("start")){$("start").disabled=false;$("start").textContent="Проверить ответы";}
+  if(send){send.disabled=false;send.textContent="Отправить";}
+  if($("save")){$("save").disabled=false;$("save").textContent="Скопировать «сохранить»";}
+  if($("start")){$("start").disabled=false;$("start").textContent="Проверить расширение";}
 }
 function renderPacket(packet, sequence) {
   if(!packet || typeof packet!=="object" || Array.isArray(packet))return;
@@ -356,120 +213,46 @@ function renderPacket(packet, sequence) {
   }));
   if($("generation-model")) $("generation-model").textContent="Модель: ChatGPT Plus · через проект";
   if($("generation-context")) $("generation-context").textContent="Сцена из RPG5 · не автосохранение";
-  if($("status")) $("status").textContent="Сцена загружена из Supabase. Выбери действие.";
+  if($("status")) $("status").textContent="Сцена получена через расширение Chrome. Выбери действие.";
 }
-async function restoreCache() {
-  const raw=storageGet(CACHE_KEY);
-  if(!raw) {storageDelete(CURSOR_KEY);return;}
-  try {
-    const saved=JSON.parse(raw);
-    if(typeof saved.text!=="string" || (await checksum(saved.text))!==saved.sha)
-      throw Error("Cache checksum mismatch");
-    const packet=JSON.parse(saved.text);
-    rawView.textContent=saved.text;
-    packetLabel.textContent="№"+saved.sequence+" · восстановлен из проверенного кеша";
-    renderPacket(packet, saved.sequence);
-    storageSet(CURSOR_KEY,String(saved.sequence));
-  } catch {
-    storageDelete(CURSOR_KEY);storageDelete(CACHE_KEY);
-  }
+
+async function acceptPacket(raw,expected){
+ if(typeof raw!=="string"||new TextEncoder().encode(raw).length>1800000)return;
+ if(typeof expected!=="string"||!/^[0-9a-f]{64}$/.test(expected))return;
+ const actual=await checksum(raw);
+ if(actual!==expected){notice("Пакет отклонён: SHA-256 не совпала.","error");return;}
+ let packet;
+ try{packet=JSON.parse(raw);}catch{notice("Пакет отклонён: неверный JSON.","error");return;}
+ if(!validPacket(packet)){notice("Пакет отклонён: неверная структура RPG5.","error");return;}
+ if(lastRenderedSequence!==null&&lastRenderedSequence===actual)return;
+ renderPacket(packet,actual);
+ if(packetLabel)packetLabel.textContent="Сцена "+object(packet.scene).scene_number+" · JSON проверен";
+ try{localStorage.setItem(CACHE_KEY,JSON.stringify({raw,sha:actual}));}catch(e){console.warn("RPG5 cache:",e);}
+ notice("Сцена получена через расширение Chrome. Выбирай действие.","ready");
 }
-const valid=(status&&signIn&&signOut&&refresh&&cfg.supabaseUrl&&cfg.publishableKey&&cfg.gatewayUrl);
-if(!valid) {
-  notice("Подключение к Supabase не настроено.", "error");
-} else {
-  const sb=createClient(cfg.supabaseUrl,cfg.publishableKey,{
-    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,
-      flowType:"implicit",storage:window.sessionStorage},
-  });
-  async function getSession() {
-    const {data,error}=await sb.auth.getSession();
-    if(error)throw error;
-    connected=Boolean(data.session?.access_token);
-    authPanel.hidden=connected;signOut.hidden=!connected;refresh.disabled=!connected;
-    return data.session;
-  }
-  async function poll() {
-    if(busy||document.hidden)return;
-    busy=true;
-    try {
-      const session=await getSession();
-      if(!session){notice("Войди по почте Supabase Auth, чтобы получить историю.");return;}
-      // Catch up in order, including the original transport test and game scenes.
-      for(let i=0;i<12;i++){
-        const url=new URL(cfg.gatewayUrl);url.searchParams.set("after",cursor());
-        const res=await fetch(url.toString(),{
-          method:"GET",mode:"cors",cache:"no-store",credentials:"omit",
-          headers:{"Authorization":"Bearer "+session.access_token,"apikey":cfg.publishableKey},
-        });
-        if(res.status===204) {
-          notice(currentPacket?"Подключено. Выбирай действие — ответ появится здесь.":"Подключено. Ожидаю сцену.", "ready");
-          break;
-        }
-        if(res.status===401||res.status===403) {notice("Доступ отклонён. Проверь вход Supabase.", "error");break;}
-        if(!res.ok)throw Error("HTTP "+res.status);
-        const text=await res.text(),expected=res.headers.get("X-Packet-Sha256")||"";
-        const sequence=res.headers.get("X-Packet-Sequence")||"";
-        const kind=res.headers.get("X-Packet-Kind")||"";
-        if(!/^[0-9a-f]{64}$/.test(expected)||!/^[0-9]{1,16}$/.test(sequence))
-          throw Error("Сервер не предоставил контрольную сумму или номер.");
-        if((await checksum(text))!==expected)throw Error("Контрольная сумма JSON не совпала.");
-        const packet=JSON.parse(text);
-        if(!packet||typeof packet!=="object"||Array.isArray(packet))throw Error("Ожидался JSON-объект.");
-        rawView.textContent=text; // complete original JSON, no shortening
-        packetLabel.textContent="№"+sequence+" · SHA-256 верна · "+new TextEncoder().encode(text).length+" байт";
-        if(kind!=="test") {
-          renderPacket(packet, sequence);
-          storageSet(CACHE_KEY,JSON.stringify({text,sha:expected,sequence}));
-        }
-        storageSet(CURSOR_KEY,sequence);
-        notice("Получен пакет №"+sequence+(kind==="test"?" · транспортный тест":" · игровая сцена"),"ready");
-      }
-    } catch(err){ notice("Ошибка получения: "+String(err?.message||err),"error"); }
-    finally{busy=false;}
-  }
-  signIn.addEventListener("click",async()=>{
-    const email=emailField?.value?.trim()||"";
-    if(!email.includes("@")){notice("Введи почту существующего пользователя Supabase Auth.","error");return;}
-    signIn.disabled=true;
-    try {
-      const {error}=await sb.auth.signInWithOtp({
-        email,options:{shouldCreateUser:false,emailRedirectTo:location.origin+location.pathname},
-      });
-      if(error)throw error;
-      notice("Письмо отправлено. Перейди по ссылке для входа.");
-    }catch(e){notice("Ошибка авторизации: "+String(e?.message||e),"error");}
-    finally{signIn.disabled=false;}
-  });
-  signOut.addEventListener("click",async()=>{
-    await sb.auth.signOut();connected=false;
-    authPanel.hidden=false;signOut.hidden=true;refresh.disabled=true;
-    storageDelete(CACHE_KEY);storageDelete(CURSOR_KEY);
-    notice("Вход завершён.");
-  });
-  refresh.addEventListener("click",()=>{void poll();});
-  $("start")?.addEventListener("click",()=>{void poll();});
-  $("send")?.addEventListener("click",()=>dispatchAction($("action")?.value||""));
-  $("action")?.addEventListener("keydown",e=>{
-    if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)) {e.preventDefault();dispatchAction($("action").value);}
-  });
-  $("save")?.addEventListener("click",()=>dispatchAction("сохранить"));
-  $("portrait-close")?.addEventListener("click",()=>$("portrait-dialog")?.close());
-  saveChatTarget?.addEventListener("click",rememberTarget);
-  handoffCopy?.addEventListener("click",()=>{void copyPreparedRequest();});
-  handoffOpen?.addEventListener("click",openPreparedChat);
-  if(chatTarget) {
-    try {
-      chatTarget.value=localStorage.getItem(TARGET_KEY)||"";
-    } catch { /* Storage is optional. */ }
-  }
-  sb.auth.onAuthStateChange(()=>{
-    setTimeout(()=>{void getSession().then(s=>{if(s)void poll();});},0);
-  });
-  void restoreCache().then(()=>getSession()).then(s=>{
-    if(s)void poll();
-    else notice("Войди в Supabase Auth, чтобы получить текущую сцену.");
-  }).catch(e=>notice("Ошибка запуска: "+String(e?.message||e),"error"));
-  setInterval(()=>{if(connected&&!document.hidden)void poll();},8000);
-  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&connected)void poll();});
+window.addEventListener("message",event=>{
+ if(event.source!==window||event.origin!==location.origin)return;
+ const data=event.data;
+ if(data?.source!=="RPG5_EXTENSION"||data.type!=="RPG5_PACKET")return;
+ void acceptPacket(data.raw,data.sha);
+});
+async function restoreCache(){
+ try{
+  const cached=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");
+  if(cached?.raw&&cached?.sha)await acceptPacket(cached.raw,cached.sha);
+ }catch(e){console.warn("RPG5: no usable cache",e);}
 }
+function requestPacket(){
+ window.postMessage({source:"RPG5_GAME",type:"READY"},location.origin);
+ if(!currentPacket)notice("Ожидаю первый JSON из игрового чата ChatGPT.");
+}
+$("send")?.addEventListener("click",()=>dispatchAction($("action")?.value||""));
+$("action")?.addEventListener("keydown",e=>{
+ if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){
+  e.preventDefault();dispatchAction(e.target.value);
+ }
+});
+$("save")?.addEventListener("click",()=>dispatchAction("сохранить"));
+$("start")?.addEventListener("click",requestPacket);
+$("portrait-close")?.addEventListener("click",()=>$("portrait-dialog")?.close());
+void restoreCache().then(requestPacket);
