@@ -151,11 +151,12 @@ function handoffNotice(message,kind="waiting") {
   notice(message,kind);
 }
 function openPreparedChat() {
-  if(!pendingTarget)return;
-  const tab=window.open(pendingTarget,"_blank","noopener,noreferrer");
-  // noopener intentionally returns null in many browsers; it does not
-  // imply a popup was blocked. The user can always click again if needed.
-  void tab;
+  if(!pendingTarget || !pendingPrompt)return;
+  const destination=new URL(pendingTarget);
+  // Unsupported/experimental prefill for existing ChatGPT chats.
+  // The full request remains on the clipboard even if ChatGPT ignores this.
+  if($("bridge-prefill")?.checked)destination.searchParams.set("prompt",pendingPrompt);
+  window.location.assign(destination.toString());
 }
 async function copyPreparedRequest() {
   if(!pendingPrompt)return false;
@@ -192,14 +193,15 @@ function dispatchAction(action) {
   if(preparedPreview) preparedPreview.value=pendingPrompt;
   if(handoffRequest) handoffRequest.value=pendingPrompt;
   if(handoffDetails) handoffDetails.open=false;
-  // We deliberately do NOT use ?q=: ChatGPT does not guarantee prefilling an
-  // existing conversation via URL parameters. Nor can GitHub Pages send it.
-  // Only open ChatGPT after the text has been copied successfully.
+  // Copy BEFORE navigation: a new tab can steal clipboard permission.
   if(copySynchronously(pendingPrompt)) {
-    handoffNotice("Запрос скопирован. В открывшемся ChatGPT нажми Ctrl+V и Enter. Сообщение ещё не отправлено.","ready");
+    handoffNotice("Запрос скопирован. Открываю этот чат в той же вкладке. Если поле пустое — Ctrl+V, Enter.","ready");
     openPreparedChat();
   } else {
-    handoffNotice("Автоматическое копирование заблокировано. Нажми «Скопировать запрос», затем «Открыть чат».","error");
+    void copyPreparedRequest().then(copied=>{
+      if(copied)openPreparedChat();
+      else handoffNotice("Запрос не скопирован; текст сохранён на странице. Скопируй его вручную.","error");
+    });
   }
 }
 function renderHeader(packet) {
