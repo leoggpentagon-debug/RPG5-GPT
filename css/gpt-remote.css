@@ -56,3 +56,35 @@
 }
 .bridge-choice-mode { font-size: .8rem; letter-spacing: .03em; opacity: .75; margin: .5rem 0; }
 .bridge-action-choice { cursor: pointer; }
+
+/* RPG5 interface corrections: the canonical hero stats are displayed ONLY in the diary. */
+#game-shell .hero-sidebar #hero-stats { display:none !important; }
+
+/* Keep the original wooden-board engraving and Polaroid offsets; removing
+   the redundant stats restores their intended position without moving art. */
+
+/* The legacy story-page had overflow:hidden and flex:1, which clipped the
+   content before the story-viewer could scroll. The viewer owns the scroll. */
+#game-shell #pane-story .story-viewer {
+  display:block;
+  flex:1 1 0;
+  min-height:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior-y:contain;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-y;
+}
+#game-shell #pane-story .story-page {
+  display:block;
+  flex:none;
+  height:auto;
+  min-height:0;
+  overflow:visible;
+  overflow-wrap:anywhere;
+}
+
+/* Custom actions are always visible; no obsolete "Своё действие" header. */
+#game-shell #pane-story .custom-action { padding:0; border:0; background:transparent; }
+#game-shell #pane-story .custom-action .action-compose { padding:4px 10px 10px; }
+#game-shell #pane-story .action-compose textarea { overflow-y:auto; }
