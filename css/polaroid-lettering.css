@@ -1,0 +1,40 @@
+/* Survival UI v56 — handwritten Polaroid labels on the wooden board only.
+   Actual character pictures, paper/tape WebPs and dossier motion are intact.
+   Neucha supports Cyrillic; fallback stays usable without Google Fonts. */
+
+/* Neucha looks like a survivor's felt-pen note: imperfect, legible, not serif.
+   Target the paper STRIPS, not the narrative, diary, choices or board carving. */
+#game-shell .survivor-board .polaroid-player > .hero-name strong,
+#game-shell .survivor-board .polaroid-npc > .party-portrait-name strong {
+  font-family:"Neucha","Segoe Print","Trebuchet MS",sans-serif;
+  font-weight:400;
+  font-style:normal;
+  color:#271b15;
+  letter-spacing:-.015em;
+  text-shadow:0 1px .3px #4c2c1c40;
+  -webkit-text-stroke:.2px #271b15;
+}
+
+/* Oliver's full name remains on the same paper strip, without moving it. */
+#game-shell .survivor-board .polaroid-player > .hero-name strong {
+  line-height:1.03;
+}
+
+/* First names of nearby survivors: a little more assertive, with a real
+   DOM measurement pass that shrinks longer given names when necessary. */
+#game-shell .survivor-board .polaroid-npc > .party-portrait-name strong {
+  font-size:20px;
+  line-height:1;
+  letter-spacing:-.025em;
+  white-space:nowrap;
+  text-wrap:nowrap;
+}
+
+/* Keep the same handwriting on the temporary flying copy of Oliver's photo
+   so his name never flashes back to serif during the dossier animation. */
+.profile-flight-ghost.polaroid-player > .hero-name strong {
+  font-family:"Neucha","Segoe Print","Trebuchet MS",sans-serif;
+  font-weight:400;
+  letter-spacing:-.015em;
+  -webkit-text-stroke:.2px #271b15;
+}

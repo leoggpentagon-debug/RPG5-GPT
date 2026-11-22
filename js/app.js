@@ -172,19 +172,23 @@
     }
     if(!party.length)partyFragment.append(child("p","muted","Никого рядом не установлено"));
     $("party").replaceChildren(partyFragment);
-    // Size the living text to the physical paper tab without cropping names.
-    // One inexpensive measurement pass per render; no new game-state logic.
-    requestAnimationFrame(()=>{
+    // Fit the hand-lettered given names onto the EXISTING paper tabs.
+    // Refit once the optional web font loads; offline fallback remains legible.
+    const fitPartyNames=()=>{
       for(const label of $("party").querySelectorAll(".party-portrait-name")){
         const title=label.querySelector("strong");
         if(!title || !title.isConnected)continue;
-        for(let size=15;size>=10;size-=.5){
+        for(let size=20;size>=11;size-=.5){
           title.style.fontSize=size+"px";
-          if(title.scrollWidth<=label.clientWidth-2 &&
+          if(title.scrollWidth<=label.clientWidth-3 &&
              title.scrollHeight<=label.clientHeight-1)break;
         }
       }
-    });
+    };
+    requestAnimationFrame(fitPartyNames);
+    if(document.fonts && document.fonts.status!=="loaded"){
+      document.fonts.ready.then(()=>requestAnimationFrame(fitPartyNames));
+    }
     $("inventory").replaceChildren();const inv=safeObj(hero.inventory);const items=many(inv.items);
     for(const item of items){const wrap=child("div","inventory-item");wrap.append(child("strong","",item.name||item.item_id||"Предмет"),child("small","",`Количество: ${item.quantity??"не уточнено"} ${item.unit||""} · ${item.location||item.location_scope||"место неизвестно"}`));$("inventory").append(wrap)}
     if(!items.length)$("inventory").append(child("p","muted","Инвентарь пока пуст или не указан"));
