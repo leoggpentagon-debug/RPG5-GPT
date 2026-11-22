@@ -1,109 +1,21 @@
-/* Remote GPT connection status. Does not alter existing RPG6 visual assets. */
-#gpt-remote-panel {
-  border-left: 2px solid rgba(192, 174, 136, 0.46);
-}
-#gpt-remote-panel #gpt-remote-status {
-  line-height: 1.55;
-  overflow-wrap: anywhere;
-}
-#gpt-remote-panel #gpt-remote-status[data-state="ready"] {
-  color: #b6d4bc;
-}
-#gpt-remote-panel #gpt-remote-status[data-state="error"] {
-  color: #e2ada3;
-}
-.gpt-remote-info-link {
-  display: inline-block;
-  font-size: 0.86rem;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  line-height: 1.4;
-  color: inherit;
-}
-
-.bridge-auth { display: grid; gap: 0.6rem; margin: 0.6rem 0; }
-.bridge-auth input {
-  box-sizing: border-box; width: 100%; min-height: 36px;
-  background: rgba(22, 22, 22, .7); color: #eee1ce;
-  border: 1px solid rgba(188, 170, 142, .4); border-radius: 5px; padding: .55rem .7rem;
-}
-#bridge-sign-out[hidden], #bridge-auth[hidden] { display: none !important; }
-#bridge-last-packet { overflow-wrap: anywhere; }
-.bridge-packet-details { margin-top: .7rem; }
-.bridge-packet-details summary { cursor: pointer; }
-.bridge-packet-json {
-  box-sizing: border-box; white-space: pre-wrap; word-break: break-word;
-  overflow: auto; max-height: 24rem; width: 100%;
-  background: rgba(0, 0, 0, .3); border: 1px solid rgba(185, 167, 140, .2);
-  padding: .8rem; border-radius: .3rem; font-size: .77rem;
-}
-.bridge-choices-preview { margin-top: 1rem; padding-left: 1rem; border-left: 2px solid #8c7c67; }
-.bridge-choice-preview::before { content: "• "; }
-
-/* One-click prompt handoff while retaining the original survival styling */
-.bridge-chat-settings { display: grid; gap: .55rem; padding: .8rem 0; }
-.bridge-chat-settings input[type="url"] {
-  box-sizing: border-box; width: 100%; padding: .65rem;
-  background: rgba(22,22,22,.72); color: #eee1ce;
-  border: 1px solid rgba(188,170,142,.4); border-radius: 5px;
-}
-.bridge-prefill-label { display: flex; gap: .55rem; align-items: flex-start; font-size: .8rem; line-height: 1.4; }
-.bridge-prepared-prompt {
-  box-sizing: border-box; display: block; width: 100%; max-width: 100%;
-  margin-top: .5rem; background: rgba(17,16,15,.7); color: #ebdfd0;
-  border: 1px solid rgba(188,170,142,.35); border-radius: 4px; padding: .65rem;
-  font: .75rem/1.5 monospace; resize: vertical;
-}
-.bridge-choice-mode { font-size: .8rem; letter-spacing: .03em; opacity: .75; margin: .5rem 0; }
-.bridge-action-choice { cursor: pointer; }
-
-/* RPG5 interface corrections: the canonical hero stats are displayed ONLY in the diary. */
-#game-shell .hero-sidebar #hero-stats { display:none !important; }
-
-/* Keep the original wooden-board engraving and Polaroid offsets; removing
-   the redundant stats restores their intended position without moving art. */
-
-/* The legacy story-page had overflow:hidden and flex:1, which clipped the
-   content before the story-viewer could scroll. The viewer owns the scroll. */
-#game-shell #pane-story .story-viewer {
-  display:block;
-  flex:1 1 0;
-  min-height:0;
-  overflow-x:hidden;
-  overflow-y:auto;
-  overscroll-behavior-y:contain;
-  -webkit-overflow-scrolling:touch;
-  touch-action:pan-y;
-}
-#game-shell #pane-story .story-page {
-  display:block;
-  flex:none;
-  height:auto;
-  min-height:0;
-  overflow:visible;
-  overflow-wrap:anywhere;
-}
-
-/* Custom actions are always visible; no obsolete "Своё действие" header. */
-#game-shell #pane-story .custom-action { padding:0; border:0; background:transparent; }
-#game-shell #pane-story .custom-action .action-compose { padding:4px 10px 10px; }
-#game-shell #pane-story .action-compose textarea { overflow-y:auto; }
-
-/* RPG5 → ChatGPT manual handoff. Never claim a message was sent. */
-#game-shell #pane-story .bridge-action-handoff {
-  padding:10px 12px 5px;
-  border-top:1px solid rgba(155,113,89,.38);
-  font-size:14px;
-  color:#dbc9b6;
-}
-#game-shell #pane-story .bridge-action-handoff[hidden] { display:none !important; }
-#game-shell .bridge-action-handoff p { margin:0 0 9px;line-height:1.35;overflow-wrap:anywhere; }
-#game-shell .bridge-handoff-buttons { display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px; }
-#game-shell .bridge-handoff-buttons button { flex:1 1 148px;min-height:34px;padding:5px 10px;font-size:14px; }
-#game-shell .bridge-action-handoff details summary { cursor:pointer; font-size:13px; opacity:.85; padding:4px 0; }
-#game-shell .bridge-action-handoff textarea {
-  display:block;box-sizing:border-box; width:100%;min-height:100px;
-  padding:7px 9px;margin-top:6px;resize:vertical;
-  color:#eee0cb;background:#15100e;border:1px solid #6d4c3e;
-  white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.35 Consolas,monospace;
-}
+/* RPG5 Chrome extension transport; visual presentation otherwise unchanged. */
+#gpt-remote-panel{border-left:2px solid rgba(192,174,136,.46);}
+#gpt-remote-status{line-height:1.55;overflow-wrap:anywhere;}
+#gpt-remote-status[data-state="ready"]{color:#b6d4bc;}
+#gpt-remote-status[data-state="error"]{color:#e2ada3;}
+#bridge-last-packet{overflow-wrap:anywhere;}
+.bridge-choice-mode{font-size:.8rem;letter-spacing:.03em;opacity:.75;margin:.5rem 0;}
+.bridge-action-choice{cursor:pointer;}
+#game-shell .hero-sidebar #hero-stats{display:none!important;}
+#game-shell #pane-story .story-viewer{display:block;flex:1 1 0;min-height:0;
+ overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:contain;
+ -webkit-overflow-scrolling:touch;touch-action:pan-y;}
+#game-shell #pane-story .story-page{display:block;flex:none;height:auto;min-height:0;
+ overflow:visible;overflow-wrap:anywhere;}
+#game-shell #pane-story .custom-action{padding:0;border:0;background:transparent;}
+#game-shell #pane-story .custom-action .action-compose{padding:4px 10px 10px;}
+#game-shell #pane-story .action-compose textarea{overflow-y:auto;}
+#game-shell #pane-story .action-feedback{padding:8px 12px 5px;font-size:13px;
+ line-height:1.35;color:#b6d4bc;overflow-wrap:anywhere;}
+#game-shell #pane-story .action-feedback[hidden]{display:none!important;}
+#game-shell #pane-story .action-feedback[data-state="error"]{color:#e2ada3;}
