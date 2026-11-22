@@ -87,6 +87,10 @@
       'bonus_raw','bonus','bonus_limit','penalties','penalty_raw',
       'penalty','penalty_limit','total','category','overload_applied'
     ]);
+    receipt.consequences=take(plan.consequences,[
+      'full_success','partial_success','partial_failure','full_failure'
+    ]);
+    receipt.preset_consequence=receipt.consequences[result.category]||null;
     const message='Натуральный результат внешнего d20 от игрока: '+result.natural+'\n\n'+
       '[RPG5_SITE_D20_RESULT_V1]\n'+JSON.stringify(receipt)+
       '\n[/RPG5_SITE_D20_RESULT_V1]\n'+
