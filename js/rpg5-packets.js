@@ -154,8 +154,27 @@ function renderCharacters(packet) {
   }
   if(!holder.childNodes.length)holder.append(node("p","muted","Другие персонажи рядом не подтверждены."));
 }
+// Keep technical scene metadata in the scene header, never in the story viewer.
+// This is presentation-only cleanup: it never invents dialogue or changes game state.
+function cleanStoryText(value) {
+ const source=str(value).replace(/\r\n?/g,"\n").trim();
+ if(!source)return "";
+ const lines=source.split("\n");
+ const plain=line=>line.trim().replace(/^(?:#{1,6}\s*|>\s*)/,"").replace(/\*\*/g,"").trim();
+ function isMetadata(line) {
+  const text=plain(line);
+  if(/^Сюжетная линия\s*:\s*.+(?:Эпизод\s*\d+|Сцена\s*\d+)/i.test(text))return true;
+  if(/^Эпизод\s*\d+\s*[·:.,—-]\s*Сцена\s*\d+\.?$/i.test(text))return true;
+  // Remove only a short standalone date/time/location stamp, not prose about a day.
+  if(text.length<110 && /^День\s+\d+\s*[,—-]\s*(?:около\s*)?\d{1,2}:\d{2}[.,]\s*[^.!?\n]{1,65}[.!?]?$/i.test(text))return true;
+  return false;
+ }
+ while(lines.length && (!lines[0].trim() || isMetadata(lines[0])))lines.shift();
+ return lines.join("\n").trim();
+}
 function chatEntry(kind,speaker,text,speakerId="") {
-  if(!str(text).trim())return;
+  text=cleanStoryText(text);
+  if(!text)return;
   const wrap=node("div","chat-entry "+kind);
   wrap.dataset.speakerId=speakerId;
   const bubble=node("div","bubble");
