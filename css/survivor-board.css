@@ -1,4 +1,4 @@
-/* Survival UI v52 — physically mounted photos on the wide Hazard Dossier.
+/* Survival UI v53 — extended wooden surface, with room for the full Oliver Polaroid.
    Only the wooden-board presentation changes: the original photograph,
    approved paper frame, tape WebP, Oliver's size/tilt and diary JS remain.
    The page grid and main story column are deliberately untouched. */
@@ -20,7 +20,7 @@
   min-height:0;
   margin:0 calc(-1 * var(--wood-overhang)) clamp(10px,1.8vh,23px);
   padding:14px 0 22px;
-  background:transparent url("../assets/ui/boards/wooden_board_02_hazard_dossier.webp?v=survival-ui-51")
+  background:transparent url("../assets/ui/boards/wooden_board_02_hazard_dossier.webp?v=survival-ui-53")
     center center / 100% 100% no-repeat;
 }
 #game-shell .hero-sidebar > .survivor-board > .hero-card,
@@ -254,5 +254,15 @@
     padding:4px 0 7px;
     margin-bottom:7px;
     gap:2px;
+  }
+}
+
+/* Increase the physical space for the dossier, not just the image scale.
+   Only the desktop left rail expands; scene and dialogue move to the right
+   by the same amount and retain their flexible remaining width.
+   The sidebar stays anchored at its existing left edge, mobile unchanged. */
+@media(min-width:1091px) {
+  #game-shell > .game-layout {
+    grid-template-columns:clamp(278px,calc(28vw - 88px),392px) minmax(0,1fr);
   }
 }
