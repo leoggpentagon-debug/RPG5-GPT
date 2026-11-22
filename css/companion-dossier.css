@@ -22,6 +22,9 @@
   box-shadow:0 0 7px #ee6543;
   animation:profile-hold-fill .5s linear forwards;
 }
+#game-shell .companions-card .polaroid-npc .portrait-button.portrait-is-unknown {
+  cursor:pointer; /* A missing photo still has an accessible journal. */
+}
 #game-shell .companions-card .polaroid-npc .portrait-button:focus-visible {
   outline:2px solid #d97759;
   outline-offset:-2px;
@@ -265,6 +268,20 @@
   font:400 20px/1 "Neucha","Trebuchet MS",sans-serif;
   white-space:nowrap;
 }
+
+/* The returning clone is lifted out of the journal DOM. Keep the unknown
+   photo's "?" in exactly the same place during its flight back to the board. */
+.companion-flight-ghost.profile-polaroid .profile-photo-placeholder {
+  position:absolute;
+  z-index:2;
+  top:9.1%;left:13.1%;width:73.8%;height:72%;
+  display:grid;place-items:center;
+  background:linear-gradient(150deg,#39312d,#171413 75%);
+  color:#d5c0a0;
+  font:700 96px/1 Georgia,serif;
+}
+.companion-flight-ghost.profile-polaroid .profile-photo-placeholder[hidden],
+.companion-flight-ghost.profile-polaroid > img[hidden] {display:none!important;}
 
 @media(max-height:810px) {
   .companion-overlay .profile-dossier {height:min(640px,calc(100dvh - 22px));}
