@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="css/survivor-board.css?v=survival-ui-55">
   <link rel="stylesheet" href="css/polaroid-lettering.css?v=survival-ui-56">
   <link rel="stylesheet" href="css/companion-dossier.css?v=survival-ui-57">
-  <link rel="stylesheet" href="css/gpt-remote.css?v=rpg5-chrome-v1">
+  <link rel="stylesheet" href="css/gpt-remote.css?v=rpg5-ui-v4">
 </head>
 <body>
 <div class="game-shell" id="game-shell">
@@ -86,13 +86,14 @@
         <section id="action-area" class="action-area" aria-label="Действия" aria-busy="false">
           <p id="action-processing" class="action-processing" role="status" aria-live="polite" hidden><em>Действие выполняется...</em></p>
           <div id="choices" class="choices"></div>
-          <div id="custom-action-panel" class="custom-action">
+          <details id="custom-action-panel" class="custom-action">
+            <summary>Свободное действие <span aria-hidden="true">⌄</span></summary>
             <div class="action-compose">
               <label for="action" class="sr-only">Ввести своё игровое действие</label>
               <textarea id="action" rows="2" maxlength="2500" disabled aria-label="Ввести своё игровое действие"></textarea>
               <button type="button" id="send" class="primary" disabled>Отправить</button>
             </div>
-          </div>
+          </details>
           <p id="action-feedback" class="action-feedback" aria-live="polite" hidden></p>
         </section>
       </section>
@@ -347,7 +348,7 @@
 <script src="js/profile-book.js?v=survival-ui-57"></script>
 <!-- Legacy Gemini and server transport handlers are not loaded. -->
 <script src="js/companion-dossier.js?v=rpg5-companion-fix-1"></script>
-<script src="js/rpg5-actions.js?v=rpg5-chrome-v3"></script>
-<script src="js/rpg5-packets.js?v=rpg5-roleplay-v1"></script>
+<script src="js/rpg5-actions.js?v=rpg5-ui-v4"></script>
+<script src="js/rpg5-packets.js?v=rpg5-ui-v4"></script>
 </body>
 </html>
