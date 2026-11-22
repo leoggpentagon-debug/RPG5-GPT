@@ -107,13 +107,7 @@ function promptForAction(action) {
     "Если действию нужна честная d20-проверка, открой её по правилам и не придумывай результат."
   ];
   if (action.trim().toLowerCase()==="сохранить") {
-    return [
-      "сохранить",
-      "28 DAYS LATER: SURVIVAL. Команда сохранения по ТЕХНИЧЕСКИЙ_ПРОТОКОЛ.md.",
-      "Сохрани только подтверждённые несохранённые события текущего чата через rpg5.commit_scene.",
-      "После подтверждения запиши обновлённый player-visible JSON с актуальным состоянием через rpg5_bridge.publish_packet, используя ключ '"+id+"'.",
-      "Не придумывай новых игровых действий при сохранении."
-    ].join("\n");
+    return "сохранить";
   }
   return message.join("\n");
 }
@@ -290,9 +284,13 @@ function renderPacket(packet) {
   renderStory(packet);
   renderChoices(packet);
   const scene=object(packet.scene), observable=object(packet.player_observable);
+  const names=Object.fromEntries(array(packet.characters).map(c=>[c.character_id,c.name]));
+  const visibleCast=array(observable.characters).map(person=>({
+    ...person,name:names[person.character_id]||person.name||knownNames[person.character_id]||"Человек рядом",
+  }));
   window.dispatchEvent(new CustomEvent("rpg6:render",{
-    detail:{scene,observable:{...observable,characters:
-      array(packet.characters).length?packet.characters:observable.characters},hero:object(packet.hero)},
+    detail:{scene,observable:{...observable,
+      characters:visibleCast.length?visibleCast:array(packet.characters)},hero:object(packet.hero)},
   }));
   if($("generation-model")) $("generation-model").textContent="Модель: ChatGPT Plus · через проект";
   if($("generation-context")) $("generation-context").textContent="Сцена из RPG5 · не автосохранение";
@@ -397,8 +395,10 @@ if(!valid) {
   $("portrait-close")?.addEventListener("click",()=>$("portrait-dialog")?.close());
   saveChatTarget?.addEventListener("click",rememberTarget);
   if(chatTarget) {
-    chatTarget.value=localStorage.getItem(TARGET_KEY)||"";
-    if(chatPrefill)chatPrefill.checked=localStorage.getItem(PREFILL_KEY)!=="0";
+    try {
+      chatTarget.value=localStorage.getItem(TARGET_KEY)||"";
+      if(chatPrefill)chatPrefill.checked=localStorage.getItem(PREFILL_KEY)!=="0";
+    } catch { if(chatPrefill)chatPrefill.checked=true; }
   }
   sb.auth.onAuthStateChange(()=>{
     setTimeout(()=>{void getSession().then(s=>{if(s)void poll();});},0);
