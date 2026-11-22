@@ -1,12 +1,14 @@
 (() => {
   "use strict";
-  const BUILD = "RPG6-DRAFT-RESET-UI-65";
+  const BUILD = "RPG5-GPT-DISCONNECTED-1";
+  // Safety barrier: no legacy RPC can run in this GPT-only frontend.
+  const LEGACY_RPG6_API_BLOCKED = true;
   // Stable protocol version (not the Edge Function deployment number).
   const SUPPORTED_API_VERSION = 1;
   const config = window.RPG6_CONFIG || {};
   // Access code is entered by the player, never embedded in hosted source files.
-  const ACCESS_KEY = "rpg6_access_session";
-  const PERSISTED_ACCESS_KEY = "rpg6_access_remembered_v1";
+  const ACCESS_KEY = "rpg5_gpt_access_session";
+  const PERSISTED_ACCESS_KEY = "rpg5_gpt_access_remembered_v1";
   const validAccess = value => /^RPG6-[A-Za-z0-9_-]{30,100}$/.test(value);
   let token = "";
   let accessRemembered = false;
@@ -75,6 +77,7 @@
         :"";
   }
   async function rpc(op,data={}) {
+    if (LEGACY_RPG6_API_BLOCKED) throw new Error("RPG5-GPT: старый Gemini/RPG6 API отключён. GPT-подключение пока не настроено.");
     if(!config.supabaseUrl || !config.edgeFunction)throw new Error("Нет адреса Supabase в js/config.js");
     const requestToken = getAccessToken();
     const timer=new AbortController();const time=setTimeout(()=>timer.abort(),op==="save"?138000:op==="turn"?148000:25000);
@@ -446,7 +449,20 @@
     showCurrentScene(scene);
     $("chat").scrollTop=$("chat").scrollHeight;
   }
-  async function start(){busy(true);report("Загружаю настоящую сохранённую сцену RPG6…");try{
+  async function start(){
+    if (LEGACY_RPG6_API_BLOCKED) {
+      $("scene-title").textContent = "RPG5-GPT — подготовка";
+      $("scene-location").textContent = "Подключение GPT пока недоступно";
+      const message = document.createElement("p");
+      message.className = "story-empty";
+      message.textContent = "Интерфейс скопирован из RPG6. Старый Gemini API отключён; Sign in with ChatGPT ещё не подключён. Игровые данные не загружаются и не изменяются.";
+      $("story-page").replaceChildren(message);
+      $("save-info").textContent = "Режим подготовки. Сохранения и игровые действия пока недоступны.";
+      report("RPG5-GPT: соединение с Gemini/RPG6 отключено. Следующий шаг — локальный тест Sign in with ChatGPT.");
+      busy(false);
+      return;
+    }
+    busy(true);report("Загружаю настоящую сохранённую сцену RPG6…");try{
     const meta=await rpc("health");if(!meta.gemini_configured)report("Сервер работает, но в Secrets нет GEMINI_API_KEY. Сцену можно загрузить, но Gemini пока не ответит.",true);
     const data=await rpc("load");if(data.readiness!=="ready")throw new Error("Каноническая RPG6 не готова: "+data.readiness);
     renderState(data);report(`Подключено. RPG6 ревизия ${state.revision}, день ${safeObj(state.scene).day}, сцена ${safeObj(state.scene).scene_number}.`);
