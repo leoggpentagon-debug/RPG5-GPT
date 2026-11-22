@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="css/survivor-board.css?v=survival-ui-55">
   <link rel="stylesheet" href="css/polaroid-lettering.css?v=survival-ui-56">
   <link rel="stylesheet" href="css/companion-dossier.css?v=survival-ui-57">
+  <link rel="stylesheet" href="css/gpt-remote.css?v=rpg5-gpt-remote-1">
 </head>
 <body>
 <div class="game-shell" id="game-shell">
@@ -311,6 +312,13 @@
         <button type="button" id="sfx-preview" class="sound-preview">Прослушать</button>
       </div>
     </section>
+    <section class="service-block" id="gpt-remote-panel" aria-label="Удалённый доступ к GPT">
+      <h3>GPT · удалённое подключение</h3>
+      <p class="small-label" id="gpt-remote-status" role="status" aria-live="polite">Проверяю настройки удалённого подключения…</p>
+      <button type="button" id="gpt-remote-check" class="secondary">Проверить готовность сервера</button>
+      <p class="small-label">Вход через ChatGPT заработает здесь только после разрешённого подключения OpenAI и настройки защищённого сервера. Локальная программа не нужна.</p>
+      <a class="gpt-remote-info-link" href="https://openai.com/form/sign-in-with-chatgpt-interest/" target="_blank" rel="noopener noreferrer">Запросить удалённый доступ Sign in with ChatGPT</a>
+    </section>
     <section class="service-block">
       <h3>Соединение и обработка</h3><p id="status" class="status-text">Инициализация…</p>
       <div class="technical-details" id="generation-info" aria-label="Данные последней генерации">
@@ -334,7 +342,8 @@
 
 <dialog id="portrait-dialog" class="portrait-dialog"><button type="button" id="portrait-close" class="icon-button">Закрыть ×</button><img id="portrait-full" alt="Портрет персонажа"></dialog>
 <script src="js/portraits.js?v=survival-ui-2"></script>
-<script src="js/config.js?v=rpg5-gpt-isolated-1"></script>
+<script src="js/config.js?v=rpg5-gpt-remote-1"></script>
+<script src="js/gpt-remote.js?v=rpg5-gpt-remote-1"></script>
 <script src="js/audio.js?v=survival-ui-41"></script>
 <script src="js/game-ui.js?v=survival-ui-46"></script>
 <script src="js/radial-navigation.js?v=survival-ui-35"></script>
