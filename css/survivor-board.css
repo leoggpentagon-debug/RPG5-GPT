@@ -1,4 +1,4 @@
-/* Survival UI v54 — extended wooden surface, with room for the full Oliver Polaroid.
+/* Survival UI v55 — extended wooden surface, with room for the full Oliver Polaroid.
    Only the wooden-board presentation changes: the original photograph,
    approved paper frame, tape WebP, Oliver's size/tilt and diary JS remain.
    The page grid and main story column are deliberately untouched. */
@@ -275,7 +275,15 @@
 /* The frame and its tape now clear the upper wood beam by ~18 CSS pixels.
    The physical Polaroid itself keeps its existing scale and -2° rotation. */
 #game-shell .hero-sidebar > .survivor-board > .hero-card .hero-identity {
-  padding-top:clamp(43px,4.5vh,54px);
+  /* Keep Oliver's scale and angle but clear the upper wooden beam. */
+  padding-top:clamp(58px,6vh,72px);
+  padding-left:16px;
+  padding-right:0;
+}
+/* Shift the complete physical Polaroid just right of the hanging cloth.
+   No transform override: the established tilt and dossier flight survive. */
+#game-shell .hero-sidebar > .survivor-board .polaroid.polaroid-player {
+  margin-left:10px;
 }
 
 /* A bright, chipped knife-scratch across the plank between Oliver and nearby.
@@ -378,7 +386,10 @@
   transform:rotate(5deg);
 }
 #game-shell .hero-sidebar > .survivor-board .party-portrait-name strong {
-  font-size:12px;
+  /* The paper displays just the given name; surname remains in the data. */
+  font-size:15px;
+  line-height:1.02;
+  letter-spacing:-.02em;
 }
 /* The last name-fitting pass in app.js still handles long names dynamically. */
 
@@ -441,12 +452,14 @@
     width:min(142px,100%);
   }
   #game-shell .hero-sidebar > .survivor-board .hero-card .hero-identity {
-    padding-top:34px;
+    padding-top:46px;
+    padding-left:12px;
+    padding-right:0;
   }
 }
 @media(max-height:820px) {
   #game-shell .hero-sidebar > .survivor-board > .hero-card .hero-identity {
-    padding-top:clamp(26px,3.8vh,37px);
+    padding-top:clamp(43px,5.8vh,52px);
   }
 }
 @media(max-height:750px) {

@@ -160,8 +160,11 @@
       }else{
         placeholder();
       }
+      // Short first names on the paper keep the dossier readable at 100% zoom.
+      // The full name is still used in the game state, alt text and tooltip.
+      const shortName=String(name).trim().split(/\s+/)[0]||name;
       const label=child("div","party-portrait-name");
-      label.append(child("strong","",name));
+      label.append(child("strong","",shortName));
       frame.title=name; // full name also available on hover
       frame.append(holder,label);
       row.append(frame);
@@ -175,7 +178,7 @@
       for(const label of $("party").querySelectorAll(".party-portrait-name")){
         const title=label.querySelector("strong");
         if(!title || !title.isConnected)continue;
-        for(let size=11;size>=8;size-=.5){
+        for(let size=15;size>=10;size-=.5){
           title.style.fontSize=size+"px";
           if(title.scrollWidth<=label.clientWidth-2 &&
              title.scrollHeight<=label.clientHeight-1)break;
