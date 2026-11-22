@@ -69,14 +69,14 @@
     if(message.length>MAX_MESSAGE_LENGTH)throw Error('Текущий снимок слишком большой для безопасной передачи.');
     return message;
   }
-  // A roll is a reported external d20 value, not a new player decision.
+  // A roll is a website-generated cryptographic d20 value, not a player-chosen result.
   // Include the locally calculated receipt and visible scene snapshot for the GM.
   function buildRollMessage(result,packet,packetSha) {
     if(!packet||packet.schema!=='rpg5-gpt-packet-v1')throw Error('Нет действующей сцены.');
     const plan=obj(obj(packet.mechanics).pending_d20);
     if(plan.schema!=='rpg5-d20-plan-v1'||plan.check_id!==result?.check_id)
       throw Error('Проверка d20 уже не соответствует текущей сцене.');
-    if(result.schema!=='rpg5-d20-result-v1'||
+    if(result.schema!=='rpg5-d20-result-v1'||result.random_source!=='browser_crypto'||
        !Number.isInteger(result.natural)||result.natural<1||result.natural>20)
       throw Error('Некорректный вычисленный результат d20.');
     const context=snapshot(packet,packetSha);
@@ -84,19 +84,19 @@
       'schema','check_id','action','base_dc','dc_adjustments','dc',
       'natural','skill_id','skill_level','physical_stat','physical_level',
       'skill_bonus','physical_bonus','situation_bonus','insurance',
-      'bonus_raw','bonus','bonus_limit','penalties','penalty_raw',
+      'bonus_raw','bonus','bonus_limit','random_source','penalties','penalty_raw',
       'penalty','penalty_limit','total','category','overload_applied'
     ]);
     receipt.consequences=take(plan.consequences,[
       'full_success','partial_success','partial_failure','full_failure'
     ]);
     receipt.preset_consequence=receipt.consequences[result.category]||null;
-    const message='Натуральный результат внешнего d20 от игрока: '+result.natural+'\n\n'+
+    const message='Автоматический бросок d20 на сайте (криптографический генератор): '+result.natural+'\n\n'+
       '[RPG5_SITE_D20_RESULT_V1]\n'+JSON.stringify(receipt)+
       '\n[/RPG5_SITE_D20_RESULT_V1]\n'+
       '[RPG5_SITE_SNAPSHOT_V1]\n'+JSON.stringify(context)+
       '\n[/RPG5_SITE_SNAPSHOT_V1]\n'+
-      'Сайт вычислил механику детерминированно по заранее указанным условиям. '+
+      'Сайт самостоятельно случайно выбрал натуральный d20 1–20, затем вычислил механику детерминированно по заранее указанным условиям. '+
       'Не меняй DC, выбранные модификаторы и четыре заранее установленных последствия после числа. '+
       'Продолжи сцену на основании категории исхода. Это не команда сохранения в Supabase.';
     if(message.length>MAX_MESSAGE_LENGTH)throw Error('Снимок проверки превышает лимит передачи.');
