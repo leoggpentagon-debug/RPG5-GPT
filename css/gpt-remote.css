@@ -71,16 +71,6 @@
   align-items: end;
   gap: .65rem;
 }
-.game-roll-panel label { display: grid; gap: .35rem; font-size: .9rem; }
-.game-roll-panel input {
-  width: 6.5rem;
-  min-height: 2.5rem;
-  padding: .45rem;
-  border-radius: 7px;
-  border: 1px solid rgba(210, 195, 159, .5);
-  background: #1b2122;
-  color: #f4eee0;
-}
 .game-roll-panel button {
   min-height: 2.5rem;
   border-radius: 7px;
