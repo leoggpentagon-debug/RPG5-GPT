@@ -5,6 +5,7 @@ const status=$("gpt-remote-status"),packetLabel=$("bridge-last-packet");
 const feedback=$("action-feedback");
 const CACHE_KEY="rpg5_extension_latest_scene_v1";
 const LAST_ROLL_KEY="rpg5_last_submitted_roll_v1";
+const ROLL_RECORD_KEY="rpg5_site_generated_roll_v2";
 const portraits=Object.freeze({oliver_hayes:"assets/portraits/oliver_hayes.png",bex:"assets/portraits/bex.png"});
 const knownNames=Object.freeze({oliver_hayes:"Оливер Хейз",bex:"Бекс",ian_calder:"Иэн"});
 const object=x=>(x&&typeof x==="object"&&!Array.isArray(x))?x:{};
@@ -12,6 +13,9 @@ const array=x=>Array.isArray(x)?x:[];
 const str=x=>typeof x==="string"?x:"";
 let currentPacket=null,lastRenderedSequence=null;
 let activeRoll=null;
+function storedRoll(){try{return JSON.parse(localStorage.getItem(ROLL_RECORD_KEY)||"null");}catch{return null;}}
+function persistRoll(value){localStorage.setItem(ROLL_RECORD_KEY,JSON.stringify(value));}
+function rollMessage(result){return "Результат автоматического d20 сайта: "+result.natural;}
 function node(tag,className="",text=""){
  const el=document.createElement(tag);
  if(className)el.className=className;
@@ -42,7 +46,7 @@ async function copyAction(value){
  if(copySynchronously(value))return true;
  try{await navigator.clipboard.writeText(value);return true;}catch{return false;}
 }
-function dispatchAction(action,rollReceipt=null){
+function dispatchAction(action,rollReceipt=null,automatic=false){
  if(typeof action!=="string"||!action.trim()){actionNotice("Сначала введи действие.","error");return;}
  const message=action.trim();
  const bridge=window.RPG5_ACTION_BRIDGE;
@@ -53,7 +57,7 @@ function dispatchAction(action,rollReceipt=null){
     bridge.buildMessage(message,currentPacket,lastRenderedSequence);}
   catch(error){actionNotice("Действие не подготовлено: "+String(error?.message||error),"error");return;}
   // Synchronous clipboard fallback while the game tab still has focus.
-  const copied=copySynchronously(prepared);
+  const copied=automatic?false:copySynchronously(prepared);
   // The extension switches to the ChatGPT tab; successful autofill is silent.
   clearActionFeedback();
   bridge.send(prepared,lastRenderedSequence,
@@ -61,16 +65,19 @@ function dispatchAction(action,rollReceipt=null){
     if(rollReceipt){
      try{localStorage.setItem(LAST_ROLL_KEY,JSON.stringify({check_id:rollReceipt.check_id,packet_sha:lastRenderedSequence}));}
      catch(e){console.warn("RPG5 roll acknowledgement cache:",e);}
+     try{const r=storedRoll();if(r?.check_id===rollReceipt.check_id){r.delivered=true;persistRoll(r);}}catch(e){console.warn("RPG5 roll receipt:",e);}
      activeRoll=null;
-     const rollButton=$("send-roll");if(rollButton)rollButton.disabled=true;
-     const hint=$("roll-error");if(hint)hint.textContent="Бросок передан в ChatGPT. Дождись следующего JSON-пакета.";
+     const rollButton=$("send-roll");if(rollButton){rollButton.disabled=true;rollButton.textContent="Результат передан";}
+     const hint=$("roll-error");if(hint)hint.textContent="Результат вставлен в ChatGPT. Проверь текст и нажми Enter.";
     }
     clearActionFeedback();
    },
    error=>{
     const why=String(error||"Не удалось вставить сообщение");
+    if(rollReceipt){const retry=$("send-roll");if(retry){retry.disabled=false;retry.textContent="Повторить отправку того же результата";}}
     if(why.startsWith("Действие для этой сцены уже вставлено")||why.startsWith("Предыдущий запрос"))
      {actionNotice(why,"error");return;}
+    if(automatic){actionNotice("Автопередача d20 не удалась: "+why+". Повтори отправку; число не изменится.","error");return;}
     if(copied){
      actionNotice("Автовставка не удалась: "+why+" Подготовленный текст скопирован — при необходимости вставь Ctrl+V.","error");
     }else void copyAction(prepared).then(ok=>actionNotice(
@@ -259,68 +266,89 @@ function renderChoices(packet) {
   if($("save")){$("save").disabled=false;$("save").textContent="Подготовить «сохранить»";}
   if($("start")){$("start").disabled=false;$("start").textContent="Проверить расширение";}
 }
-// The story engine chooses applicability and four outcomes; the website owns arithmetic.
-function renderRoll(packet) {
- const panel=$("roll-panel"),input=$("roll-natural"),button=$("send-roll");
- if(!panel||!input||!button)return;
- activeRoll=null;input.value="";button.disabled=true;
+// The GM freezes the plan; the site samples a natural die exactly once per check_id.
+function showRollResult(result) {
+ const details=$("roll-details");
+ if(!details||!result)return;
+ const names={full_success:"Полный успех",partial_success:"Частичный успех",
+  partial_failure:"Частичная неудача",full_failure:"Полная неудача"};
+ details.textContent+="\n\n🎲 Случайный d20: "+result.natural+
+  "\nРасчёт: "+result.natural+" − "+result.penalty+" + "+result.bonus+" = "+
+  result.total+"\nИтог: "+(names[result.category]||result.category);
+}
+function renderRoll(packet,autoTransfer=false) {
+ const panel=$("roll-panel"),button=$("send-roll");
+ if(!panel||!button)return;
+ activeRoll=null;button.disabled=true;button.textContent="Передать результат";
  const plan=object(object(packet.mechanics).pending_d20);
  if(!Object.keys(plan).length){panel.hidden=true;return;}
  panel.hidden=false;
  const error=$("roll-error"),details=$("roll-details");
  if(error)error.textContent="";
  if(plan.schema!=="rpg5-d20-plan-v1"){
-  details.textContent="Ожидающая проверка пока не содержит полного расчётного плана rpg5-d20-plan-v1.";
+  details.textContent="Нужен полный план mechanics.pending_d20 (rpg5-d20-plan-v1).";
   return;
  }
  try {
-  if(!window.RPG5_MECHANICS)throw Error("Модуль механики не загружен.");
-  const pre=window.RPG5_MECHANICS.preview(plan,packet.hero);
-   const last=(()=>{try{return JSON.parse(localStorage.getItem(LAST_ROLL_KEY)||"null");}catch{return null;}})();
-  const alreadySubmitted=last?.check_id===plan.check_id;
-  activeRoll=alreadySubmitted?null:plan;button.disabled=alreadySubmitted;
+  const engine=window.RPG5_MECHANICS;
+  if(!engine)throw Error("Вычислительный модуль не загружен.");
+  const pre=engine.preview(plan,packet.hero);
   details.textContent=[
    "Действие: "+plan.action,
    "Базовый DC: "+pre.base_dc+" · Итоговый DC: "+pre.dc,
-   "Навык: "+(pre.skill_id||"нет")+" · Бонус: +"+pre.skill_bonus,
-   "Физическая характеристика: "+(pre.physical_stat||"не применяется")+
+   "Навык: "+(pre.skill_id||"нет")+" · +"+pre.skill_bonus,
+   "Физическая характеристика: "+(pre.physical_stat||"нет")+
     (pre.physical_level===null?"":" (ур. "+pre.physical_level+")")+
-    " · Бонус: +"+pre.physical_bonus,
+    " · +"+pre.physical_bonus,
    "Ситуация: +"+pre.situation_bonus+
     (plan.situation?.reason?" ("+plan.situation.reason+")":""),
    "Бонус до броска: "+pre.bonus+"/"+pre.bonus_limit,
    "Штраф: "+pre.penalty+"/"+pre.penalty_limit,
-   pre.insurance_possible?"При d20 от 1 до 9 возможна страховка +1.":"Страховка отсутствует.",
-   alreadySubmitted?"Результат этой проверки уже был передан. Ожидай следующую сцену.":
-     "Число получи самостоятельно во внешнем генераторе; сайт его не генерирует."
+   pre.insurance_possible?"При d20 1–9 возможна страховка +1.":"Страховка отсутствует."
   ].join("\n");
+  const previous=storedRoll();
+  if(previous?.check_id===plan.check_id) {
+   if(previous.plan_json!==JSON.stringify(plan))
+    throw Error("Условия ранее начатой проверки изменились при том же check_id. Нужна сверка.");
+   if(!previous.result||previous.result.schema!=="rpg5-d20-result-v1")
+    throw Error("Повреждена сохранённая квитанция броска.");
+   activeRoll=previous.result;
+   showRollResult(activeRoll);
+   button.disabled=previous.delivered===true;
+   button.textContent=previous.delivered?"Результат уже передан":"Повторить отправку результата";
+   if(error)error.textContent=previous.delivered?
+    "Эта проверка уже вставлена в ChatGPT, повторного броска не будет.":
+    "Бросок уже сделан. Можно повторить передачу без переброса.";
+   return;
+  }
+  const result=engine.rollAndCalculate(plan,packet.hero);
+  persistRoll({check_id:plan.check_id,plan_json:JSON.stringify(plan),
+    packet_sha:lastRenderedSequence,result,delivered:false});
+  activeRoll=result;
+  showRollResult(result);
+  button.disabled=false;
+  button.textContent="Повторить передачу результата";
+  if(autoTransfer){
+   if(error)error.textContent="Сайт сделал бросок. Передаю результат в ChatGPT…";
+   dispatchAction(rollMessage(result),result,true);
+  } else if(error)error.textContent="Число уже случайно выбрано сайтом. Нажми для передачи.";
  }catch(e){
-  details.textContent="Нельзя открыть проверку: "+String(e?.message||e);
-  if(error)error.textContent="Исправь неполный или противоречивый JSON проверки.";
+  activeRoll=null;button.disabled=true;
+  if(error)error.textContent="Проверка заблокирована: "+String(e?.message||e);
  }
 }
-function submitRoll(){
- const error=$("roll-error"),input=$("roll-natural");
- if(error)error.textContent="";
- if(!activeRoll||!currentPacket||!window.RPG5_MECHANICS){
-  if(error)error.textContent="Нет действующей рассчитанной проверки.";return;
+function submitRoll() {
+ const error=$("roll-error");
+ if(!activeRoll||!currentPacket){
+  if(error)error.textContent="Нет готового результата.";return;
  }
- const raw=String(input?.value||"").trim();
- if(!/^(?:[1-9]|1[0-9]|20)$/.test(raw)){
-  if(error)error.textContent="Введи целое натуральное число от 1 до 20.";return;
+ const record=storedRoll();
+ if(!record || record.check_id!==activeRoll.check_id || record.delivered){
+  if(error)error.textContent="Этот результат уже передан либо не подтверждён.";return;
  }
- try{
-  const result=window.RPG5_MECHANICS.calculateD20(activeRoll,currentPacket.hero,Number(raw));
-  const names={full_success:"Полный успех",partial_success:"Частичный успех",
-   partial_failure:"Частичная неудача",full_failure:"Полная неудача"};
-  const details=$("roll-details");
-  if(details)details.textContent+="\nВыпало: "+result.natural+
-   " · "+result.natural+" − "+result.penalty+" + "+result.bonus+" = "+
-   result.total+" · "+(names[result.category]||result.category);
-  dispatchAction("Результат внешнего броска d20: "+result.natural,result);
- }catch(e){if(error)error.textContent=String(e?.message||e);}
+ dispatchAction(rollMessage(activeRoll),activeRoll);
 }
-function renderPacket(packet, sequence) {
+function renderPacket(packet, sequence, fromCache=false) {
   if(!packet || typeof packet!=="object" || Array.isArray(packet))return;
   const kind=packet.packet_kind||packet.kind;
   if(kind==="test")return;
@@ -333,7 +361,7 @@ function renderPacket(packet, sequence) {
   renderCharacters(packet);
   renderStory(packet, append);
   renderChoices(packet);
-  renderRoll(packet);
+  renderRoll(packet,!fromCache);
   const scene=object(packet.scene), observable=object(packet.player_observable);
   const names=Object.fromEntries(array(packet.characters).map(c=>[c.character_id,c.name]));
   const visibleCast=array(observable.characters).map(person=>({
@@ -348,7 +376,7 @@ function renderPacket(packet, sequence) {
   if($("status")) $("status").textContent="Сцена получена через расширение Chrome. Выбери действие.";
 }
 
-async function acceptPacket(raw,expected){
+async function acceptPacket(raw,expected,fromCache=false){
  if(typeof raw!=="string"||new TextEncoder().encode(raw).length>1800000)return;
  if(typeof expected!=="string"||!/^[0-9a-f]{64}$/.test(expected))return;
  const actual=await checksum(raw);
@@ -357,7 +385,7 @@ async function acceptPacket(raw,expected){
  try{packet=JSON.parse(raw);}catch{notice("Пакет отклонён: неверный JSON.","error");return;}
  if(!validPacket(packet)){notice("Пакет отклонён: неверная структура RPG5.","error");return;}
  if(lastRenderedSequence!==null&&lastRenderedSequence===actual)return;
- renderPacket(packet,actual);
+ renderPacket(packet,actual,fromCache);
  if(packetLabel)packetLabel.textContent="Сцена "+object(packet.scene).scene_number+" · JSON проверен";
  try{localStorage.setItem(CACHE_KEY,JSON.stringify({raw,sha:actual}));}catch(e){console.warn("RPG5 cache:",e);}
  notice("Сцена получена через расширение Chrome. Выбирай действие.","ready");
@@ -376,7 +404,7 @@ window.addEventListener("message",event=>{
 async function restoreCache(){
  try{
   const cached=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");
-  if(cached?.raw&&cached?.sha)await acceptPacket(cached.raw,cached.sha);
+  if(cached?.raw&&cached?.sha)await acceptPacket(cached.raw,cached.sha,true);
  }catch(e){console.warn("RPG5: no usable cache",e);}
 }
 function requestPacket(){
