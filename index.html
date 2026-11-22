@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Neucha&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=survival-ui-46">
+  <link rel="stylesheet" href="css/style.css?v=survival-ui-47">
   <link rel="stylesheet" href="css/cinematic.css?v=survival-ui-4">
   <link rel="stylesheet" href="css/refinements.css?v=survival-ui-8">
   <link rel="stylesheet" href="css/reference-layout.css?v=survival-ui-10">
@@ -82,7 +82,8 @@
           <article id="story-page" class="story-page" aria-live="polite"><p class="story-empty">Загружаю сохранённую историю…</p></article>
         </div>
         <div id="chat" class="history-source" role="log" aria-label="Сохранённая история" aria-live="off"></div>
-        <section class="action-area" aria-label="Действия">
+        <section id="action-area" class="action-area" aria-label="Действия" aria-busy="false">
+          <p id="action-processing" class="action-processing" role="status" aria-live="polite" hidden><em>Действие выполняется...</em></p>
           <div id="choices" class="choices"></div>
           <details id="custom-action-panel" class="custom-action" open>
             <summary>Своё действие <span>▾</span></summary>
@@ -337,7 +338,7 @@
 <script src="js/radial-navigation.js?v=survival-ui-35"></script>
 <script src="js/profile-ui.js?v=survival-ui-45"></script>
 <script src="js/profile-book.js?v=survival-ui-57"></script>
-<script src="js/app.js?v=survival-ui-62"></script>
+<script src="js/app.js?v=survival-ui-63"></script>
 <script src="js/companion-dossier.js?v=survival-ui-57"></script>
 </body>
 </html>
