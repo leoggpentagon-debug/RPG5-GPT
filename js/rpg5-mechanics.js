@@ -1,4 +1,4 @@
-// RPG5-GPT deterministic mechanics v1. Pure calculations; no RNG, network, or saves.
+// RPG5-GPT deterministic mechanics v2. Site rolls fair d20; arithmetic is deterministic. No network or saves.
 (function (root) {
   "use strict";
   const D_SKILLS = new Set([
@@ -176,9 +176,33 @@
     }
     return result;
   }
+  // Uniform 1..20: crypto.getRandomValues with rejection sampling eliminates modulo bias.
+  // No Math.random fallback and no model/player-selected natural die values in live play.
+  function randomD20() {
+    const cryptoApi=root.crypto;
+    if (!cryptoApi || typeof cryptoApi.getRandomValues!=="function")
+      fail("безопасный генератор случайных чисел недоступен");
+    const max=0x100000000;
+    const acceptable=Math.floor(max/20)*20;
+    const words=new Uint32Array(1);
+    let value;
+    do {
+      cryptoApi.getRandomValues(words);
+      value=words[0];
+    } while (value>=acceptable);
+    return (value%20)+1;
+  }
+  function rollAndCalculate(plan,hero) {
+    // Validate the frozen plan before sampling. No roll occurs for invalid plans.
+    prepare(plan,hero);
+    const result=prepare(plan,hero,randomD20());
+    result.random_source="browser_crypto";
+    return result;
+  }
   root.RPG5_MECHANICS=Object.freeze({
     version:"1.0.0",loadBand,
     preview:(plan,hero)=>prepare(plan,hero),
-    calculateD20:(plan,hero,natural)=>prepare(plan,hero,natural)
+    calculateD20:(plan,hero,natural)=>prepare(plan,hero,natural),
+    rollAndCalculate
   });
 })(typeof window!=="undefined"?window:globalThis);
