@@ -1,0 +1,22 @@
+/* Remote GPT connection status. Does not alter existing RPG6 visual assets. */
+#gpt-remote-panel {
+  border-left: 2px solid rgba(192, 174, 136, 0.46);
+}
+#gpt-remote-panel #gpt-remote-status {
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+#gpt-remote-panel #gpt-remote-status[data-state="ready"] {
+  color: #b6d4bc;
+}
+#gpt-remote-panel #gpt-remote-status[data-state="error"] {
+  color: #e2ada3;
+}
+.gpt-remote-info-link {
+  display: inline-block;
+  font-size: 0.86rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  line-height: 1.4;
+  color: inherit;
+}
