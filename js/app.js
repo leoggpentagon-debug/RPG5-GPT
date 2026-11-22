@@ -6,14 +6,25 @@
   const config = window.RPG6_CONFIG || {};
   // Access code is entered by the player, never embedded in hosted source files.
   const ACCESS_KEY = "rpg6_access_session";
+  const PERSISTED_ACCESS_KEY = "rpg6_access_remembered_v1";
+  const validAccess = value => /^RPG6-[A-Za-z0-9_-]{30,100}$/.test(value);
   let token = "";
-  try { token = sessionStorage.getItem(ACCESS_KEY) || ""; } catch { /* storage disabled */ }
+  let accessRemembered = false;
+  // Persistent storage is opt-in only. Nothing about the code goes in the URL.
+  try {
+    const stored = localStorage.getItem(PERSISTED_ACCESS_KEY) || "";
+    if (validAccess(stored)) { token=stored;accessRemembered=true; }
+    else if (stored) localStorage.removeItem(PERSISTED_ACCESS_KEY);
+  } catch { /* persistent storage blocked */ }
+  if (!token) {
+    try { token = sessionStorage.getItem(ACCESS_KEY) || ""; } catch { /* storage disabled */ }
+  }
   function getAccessToken() {
     if (token) return token;
     const entered = window.prompt("Введи личный код доступа к игре. Он не публикуется на сайте.");
     if (entered === null || !entered.trim()) throw new Error("Для продолжения игры требуется личный код доступа RPG6.");
     const next = entered.trim();
-    if (!/^RPG6-[A-Za-z0-9_-]{30,100}$/.test(next))
+    if (!validAccess(next))
       throw new Error("Неверный формат кода RPG6. Проверь его и попробуй снова.");
     token = next;
     try { sessionStorage.setItem(ACCESS_KEY,token); } catch { /* one-tab memory only */ }
@@ -21,7 +32,11 @@
   }
   function clearAccessToken() {
     token = "";
+    accessRemembered = false;
     try { sessionStorage.removeItem(ACCESS_KEY); } catch { /* storage disabled */ }
+    try { localStorage.removeItem(PERSISTED_ACCESS_KEY); } catch { /* storage disabled */ }
+    const rememberBox=document.getElementById("remember-access");
+    if(rememberBox)rememberBox.checked=false;
   }
   const $ = id => document.getElementById(id);
   const nameById = {oliver_hayes:"Оливер Хейз",bex:"Бекс",ian_calder:"Иэн Колдер"};
@@ -280,6 +295,35 @@
   function exportDraft(){const out={build:BUILD,schema:"rpg6",revision:state.revision,draft_turns:state.draft};
     const blob=new Blob([JSON.stringify(out,null,2)],{type:"application/json"});const link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download="RPG6_Отчёт_черновик.json";link.click();setTimeout(()=>URL.revokeObjectURL(link.href),3000);
   }
+  $("remember-access").checked=accessRemembered;
+  $("remember-access").addEventListener("change",event=>{
+    const checked=event.currentTarget.checked;
+    if(checked){
+      if(!token || !validAccess(token)){
+        event.currentTarget.checked=false;
+        report("Сначала загрузи игру, чтобы запомнить действующий код.",true);
+        return;
+      }
+      try{
+        localStorage.setItem(PERSISTED_ACCESS_KEY,token);
+        accessRemembered=true;
+        report("Код доступа запомнен только в этом браузере. Не используй на общем компьютере.");
+      }catch(error){
+        accessRemembered=false;
+        event.currentTarget.checked=false;
+        report("Браузер запрещает постоянное хранение кода. Попробуй без приватного режима.",true);
+      }
+    }else{
+      accessRemembered=false;
+      try{localStorage.removeItem(PERSISTED_ACCESS_KEY)}catch{/* storage disabled */}
+      report("Постоянное хранение кода выключено. В этой вкладке доступ сохранится до закрытия.");
+    }
+  });
+  $("forget-access").addEventListener("click",()=>{
+    clearAccessToken();
+    // Reload removes in-memory game state and requires access again.
+    window.location.reload();
+  });
   $("start").addEventListener("click",start);
   $("send").addEventListener("click",()=>act());
   $("save").addEventListener("click",save);
