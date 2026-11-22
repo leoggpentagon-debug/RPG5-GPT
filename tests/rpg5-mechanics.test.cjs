@@ -108,8 +108,44 @@ test("reject missing stats, invalid roll, unconfirmed status, missing outcomes",
   id:"injury",polarity:"negative",severity:"heavy",dc_adjustment:0
  }]}),hero(),9));
 });
-test("no RNG or network required to calculate",()=>{
+test("arithmetic remains deterministic without consuming randomness",()=>{
  const p=plan({base_dc:10});
  assert.equal(roll(p,hero(),13).total,13);
  assert.equal(M.preview(p,hero()).natural,null);
+});
+test("site-generated d20 is always between 1 and 20",()=>{
+ const numbers=[0,1,18,19,20,99,123456,4294967279];
+ let i=0,calls=0;
+ context.window.crypto={getRandomValues(words){calls++;words[0]=numbers[i++];return words;}};
+ for(let value=1;value<=20;value++){
+  if(i>=numbers.length)break;
+  const result=M.rollAndCalculate(plan(),hero());
+  assert.ok(result.natural>=1&&result.natural<=20);
+  assert.equal(result.random_source,"browser_crypto");
+  assert.equal(result.total,result.natural);
+ }
+ assert.equal(calls,numbers.length);
+});
+test("rejection sampling discards biased uint32 tail and accepts next word",()=>{
+ let attempts=0;
+ context.window.crypto={getRandomValues(words){
+  words[0]=attempts++===0?0xffffffff:19;
+  return words;
+ }};
+ const result=M.rollAndCalculate(plan(),hero());
+ assert.equal(attempts,2);
+ assert.equal(result.natural,20);
+});
+test("invalid plan must not consume randomness",()=>{
+ let calls=0;
+ context.window.crypto={getRandomValues(words){calls++;words[0]=7;return words;}};
+ assert.throws(()=>M.rollAndCalculate(plan({base_dc:0}),hero()));
+ assert.equal(calls,0);
+ const result=M.rollAndCalculate(plan(),hero());
+ assert.equal(calls,1);
+ assert.equal(result.natural,8);
+});
+test("no random number source means an error, never a predictable fallback",()=>{
+ delete context.window.crypto;
+ assert.throws(()=>M.rollAndCalculate(plan(),hero()),/генератор/);
 });
