@@ -47,6 +47,32 @@
   const many = x => Array.isArray(x) ? x : [];
   const uuid=()=>{if(!globalThis.crypto?.randomUUID)throw new Error("Запусти игру через Live Server (localhost), а не из file://");return crypto.randomUUID()};
   const report = (message,bad=false) => { $("status").textContent=message; $("status").classList.toggle("error",bad); $("diagnostic").textContent=`${BUILD}\n${message}\nАдрес: ${location.href}`; };
+  function showGenerationInfo(raw) {
+    const stats=safeObj(raw),model=word(stats.model).trim();
+    const pretty=value=>Number(value).toLocaleString("ru-RU");
+    const kb=bytes=>(Number(bytes)/1000).toLocaleString("ru-RU",{maximumFractionDigits:1,minimumFractionDigits:1})+" КБ";
+    if(!model){
+      $("generation-model").textContent="Модель хода: нет данных для предыдущих ходов";
+      $("generation-context").textContent="Контекст: появится после следующего хода";
+      $("generation-total").textContent="";
+      return;
+    }
+    const otherModels=many(stats.models).map(word).filter(name=>name&&name!==model);
+    $("generation-model").textContent="Модель хода: "+model+
+      (otherModels.length?" (также: "+otherModels.join(", ")+")":"");
+    const requestBytes=Number(stats.request_bytes),limit=Number(stats.limit_bytes);
+    const tokens=Number(stats.prompt_tokens);
+    $("generation-context").textContent=
+      "Контекст основного запроса: "+(Number.isFinite(requestBytes)&&requestBytes>0?kb(requestBytes):"неизвестен")+
+      (Number.isFinite(limit)&&limit>0?" / "+kb(limit):"")+
+      (Number.isInteger(stats.prompt_tokens)&&tokens>=0?" · "+pretty(tokens)+" входных токенов":"");
+    const calls=Number(stats.requests),total=Number(stats.total_request_bytes);
+    $("generation-total").textContent=
+      Number.isInteger(calls)&&calls>0
+        ?"За ход: "+pretty(calls)+" обращ. к Gemini"+
+          (Number.isFinite(total)&&total>0?" · отправлено "+kb(total)+" суммарно":"")
+        :"";
+  }
   async function rpc(op,data={}) {
     if(!config.supabaseUrl || !config.edgeFunction)throw new Error("Нет адреса Supabase в js/config.js");
     const requestToken = getAccessToken();
@@ -369,6 +395,8 @@
       }
     }
     for(const turn of state.draft){msg("Оливер",turn.action,"player","oliver_hayes");showReply(turn.reply)}
+    const latestTurn=state.draft[state.draft.length-1]||saved[saved.length-1];
+    showGenerationInfo(safeObj(safeObj(latestTurn).reply).generation_info);
     $("save-info").textContent=`Канон: ревизия ${state.revision}. ${state.sequence} несохранённых ходов. Сохранение только по явной команде.`;
     state.pending=data.pending_roll||null;showRoll();busy(false);
     window.dispatchEvent(new CustomEvent("rpg6:render",{detail:{scene,observable,hero}}));
@@ -387,6 +415,7 @@
       const result=await rpc("turn",{draft_sequence:state.sequence,action, ...(roll===null?{}:{roll})});
       const actionShown=roll===null?action:"🎲 Автоматический бросок d20";
       state.sequence=Number(result.draft_sequence);state.pending=result.pending_roll||null;
+      showGenerationInfo(result.generation_info||safeObj(result.reply).generation_info);
       msg("Оливер",actionShown,"player","oliver_hayes");showReply(result.reply);
       state.draft.push({turn:state.sequence,action:actionShown,reply:result.reply});
       $("action").value="";
