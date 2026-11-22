@@ -143,8 +143,14 @@
     const r=safeObj(reply);
     if(r.roll){const v=r.roll;msg("🎲 ПРОВЕРКА d20",`Натуральный: ${v.natural}\n${v.natural} − ${v.negative} + ${v.positive} = ${v.total}; DC ${v.dc}\n${v.category}: ${v.consequence}`,"system")}
     for(const part of storyChunks(r)){
-      if(part.type==="dialogue")msg(part.name||nameById[part.speaker_id]||part.speaker_id||"NPC",part.text,"npc",part.speaker_id);
-      else msg("",part.text,"gm");
+      // Old draft diagnostic markers belong to the service log, not the story.
+      const clean=part.text.replace(/\[Недостаточно данных для корректного плана d20: проверка не открыта\.\]/g,"").trim();
+      if(!clean)continue;
+      if(part.type==="dialogue"){
+        const hero=part.speaker_id==="oliver_hayes";
+        msg(part.name||nameById[part.speaker_id]||part.speaker_id||"Персонаж",
+          clean,hero?"player":"npc",part.speaker_id);
+      }else msg("",clean,"gm");
     }
     $("choices").replaceChildren();for(const choice of many(r.choices)){const b=child("button","",choice);b.addEventListener("click",()=>{if(state.busy||!state.loaded)return;$("action").value=choice;void act()});$("choices").append(b)}
   }
