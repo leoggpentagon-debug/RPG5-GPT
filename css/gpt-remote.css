@@ -19,3 +19,29 @@
  line-height:1.35;color:#b6d4bc;overflow-wrap:anywhere;}
 #game-shell #pane-story .action-feedback[hidden]{display:none!important;}
 #game-shell #pane-story .action-feedback[data-state="error"]{color:#e2ada3;}
+
+/* Dynamic options: all choices from a packet are visible, not clipped at 98/102px. */
+#game-shell #pane-story .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:9px;max-height:none;overflow:visible;align-items:stretch;margin:0 0 10px;}
+#game-shell #pane-story .choices[hidden]{display:none!important;}
+#game-shell #pane-story .choices.single-choice{grid-template-columns:minmax(0,1fr);}
+#game-shell #pane-story .choices .bridge-choice-mode{grid-column:1/-1;margin:0 0 2px;}
+#game-shell #pane-story .choices .bridge-action-choice{
+ display:block;width:100%;min-width:0;white-space:normal;overflow-wrap:anywhere;
+ height:auto;max-height:none;text-align:left;}
+/* A very long list scrolls inside the action area rather than hiding buttons. */
+#game-shell #pane-story .action-area{max-height:min(58vh,520px);overflow-y:auto;}
+/* Native <details>: user can independently expand/collapse free action input. */
+#game-shell #pane-story .custom-action summary{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ padding:8px 11px;cursor:pointer;user-select:none;}
+#game-shell #pane-story .custom-action summary:focus-visible{
+ outline:2px solid #e3ab85;outline-offset:-2px;}
+#game-shell #pane-story .custom-action:not([open]) .action-compose{display:none!important;}
+#game-shell #pane-story .custom-action[open] .action-compose{display:flex;}
+@media(max-width:720px){
+ #game-shell #pane-story .choices{grid-template-columns:minmax(0,1fr);}
+ #game-shell #pane-story .action-compose{flex-wrap:wrap;}
+ #game-shell #pane-story .action-compose textarea{flex:1 1 100%;min-width:0;}
+ #game-shell #pane-story .action-compose .primary{flex:1;}
+}
