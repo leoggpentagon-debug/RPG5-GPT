@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="css/survivor-board.css?v=survival-ui-55">
   <link rel="stylesheet" href="css/polaroid-lettering.css?v=survival-ui-56">
   <link rel="stylesheet" href="css/companion-dossier.css?v=survival-ui-57">
-  <link rel="stylesheet" href="css/gpt-remote.css?v=rpg5-ui-v4">
+  <link rel="stylesheet" href="css/gpt-remote.css?v=rpg5-d20-v1">
 </head>
 <body>
 <div class="game-shell" id="game-shell">
@@ -85,6 +85,17 @@
         <div id="chat" class="history-source" role="log" aria-label="Сохранённая история" aria-live="off"></div>
         <section id="action-area" class="action-area" aria-label="Действия" aria-busy="false">
           <p id="action-processing" class="action-processing" role="status" aria-live="polite" hidden><em>Действие выполняется...</em></p>
+          <section id="roll-panel" class="game-roll-panel" aria-label="Ожидающая проверка d20" hidden>
+            <h3>🎲 Проверка d20</h3>
+            <pre id="roll-details"></pre>
+            <div class="roll-entry">
+              <label for="roll-natural">Число из внешнего генератора (1–20)
+                <input type="number" id="roll-natural" min="1" max="20" step="1" inputmode="numeric" autocomplete="off">
+              </label>
+              <button type="button" id="send-roll" class="primary" disabled>Рассчитать и отправить</button>
+            </div>
+            <p id="roll-error" role="status" aria-live="polite"></p>
+          </section>
           <div id="choices" class="choices"></div>
           <details id="custom-action-panel" class="custom-action">
             <summary>Свободное действие <span aria-hidden="true">⌄</span></summary>
@@ -325,10 +336,7 @@
       </div>
       <div class="technical-details"><span id="scene-counter"></span><span id="canon-revision"></span><span id="draft-count"></span></div>
     </section>
-    <section id="roll-panel" class="service-block roll-panel" hidden>
-      <h3>Автоматическая проверка d20</h3><pre id="roll-details"></pre>
-      <button type="button" id="send-roll" class="secondary" disabled>Продолжить проверку</button>
-    </section>
+    
     <section class="service-block">
       <div class="section-row"><h3>Диагностика</h3><button type="button" id="clear-log" class="quiet-button">Очистить записи</button></div>
       <p id="diagnostic" class="small-label"></p>
@@ -348,7 +356,8 @@
 <script src="js/profile-book.js?v=survival-ui-57"></script>
 <!-- Legacy Gemini and server transport handlers are not loaded. -->
 <script src="js/companion-dossier.js?v=rpg5-companion-fix-1"></script>
-<script src="js/rpg5-actions.js?v=rpg5-ui-v4"></script>
-<script src="js/rpg5-packets.js?v=rpg5-ui-v4"></script>
+<script src="js/rpg5-mechanics.js?v=rpg5-d20-v1"></script>
+<script src="js/rpg5-actions.js?v=rpg5-d20-v1"></script>
+<script src="js/rpg5-packets.js?v=rpg5-d20-v1"></script>
 </body>
 </html>
