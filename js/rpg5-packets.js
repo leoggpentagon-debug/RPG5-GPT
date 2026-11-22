@@ -174,6 +174,8 @@ function renderHero(hero) {
 function renderCharacters(packet) {
   const scene=object(packet.scene), observable=object(packet.player_observable);
   const cast=array(packet.characters).length?array(packet.characters):array(observable.characters);
+  const dossierPeople=(array(observable.characters).length ? array(observable.characters) : cast)
+    .filter(p=>p&&typeof p==="object"&&p.character_id!=="oliver_hayes");
   const ids=new Set(array(scene.cast_ids));
   const holder=$("party");if(!holder)return;
   holder.replaceChildren();
@@ -185,6 +187,10 @@ function renderCharacters(packet) {
     person.dataset.characterId=id;
     const frame=node("div","polaroid polaroid-npc"), button=node("button","portrait-button");
     button.type="button";
+    // Companion journal resolves the exact character_id, not position in a mutable list.
+    button.dataset.characterId=id;
+    const dossierIndex=dossierPeople.findIndex(p=>p.character_id===id);
+    if(dossierIndex>=0) button.dataset.partyIndex=String(dossierIndex);
     button.setAttribute("aria-label","Удерживай портрет, чтобы открыть досье: "+name);
     if (portraits[id]) {
       const img=node("img");img.src=portraits[id];img.alt=name;img.loading="lazy";
