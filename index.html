@@ -286,7 +286,7 @@
       <h3>Сохранение игры</h3>
       <button type="button" id="save" class="primary" disabled>Скопировать «сохранить»</button>
       <button type="button" id="start" class="secondary">Проверить расширение</button>
-      <p id="save-info" class="small-label">JSON не сохраняет прогресс. Для записи канона отправь буквальную команду «сохранить» в игровом чате.</p>
+      <p id="save-info" class="small-label">Получение JSON и автозаполнение чата не сохраняют прогресс. Для записи канона отправь буквальную команду «сохранить» в игровом чате.</p>
     </section>
     <section class="service-block" aria-label="Безопасность доступа" hidden style="display:none">
       <h3>Доступ к игре</h3>
@@ -310,10 +310,10 @@
       </div>
     </section>
     <section class="service-block" id="gpt-remote-panel" aria-label="Доставка через Chrome">
-      <h3>ChatGPT → Игра</h3>
+      <h3>Игра ⇄ ChatGPT</h3>
       <p id="gpt-remote-status" class="small-label" role="status" aria-live="polite">Ожидаю расширение Chrome и первый JSON…</p>
       <p id="bridge-last-packet" class="small-label">JSON ещё не получен.</p>
-      <p class="small-label">Выбери действие или введи своё и нажми «Отправить». Оно скопируется. В игровом чате нажми Ctrl+V, Enter. JSON появится здесь автоматически.</p>
+      <p class="small-label">Выбери действие или введи своё и нажми «Отправить». Расширение вставит сообщение с текущим числовым состоянием в привязанный игровой чат. Проверь текст и нажми Enter самостоятельно. Если автовставка недоступна, будет предложено вставить скопированный текст вручную.</p>
     </section>
     <section class="service-block">
       <h3>Соединение и обработка</h3><p id="status" class="status-text">Инициализация…</p>
@@ -347,6 +347,7 @@
 <script src="js/profile-book.js?v=survival-ui-57"></script>
 <!-- Legacy Gemini and server transport handlers are not loaded. -->
 <script src="js/companion-dossier.js?v=rpg5-companion-fix-1"></script>
-<script src="js/rpg5-packets.js?v=rpg5-chrome-v2"></script>
+<script src="js/rpg5-actions.js?v=rpg5-chrome-v3"></script>
+<script src="js/rpg5-packets.js?v=rpg5-chrome-v3"></script>
 </body>
 </html>
