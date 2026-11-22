@@ -2,8 +2,10 @@
   "use strict";
   const $=id=>document.getElementById(id);
   const overlay=$("profile-overlay"),panel=$("profile-dossier"),body=panel?.querySelector(".profile-body");
-  const bookTabs=[...document.querySelectorAll(".profile-book-tab")];
-  const bookPages=[...document.querySelectorAll(".profile-book-page")];
+  // Limit tab/page navigation to Oliver's book. Companion journals have
+  // independent, tab-free paper pages and must not alter the original 4 tabs.
+  const bookTabs=[...panel.querySelectorAll(".profile-book-tab")];
+  const bookPages=[...panel.querySelectorAll(".profile-book-page")];
   const sheet=$("profile-page-turn");
   if(!overlay||!panel||!body||!sheet||bookTabs.length!==4||bookPages.length!==4)return;
 
