@@ -13,8 +13,20 @@ const array=x=>Array.isArray(x)?x:[];
 const str=x=>typeof x==="string"?x:"";
 let currentPacket=null,lastRenderedSequence=null;
 let activeRoll=null;
-function storedRoll(){try{return JSON.parse(localStorage.getItem(ROLL_RECORD_KEY)||"null");}catch{return null;}}
-function persistRoll(value){localStorage.setItem(ROLL_RECORD_KEY,JSON.stringify(value));}
+function storedRoll(checkId){
+ try {
+  const data=JSON.parse(localStorage.getItem(ROLL_RECORD_KEY)||"null");
+  if(data?.check_id===checkId)return data; // migrate a previous single receipt
+  return object(data?.records)[checkId]||null;
+ }catch{return null;}
+}
+function persistRoll(value){
+ const data=JSON.parse(localStorage.getItem(ROLL_RECORD_KEY)||"null");
+ const records=object(data?.records);
+ if(data?.check_id)records[data.check_id]=data;
+ records[value.check_id]=value;
+ localStorage.setItem(ROLL_RECORD_KEY,JSON.stringify({schema:"rpg5-roll-ledger-v1",records}));
+}
 function rollMessage(result){return "Результат автоматического d20 сайта: "+result.natural;}
 function node(tag,className="",text=""){
  const el=document.createElement(tag);
@@ -65,7 +77,7 @@ function dispatchAction(action,rollReceipt=null,automatic=false){
     if(rollReceipt){
      try{localStorage.setItem(LAST_ROLL_KEY,JSON.stringify({check_id:rollReceipt.check_id,packet_sha:lastRenderedSequence}));}
      catch(e){console.warn("RPG5 roll acknowledgement cache:",e);}
-     try{const r=storedRoll();if(r?.check_id===rollReceipt.check_id){r.delivered=true;persistRoll(r);}}catch(e){console.warn("RPG5 roll receipt:",e);}
+     try{const r=storedRoll(rollReceipt.check_id);if(r?.check_id===rollReceipt.check_id){r.delivered=true;persistRoll(r);}}catch(e){console.warn("RPG5 roll receipt:",e);}
      activeRoll=null;
      const rollButton=$("send-roll");if(rollButton){rollButton.disabled=true;rollButton.textContent="Результат передан";}
      const hint=$("roll-error");if(hint)hint.textContent="Результат вставлен в ChatGPT. Проверь текст и нажми Enter.";
@@ -306,7 +318,7 @@ function renderRoll(packet,autoTransfer=false) {
    "Штраф: "+pre.penalty+"/"+pre.penalty_limit,
    pre.insurance_possible?"При d20 1–9 возможна страховка +1.":"Страховка отсутствует."
   ].join("\n");
-  const previous=storedRoll();
+  const previous=storedRoll(plan.check_id);
   if(previous?.check_id===plan.check_id) {
    if(previous.plan_json!==JSON.stringify(plan))
     throw Error("Условия ранее начатой проверки изменились при том же check_id. Нужна сверка.");
@@ -321,6 +333,10 @@ function renderRoll(packet,autoTransfer=false) {
     "Бросок уже сделан. Можно повторить передачу без переброса.";
    return;
   }
+  // Old manually delivered rolls also block rerolls of a legacy check_id.
+  const legacy=(()=>{try{return JSON.parse(localStorage.getItem(LAST_ROLL_KEY)||"null");}catch{return null;}})();
+  if(legacy?.check_id===plan.check_id)
+   throw Error("Этот check_id уже отправлялся. Для новой проверки нужен новый ID.");
   const result=engine.rollAndCalculate(plan,packet.hero);
   persistRoll({check_id:plan.check_id,plan_json:JSON.stringify(plan),
     packet_sha:lastRenderedSequence,result,delivered:false});
@@ -342,7 +358,7 @@ function submitRoll() {
  if(!activeRoll||!currentPacket){
   if(error)error.textContent="Нет готового результата.";return;
  }
- const record=storedRoll();
+ const record=storedRoll(activeRoll.check_id);
  if(!record || record.check_id!==activeRoll.check_id || record.delivered){
   if(error)error.textContent="Этот результат уже передан либо не подтверждён.";return;
  }
