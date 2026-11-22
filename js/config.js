@@ -1,18 +1,17 @@
-// RPG5-GPT: isolated frontend. Legacy Gemini/RPG6 API calls are disabled.
-// Configure supported ChatGPT access only after separate verification.
+// Separate RPG5-GPT frontend. The old RPG6/Gemini API remains disabled.
 window.RPG6_CONFIG = Object.freeze({
-  mode: 'rpg5-gpt-disconnected',
-  supabaseUrl: '',
-  publishableKey: '',
-  edgeFunction: '',
+  mode: "rpg5-gpt-disconnected",
+  supabaseUrl: "",
+  publishableKey: "",
+  edgeFunction: "",
 });
 
-// Remote GitHub Pages mode. Empty until the approved OAuth integration
-// and a secure, authenticated backend are available.
-// The browser must never contain ChatGPT OAuth credentials.
+// Public client configuration only. No service_role or OpenAI credentials.
 window.RPG5_GPT_CONFIG = Object.freeze({
-  deployment: "github-pages-remote",
-  gatewayUrl: "",
+  deployment: "github-pages",
+  supabaseUrl: "https://ltubfxamcrfogwmidsup.supabase.co",
+  publishableKey: "sb_publishable_0QIldokYIxZSD7ElfvvW2Q_KLP8fkmQ",
+  gatewayUrl: "https://ltubfxamcrfogwmidsup.supabase.co/functions/v1/rpg5-packet-bridge",
   gatewayProtocolVersion: 1,
-  access: "approval-required",
+  access: "supabase-auth",
 });
