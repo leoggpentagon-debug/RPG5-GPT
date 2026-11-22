@@ -91,7 +91,7 @@
             <div class="action-compose">
               <label for="action" class="sr-only">Что делает или говорит персонаж</label>
               <textarea id="action" rows="2" maxlength="2500" disabled placeholder=""></textarea>
-              <button type="button" id="send" class="primary" disabled>Отправить</button>
+              <button type="button" id="send" class="primary" disabled>Продолжить в ChatGPT</button>
             </div>
           </details>
         </section>
@@ -284,9 +284,9 @@
   <div class="service-body">
     <section class="service-block">
       <h3>Сохранение игры</h3>
-      <button type="button" id="save" class="primary" disabled>Сохранить игру</button>
+      <button type="button" id="save" class="primary" disabled>Сохранить через ChatGPT</button>
       <button type="button" id="export" class="secondary" disabled>Скачать отчёт</button>
-      <button type="button" id="start" class="secondary">Проверить подключение</button>
+      <button type="button" id="start" class="secondary">Проверить ответы</button>
       <button type="button" id="reset-drafts" class="secondary draft-danger" disabled title="Удалить несохранённые ходы и вернуться к последнему сохранению">Сбросить черновики</button>
       <p class="small-label">Удаляет только несохранённые ходы и их временную память. Сохранённый канон и архив игры остаются.</p>
       <p id="save-info" class="small-label">Ожидаю подключения.</p>
@@ -321,6 +321,21 @@
         <button type="button" id="bridge-sign-in" class="secondary">Получить письмо для входа</button>
       </div>
       <button type="button" id="bridge-sign-out" class="secondary" hidden>Выйти из Supabase</button>
+      <div class="bridge-chat-settings">
+        <label for="bridge-chat-url" class="small-label">Адрес переписки в проекте ChatGPT (один раз)</label>
+        <input id="bridge-chat-url" type="url" autocomplete="url" spellcheck="false"
+          placeholder="https://chatgpt.com/c/…">
+        <label class="bridge-prefill-label">
+          <input id="bridge-prefill" type="checkbox" checked>
+          Попробовать подставить текст автоматически (экспериментально)
+        </label>
+        <button type="button" id="bridge-chat-save" class="secondary">Сохранить адрес чата</button>
+        <p class="small-label">Скопируй адрес из строки браузера, когда открыт нужный чат внутри проекта. Сайт скопирует запрос и откроет именно его. Автозаполнение поля ChatGPT может не сработать — тогда Ctrl+V, Enter.</p>
+      </div>
+      <details class="bridge-packet-details">
+        <summary>Подготовленный запрос для ChatGPT</summary>
+        <textarea id="bridge-prepared-prompt" class="bridge-prepared-prompt" rows="5" readonly placeholder="Запрос появится после выбора действия"></textarea>
+      </details>
       <button type="button" id="gpt-remote-check" class="secondary" disabled>Проверить новые JSON</button>
       <p id="bridge-last-packet" class="small-label">Пакеты пока не получены.</p>
       <details class="bridge-packet-details">
@@ -359,8 +374,8 @@
 <script src="js/radial-navigation.js?v=survival-ui-35"></script>
 <script src="js/profile-ui.js?v=survival-ui-45"></script>
 <script src="js/profile-book.js?v=survival-ui-57"></script>
-<script src="js/app.js?v=rpg5-gpt-isolated-1"></script>
+<!-- RPG6 Gemini handlers intentionally not loaded; RPG5 transport controls the game. -->
 <script src="js/companion-dossier.js?v=survival-ui-57"></script>
-<script type="module" src="js/rpg5-packets.js?v=rpg5-bridge-v1"></script>
+<script type="module" src="js/rpg5-packets.js?v=rpg5-gameplay-v2"></script>
 </body>
 </html>
