@@ -159,7 +159,7 @@ if (!(status && signIn && signOut && refresh && cfg.supabaseUrl && cfg.publishab
     say("Выход выполнен.");
   });
   refresh.addEventListener("click", () => { void poll(); });
-  sb.auth.onAuthStateChange(() => { void getSession().then(s => { if (s) void poll(); }); });
+  sb.auth.onAuthStateChange(() => { setTimeout(() => { void getSession().then(s => { if (s) void poll(); }).catch(e => say(String(e?.message || e), "error")); }, 0); });
   void getSession().then(s => { if (s) void poll(); else say("Ожидаю вход через Supabase Auth."); })
     .catch(e => say("Ошибка авторизации: " + String(e?.message || e), "error"));
   setInterval(() => { if (connected && !document.hidden) void poll(); }, 8000);
