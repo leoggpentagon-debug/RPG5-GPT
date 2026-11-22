@@ -40,7 +40,8 @@
   }
   const $ = id => document.getElementById(id);
   const nameById = {oliver_hayes:"Оливер Хейз",bex:"Бекс",ian_calder:"Иэн Колдер"};
-  const state = {loaded:false,busy:false,revision:0,sequence:0,draft:[],scene:null,hero:null,pending:null};
+  const state = {loaded:false,busy:false,revision:0,sequence:0,draft:[],scene:null,
+    canonicalScene:null,observable:null,hero:null,pending:null};
   const portrait = id => (typeof APPROVED_PORTRAITS !== "undefined" && APPROVED_PORTRAITS[id]) || "";
   const word = text => text == null ? "" : String(text);
   const safeObj = x => x && typeof x === "object" && !Array.isArray(x) ? x : {};
@@ -300,9 +301,36 @@
     state.pending=actual?{...actual,saved:!!savedRoll.check_id}:null;
     busy(state.busy);
   }
+  function showCurrentScene(raw) {
+    const next=safeObj(raw);
+    const saved=safeObj(state.canonicalScene);
+    if(!Object.keys(next).length)return;
+    const scene={...saved,...next};
+    state.scene=scene;
+    const isDraft=scene.uncommitted===true||scene.source==="draft"||scene.source==="draft_legacy";
+    const suffix=isDraft?" · ЧЕРНОВИК":"";
+    $("scene-counter").textContent=
+      "СЮЖЕТНАЯ ЛИНИЯ · ЭПИЗОД "+(scene.episode_number??"?")+
+      " · СЦЕНА "+(scene.scene_number??"?")+suffix;
+    $("scene-title").textContent="Сцена "+(scene.scene_number??"?")+(isDraft?" (черновик)":"");
+    $("scene-location").textContent=scene.location_detail||
+      safeObj(state.observable).location_detail||"Местоположение не уточнено";
+    $("scene-text").textContent=scene.scene_text||
+      safeObj(state.observable).scene_text||"Обстановка пока не уточнена";
+    const cast=new Set(many(scene.cast_ids).map(word));
+    for(const row of $("party").querySelectorAll(".party-person")){
+      if(row.dataset.characterId)row.hidden=!!cast.size&&!cast.has(row.dataset.characterId);
+    }
+    // Game UI owns weather, map and clock updates; send the same scene projection.
+    window.dispatchEvent(new CustomEvent("rpg6:render",{
+      detail:{scene,observable:state.observable||{},hero:state.hero||{}}}));
+  }
   function renderState(data){
-    const scene=safeObj(data.scene),hero=safeObj(data.hero),observable=safeObj(data.player_observable);
-    state.scene=scene;state.hero=hero;state.revision=Number(data.revision||0);
+    const canonicalScene=safeObj(data.scene),draftScene=safeObj(data.scene_view),
+      scene=Object.keys(draftScene).length?{...canonicalScene,...draftScene}:canonicalScene;
+    const hero=safeObj(data.hero),observable=safeObj(data.player_observable);
+    state.canonicalScene=canonicalScene;state.scene=scene;state.observable=observable;
+    state.hero=hero;state.revision=Number(data.revision||0);
     state.sequence=Number(data.draft_sequence||0);state.draft=many(data.draft_turns);state.loaded=true;
     $("scene-counter").textContent=`СЮЖЕТНАЯ ЛИНИЯ · ЭПИЗОД ${scene.episode_number??"?"} · СЦЕНА ${scene.scene_number??"?"}`;
     $("scene-title").textContent=`Сцена ${scene.scene_number??"?"}`;
@@ -320,12 +348,14 @@
     // Dynamic companions dossier board. Every confirmed nearby character gets
     // a Polaroid, including characters who do not have an approved photograph.
     const party=many(observable.characters).filter(x=>
-      x && typeof x==="object" && x.character_id!=="oliver_hayes");
+      x && typeof x==="object" && x.character_id!=="oliver_hayes" &&
+      (!many(scene.cast_ids).length||many(scene.cast_ids).includes(x.character_id)));
     const partyFragment=document.createDocumentFragment();
     for(const [partyIndex,person] of party.entries()){
       const id=person.character_id;
       const name=person.name||person.display_name||nameById[id]||"Человек рядом";
       const row=child("div","party-person");
+      row.dataset.characterId=id;
       const frame=child("div","polaroid polaroid-npc");
       const imagePath=portrait(id);
       // A known photograph can be enlarged. Unknown photographs show a
@@ -406,7 +436,7 @@
     showGenerationInfo(safeObj(safeObj(latestTurn).reply).generation_info);
     $("save-info").textContent=`Канон: ревизия ${state.revision}. ${state.sequence} несохранённых ходов. Сохранение только по явной команде.`;
     state.pending=data.pending_roll||null;showRoll();busy(false);
-    window.dispatchEvent(new CustomEvent("rpg6:render",{detail:{scene,observable,hero}}));
+    showCurrentScene(scene);
     $("chat").scrollTop=$("chat").scrollHeight;
   }
   async function start(){busy(true);report("Загружаю настоящую сохранённую сцену RPG6…");try{
@@ -424,6 +454,7 @@
       state.sequence=Number(result.draft_sequence);state.pending=result.pending_roll||null;
       showGenerationInfo(result.generation_info||safeObj(result.reply).generation_info);
       msg("Оливер",actionShown,"player","oliver_hayes");showReply(result.reply);
+      showCurrentScene(result.scene_view||safeObj(result.reply).scene_state);
       state.draft.push({turn:state.sequence,action:actionShown,reply:result.reply});
       $("action").value="";
       $("draft-count").textContent="Черновых ходов: "+state.sequence;
