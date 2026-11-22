@@ -10,6 +10,7 @@ const object=x=>(x&&typeof x==="object"&&!Array.isArray(x))?x:{};
 const array=x=>Array.isArray(x)?x:[];
 const str=x=>typeof x==="string"?x:"";
 let currentPacket=null,lastRenderedSequence=null;
+let activeRoll=null;
 function node(tag,className="",text=""){
  const el=document.createElement(tag);
  if(className)el.className=className;
@@ -40,13 +41,15 @@ async function copyAction(value){
  if(copySynchronously(value))return true;
  try{await navigator.clipboard.writeText(value);return true;}catch{return false;}
 }
-function dispatchAction(action){
+function dispatchAction(action,rollReceipt=null){
  if(typeof action!=="string"||!action.trim()){actionNotice("Сначала введи действие.","error");return;}
  const message=action.trim();
  const bridge=window.RPG5_ACTION_BRIDGE;
  if(bridge){
   let prepared;
-  try{prepared=bridge.buildMessage(message,currentPacket,lastRenderedSequence);}
+  try{prepared=rollReceipt?
+    bridge.buildRollMessage(rollReceipt,currentPacket,lastRenderedSequence):
+    bridge.buildMessage(message,currentPacket,lastRenderedSequence);}
   catch(error){actionNotice("Действие не подготовлено: "+String(error?.message||error),"error");return;}
   // Synchronous clipboard fallback while the game tab still has focus.
   const copied=copySynchronously(prepared);
@@ -65,6 +68,7 @@ function dispatchAction(action){
    });
   return;
  }
+ if(rollReceipt){actionNotice("Для передачи результата d20 требуется рабочее расширение Chrome.","error");return;}
  // Compatibility with an older cached website / extension version.
  void copyAction(message).then(ok=>{
   if(ok)actionNotice("Скопировано: «"+message.slice(0,90)+"». В игровом чате нажми Ctrl+V и Enter.","ready");
@@ -245,6 +249,64 @@ function renderChoices(packet) {
   if($("save")){$("save").disabled=false;$("save").textContent="Подготовить «сохранить»";}
   if($("start")){$("start").disabled=false;$("start").textContent="Проверить расширение";}
 }
+// The story engine chooses applicability and four outcomes; the website owns arithmetic.
+function renderRoll(packet) {
+ const panel=$("roll-panel"),input=$("roll-natural"),button=$("send-roll");
+ if(!panel||!input||!button)return;
+ activeRoll=null;input.value="";button.disabled=true;
+ const plan=object(object(packet.mechanics).pending_d20);
+ if(!Object.keys(plan).length){panel.hidden=true;return;}
+ panel.hidden=false;
+ const error=$("roll-error"),details=$("roll-details");
+ if(error)error.textContent="";
+ if(plan.schema!=="rpg5-d20-plan-v1"){
+  details.textContent="Ожидающая проверка пока не содержит полного расчётного плана rpg5-d20-plan-v1.";
+  return;
+ }
+ try {
+  if(!window.RPG5_MECHANICS)throw Error("Модуль механики не загружен.");
+  const pre=window.RPG5_MECHANICS.preview(plan,packet.hero);
+  activeRoll=plan;button.disabled=false;
+  details.textContent=[
+   "Действие: "+plan.action,
+   "Базовый DC: "+pre.base_dc+" · Итоговый DC: "+pre.dc,
+   "Навык: "+(pre.skill_id||"нет")+" · Бонус: +"+pre.skill_bonus,
+   "Физическая характеристика: "+(pre.physical_stat||"не применяется")+
+    (pre.physical_level===null?"":" (ур. "+pre.physical_level+")")+
+    " · Бонус: +"+pre.physical_bonus,
+   "Ситуация: +"+pre.situation_bonus+
+    (plan.situation?.reason?" ("+plan.situation.reason+")":""),
+   "Бонус до броска: "+pre.bonus+"/"+pre.bonus_limit,
+   "Штраф: "+pre.penalty+"/"+pre.penalty_limit,
+   pre.insurance_possible?"При d20 от 1 до 9 возможна страховка +1.":"Страховка отсутствует.",
+   "Число получи самостоятельно во внешнем генераторе; сайт его не генерирует."
+  ].join("\n");
+ }catch(e){
+  details.textContent="Нельзя открыть проверку: "+String(e?.message||e);
+  if(error)error.textContent="Исправь неполный или противоречивый JSON проверки.";
+ }
+}
+function submitRoll(){
+ const error=$("roll-error"),input=$("roll-natural");
+ if(error)error.textContent="";
+ if(!activeRoll||!currentPacket||!window.RPG5_MECHANICS){
+  if(error)error.textContent="Нет действующей рассчитанной проверки.";return;
+ }
+ const raw=String(input?.value||"").trim();
+ if(!/^(?:[1-9]|1[0-9]|20)$/.test(raw)){
+  if(error)error.textContent="Введи целое натуральное число от 1 до 20.";return;
+ }
+ try{
+  const result=window.RPG5_MECHANICS.calculateD20(activeRoll,currentPacket.hero,Number(raw));
+  const names={full_success:"Полный успех",partial_success:"Частичный успех",
+   partial_failure:"Частичная неудача",full_failure:"Полная неудача"};
+  const details=$("roll-details");
+  if(details)details.textContent+="\nВыпало: "+result.natural+
+   " · "+result.natural+" − "+result.penalty+" + "+result.bonus+" = "+
+   result.total+" · "+(names[result.category]||result.category);
+  dispatchAction("Результат внешнего броска d20: "+result.natural,result);
+ }catch(e){if(error)error.textContent=String(e?.message||e);}
+}
 function renderPacket(packet, sequence) {
   if(!packet || typeof packet!=="object" || Array.isArray(packet))return;
   const kind=packet.packet_kind||packet.kind;
@@ -258,6 +320,7 @@ function renderPacket(packet, sequence) {
   renderCharacters(packet);
   renderStory(packet, append);
   renderChoices(packet);
+  renderRoll(packet);
   const scene=object(packet.scene), observable=object(packet.player_observable);
   const names=Object.fromEntries(array(packet.characters).map(c=>[c.character_id,c.name]));
   const visibleCast=array(observable.characters).map(person=>({
@@ -308,6 +371,7 @@ function requestPacket(){
  if(!currentPacket)notice("Ожидаю первый JSON из игрового чата ChatGPT.");
 }
 $("send")?.addEventListener("click",()=>dispatchAction($("action")?.value||""));
+$("send-roll")?.addEventListener("click",submitRoll);
 $("action")?.addEventListener("keydown",e=>{
  if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){
   e.preventDefault();dispatchAction(e.target.value);
