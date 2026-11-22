@@ -233,7 +233,12 @@ async function acceptPacket(raw,expected){
 window.addEventListener("message",event=>{
  if(event.source!==window||event.origin!==location.origin)return;
  const data=event.data;
- if(data?.source!=="RPG5_EXTENSION"||data.type!=="RPG5_PACKET")return;
+ if(data?.source!=="RPG5_EXTENSION")return;
+ if(data.type==="CONNECTED") {
+  if(!currentPacket)notice("Расширение Chrome подключено. Ожидаю игровую сцену.","ready");
+  return;
+ }
+ if(data.type!=="RPG5_PACKET")return;
  void acceptPacket(data.raw,data.sha);
 });
 async function restoreCache(){
