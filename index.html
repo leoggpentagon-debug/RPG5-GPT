@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="css/survivor-board.css?v=survival-ui-55">
   <link rel="stylesheet" href="css/polaroid-lettering.css?v=survival-ui-56">
   <link rel="stylesheet" href="css/companion-dossier.css?v=survival-ui-57">
-  <link rel="stylesheet" href="css/gpt-remote.css?v=rpg5-ui-fix-1">
+  <link rel="stylesheet" href="css/gpt-remote.css?v=rpg5-handoff-v1">
 </head>
 <body>
 <div class="game-shell" id="game-shell">
@@ -92,6 +92,17 @@
               <textarea id="action" rows="2" maxlength="2500" disabled aria-label="Ввести своё игровое действие"></textarea>
               <button type="button" id="send" class="primary" disabled>Продолжить</button>
             </div>
+          </div>
+          <div id="bridge-action-handoff" class="bridge-action-handoff" hidden>
+            <p id="bridge-handoff-message" role="status" aria-live="polite"></p>
+            <div class="bridge-handoff-buttons">
+              <button type="button" id="bridge-handoff-copy" class="secondary">Скопировать запрос</button>
+              <button type="button" id="bridge-handoff-open" class="secondary">Открыть чат</button>
+            </div>
+            <details id="bridge-handoff-details">
+              <summary>Подготовленный текст действия</summary>
+              <textarea id="bridge-handoff-request" rows="4" readonly aria-label="Полный запрос для ChatGPT"></textarea>
+            </details>
           </div>
         </section>
       </section>
@@ -324,12 +335,8 @@
         <label for="bridge-chat-url" class="small-label">Адрес переписки в проекте ChatGPT (один раз)</label>
         <input id="bridge-chat-url" type="url" autocomplete="url" spellcheck="false"
           placeholder="https://chatgpt.com/c/…">
-        <label class="bridge-prefill-label">
-          <input id="bridge-prefill" type="checkbox" checked>
-          Попробовать подставить текст автоматически (экспериментально)
-        </label>
         <button type="button" id="bridge-chat-save" class="secondary">Сохранить адрес чата</button>
-        <p class="small-label">Скопируй адрес из строки браузера, когда открыт нужный чат внутри проекта. Сайт скопирует запрос и откроет именно его. Автозаполнение поля ChatGPT может не сработать — тогда Ctrl+V, Enter.</p>
+        <p class="small-label">Скопируй адрес из строки браузера, когда открыт нужный чат внутри проекта. Сайт сначала копирует полный запрос и только потом открывает этот чат. В ChatGPT нажми Ctrl+V, затем Enter. Автоматической отправки через Plus нет.</p>
       </div>
       <details class="bridge-packet-details">
         <summary>Подготовленный запрос для ChatGPT</summary>
@@ -375,6 +382,6 @@
 <script src="js/profile-book.js?v=survival-ui-57"></script>
 <!-- RPG6 Gemini handlers intentionally not loaded; RPG5 transport controls the game. -->
 <script src="js/companion-dossier.js?v=rpg5-companion-fix-1"></script>
-<script type="module" src="js/rpg5-packets.js?v=rpg5-companion-fix-1"></script>
+<script type="module" src="js/rpg5-packets.js?v=rpg5-handoff-v1"></script>
 </body>
 </html>
