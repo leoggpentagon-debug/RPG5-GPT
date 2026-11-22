@@ -20,3 +20,22 @@
   line-height: 1.4;
   color: inherit;
 }
+
+.bridge-auth { display: grid; gap: 0.6rem; margin: 0.6rem 0; }
+.bridge-auth input {
+  box-sizing: border-box; width: 100%; min-height: 36px;
+  background: rgba(22, 22, 22, .7); color: #eee1ce;
+  border: 1px solid rgba(188, 170, 142, .4); border-radius: 5px; padding: .55rem .7rem;
+}
+#bridge-sign-out[hidden], #bridge-auth[hidden] { display: none !important; }
+#bridge-last-packet { overflow-wrap: anywhere; }
+.bridge-packet-details { margin-top: .7rem; }
+.bridge-packet-details summary { cursor: pointer; }
+.bridge-packet-json {
+  box-sizing: border-box; white-space: pre-wrap; word-break: break-word;
+  overflow: auto; max-height: 24rem; width: 100%;
+  background: rgba(0, 0, 0, .3); border: 1px solid rgba(185, 167, 140, .2);
+  padding: .8rem; border-radius: .3rem; font-size: .77rem;
+}
+.bridge-choices-preview { margin-top: 1rem; padding-left: 1rem; border-left: 2px solid #8c7c67; }
+.bridge-choice-preview::before { content: "• "; }
