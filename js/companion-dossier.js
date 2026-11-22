@@ -228,7 +228,13 @@
   }
   function openCompanion(button) {
     if(phase!=="closed"||document.querySelector("#profile-overlay.is-open"))return;
-    const i=Number(button.dataset.partyIndex), person=people()[i];
+    const candidates=people();
+    const characterId=String(button.dataset.characterId||button.closest(".party-person")?.dataset.characterId||"");
+    // The earlier RPG6 UI passed partyIndex. RPG5 now gives stable character_id.
+    // Prefer ID to avoid silently opening the wrong dossier when cast order changes.
+    const i=characterId ? candidates.findIndex(p=>p.character_id===characterId)
+      : Number(button.dataset.partyIndex);
+    const person=candidates[i];
     if(!person || !Number.isInteger(i) || i<0)return;
     const frame=button.closest(".polaroid-npc");if(!frame)return;
     const record=makeRecord(person);recordBlocks=record.statements;
