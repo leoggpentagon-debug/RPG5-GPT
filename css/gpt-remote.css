@@ -39,3 +39,20 @@
 }
 .bridge-choices-preview { margin-top: 1rem; padding-left: 1rem; border-left: 2px solid #8c7c67; }
 .bridge-choice-preview::before { content: "• "; }
+
+/* One-click prompt handoff while retaining the original survival styling */
+.bridge-chat-settings { display: grid; gap: .55rem; padding: .8rem 0; }
+.bridge-chat-settings input[type="url"] {
+  box-sizing: border-box; width: 100%; padding: .65rem;
+  background: rgba(22,22,22,.72); color: #eee1ce;
+  border: 1px solid rgba(188,170,142,.4); border-radius: 5px;
+}
+.bridge-prefill-label { display: flex; gap: .55rem; align-items: flex-start; font-size: .8rem; line-height: 1.4; }
+.bridge-prepared-prompt {
+  box-sizing: border-box; display: block; width: 100%; max-width: 100%;
+  margin-top: .5rem; background: rgba(17,16,15,.7); color: #ebdfd0;
+  border: 1px solid rgba(188,170,142,.35); border-radius: 4px; padding: .65rem;
+  font: .75rem/1.5 monospace; resize: vertical;
+}
+.bridge-choice-mode { font-size: .8rem; letter-spacing: .03em; opacity: .75; margin: .5rem 0; }
+.bridge-action-choice { cursor: pointer; }
