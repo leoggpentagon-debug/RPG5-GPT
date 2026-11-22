@@ -101,41 +101,105 @@
   $("portrait-close").addEventListener("click",()=>$("portrait-dialog").close());
   // A narration is one ordered stream. Speech ranges refer to this single text,
   // so NPC dialogue is never duplicated or moved to the end of the scene.
+  // Ordered parts. Modern scenes use server-provided character ranges;
+  // older drafts contain speech inside prose and sometimes duplicate dialogue arrays.
   function storyChunks(reply) {
     const r=safeObj(reply),narration=word(r.narration);
-    const ranges=many(r.segments).map(safeObj).filter(s=>
-      ["narration","dialogue"].includes(s.type)
-      && Number.isInteger(s.start)&&Number.isInteger(s.end)
-      && s.start>=0&&s.end>s.start&&s.end<=narration.length
-    );
-    if(ranges.length && ranges.every((s,i)=>i===0||ranges[i-1].end<=s.start)) {
-      return ranges.map(s=>({type:s.type,
-        text:narration.slice(s.start,s.end),
+    const ranges=many(r.segments).map(safeObj);
+    if(ranges.length && ranges.every((s,i)=>
+      ["narration","dialogue"].includes(s.type) && Number.isInteger(s.start) &&
+      Number.isInteger(s.end) && s.start>=0 && s.end>s.start &&
+      s.end<=narration.length && (i===0||ranges[i-1].end<=s.start))) {
+      return ranges.map(s=>({type:s.type,text:narration.slice(s.start,s.end),
         speaker_id:word(s.speaker_id),name:word(s.name)}));
     }
-    // Legacy drafts sometimes contained the SAME speech in both narration and dialogue.
-    // Break out matching direct-speech paragraphs and never append duplicates.
-    const past=many(r.dialogue).map(safeObj).filter(d=>word(d.text).trim());
-    const seen=new Set(),chunks=[];
-    for(const paragraph of narration.split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean)){
-      if(/^\s*[—–]\s*/.test(paragraph)){
-        const match=past.find((d,i)=>{
-          const excerpt=word(d.text).trim().slice(0,36);
-          return !seen.has(i)&&excerpt.length>=12 && paragraph.includes(excerpt);
-        });
-        if(match){
-          const i=past.indexOf(match);seen.add(i);
-          chunks.push({type:"dialogue",text:paragraph,
-            speaker_id:word(match.speaker_id),name:word(match.name)});
-          continue;
-        }
-      }
-      chunks.push({type:"narration",text:paragraph});
+
+    const old=many(r.dialogue).map(safeObj).filter(d=>word(d.text).trim());
+    const normalize=s=>word(s).toLowerCase().replace(/ё/g,"е")
+      .replace(/[^\p{L}\p{N}]+/gu," ").replace(/\s+/g," ").trim();
+    const startKey=s=>normalize(s).slice(0,Math.min(21,normalize(s).length));
+    const identities=[
+      {speaker_id:"ian_calder",name:"Иэн",forms:["Иэн","Иан"]},
+      {speaker_id:"bex",name:"Бекс",forms:["Бекс"]},
+      {speaker_id:"oliver_hayes",name:"Оливер",forms:["Оливер"]}
+    ];
+    for(const d of old){
+      if(!d.speaker_id||!d.name||identities.some(x=>x.speaker_id===d.speaker_id))continue;
+      identities.push({speaker_id:d.speaker_id,name:d.name,forms:[d.name]});
     }
-    for(let i=0;i<past.length;i++){
-      const d=past[i],sample=word(d.text).trim().slice(0,36);
-      if(seen.has(i)||sample.length>=12&&narration.includes(sample))continue;
-      chunks.push({type:"dialogue",text:word(d.text),speaker_id:word(d.speaker_id),name:word(d.name)});
+    const knownSpeaker=actor=>actor ? {speaker_id:actor.speaker_id,name:actor.name} : null;
+    function findActor(text){
+      const str=word(text);
+      let best=null,bestIndex=Infinity;
+      for(const actor of identities)for(const form of actor.forms){
+        const index=str.toLowerCase().indexOf(form.toLowerCase());
+        if(index>=0 && index<bestIndex){bestIndex=index;best=actor;}
+      }
+      return bestIndex<130?knownSpeaker(best):null;
+    }
+    function matchListedSpeech(text){
+      const normalized=normalize(text);
+      for(const d of old){
+        const key=startKey(d.text);
+        if(key.length>=12 && normalized.startsWith(key))
+          return {speaker_id:word(d.speaker_id),name:word(d.name)};
+      }
+      return null;
+    }
+    const chunks=[],seen=new Set();
+    let contextSpeaker=null;
+    const put=(type,text,speaker=null)=>{
+      if(!word(text).trim())return;
+      const clean=word(text).trim();
+      if(type==="dialogue" && speaker && speaker.speaker_id){
+        chunks.push({type:"dialogue",text:clean,
+          speaker_id:speaker.speaker_id,name:speaker.name});
+      }else chunks.push({type:"narration",text:clean});
+    };
+    const attributionPattern=/([,!?])\s*[—–]\s*([^—–]{4,180}?[.!?])\s*[—–]\s*/g;
+    function speakParagraph(full,speaker){
+      const spoken=full.replace(/^\s*[—–]\s*/,"");
+      if(!speaker?.speaker_id){put("narration",full);return;}
+      let cursor=0,match;
+      attributionPattern.lastIndex=0;
+      while((match=attributionPattern.exec(spoken))){
+        const comment=match[2];
+        if(!/(?:говор|сказ|отвеч|отзыва|шеп|произн|броса|спрос|бурч|прошеп|губы|голос|улыб|взгляд|кив|оборачива|прикрыва|поднима|пожима)/i.test(comment))
+          continue;
+        put("dialogue",spoken.slice(cursor,match.index+1),speaker);
+        put("narration",comment);
+        cursor=attributionPattern.lastIndex;
+      }
+      put("dialogue",spoken.slice(cursor),speaker);
+      contextSpeaker=speaker;
+    }
+    for(const paragraph of narration.split(/\n\s*\n/).map(v=>v.trim()).filter(Boolean)){
+      const inline=paragraph.match(/^([\s\S]{1,400}?:)\s*(—\s*[\s\S]+)$/);
+      if(inline){
+        put("narration",inline[1]);
+        contextSpeaker=findActor(inline[1])||contextSpeaker;
+        const candidate=matchListedSpeech(inline[2])||contextSpeaker;
+        speakParagraph(inline[2],candidate);
+      }else if(/^\s*[—–]\s*/.test(paragraph)){
+        const candidate=matchListedSpeech(paragraph.replace(/^\s*[—–]\s*/,""))
+          ||findActor(paragraph.match(/(?:сказал|сказала|говорит|отвечает|шепчет|отзывается)\s+([^\s,.]+)/i)?.[1]||"")
+          ||contextSpeaker;
+        speakParagraph(paragraph,candidate);
+      }else{
+        put("narration",paragraph);
+        contextSpeaker=findActor(paragraph.split(/[.!?]/)[0])||contextSpeaker;
+      }
+    }
+    // If a complete legacy speech line was already embedded in narration,
+    // do not render it a second time after the story.
+    const normalizedNarration=normalize(narration);
+    for(const d of old){
+      const key=startKey(d.text);
+      if(key.length>=12&&normalizedNarration.includes(key))continue;
+      const id=word(d.speaker_id),spoken=word(d.text);
+      const hash=id+"|"+normalize(spoken);
+      if(seen.has(hash))continue;seen.add(hash);
+      put("dialogue",spoken,{speaker_id:id,name:word(d.name)});
     }
     return chunks;
   }
