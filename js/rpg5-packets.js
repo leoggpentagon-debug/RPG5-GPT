@@ -8,13 +8,19 @@ const emailField = $("bridge-email"), authPanel = $("bridge-auth");
 const signIn = $("bridge-sign-in"), signOut = $("bridge-sign-out");
 const refresh = $("gpt-remote-check");
 const chatTarget = $("bridge-chat-url"), saveChatTarget = $("bridge-chat-save");
-const chatPrefill = $("bridge-prefill");
 const preparedPreview = $("bridge-prepared-prompt");
+const handoffPanel = $("bridge-action-handoff");
+const handoffMessage = $("bridge-handoff-message");
+const handoffCopy = $("bridge-handoff-copy");
+const handoffOpen = $("bridge-handoff-open");
+const handoffRequest = $("bridge-handoff-request");
+const handoffDetails = $("bridge-handoff-details");
+let pendingPrompt = "";
+let pendingTarget = "";
 const packetLabel = $("bridge-last-packet");
 const CURSOR_KEY = "rpg5_gpt_bridge_cursor_v1";
 const CACHE_KEY = "rpg5_gpt_bridge_last_scene_v1";
 const TARGET_KEY = "rpg5_gpt_chat_target_v1";
-const PREFILL_KEY = "rpg5_gpt_chat_try_prefill_v1";
 const portraits = Object.freeze({
   oliver_hayes: "assets/portraits/oliver_hayes.png",
   bex: "assets/portraits/bex.png",
@@ -74,7 +80,6 @@ function rememberTarget() {
   }
   try {
     localStorage.setItem(TARGET_KEY,target);
-    localStorage.setItem(PREFILL_KEY,chatPrefill?.checked ? "1" : "0");
   } catch { /* User can still use it until page reload. */ }
   if (chatTarget) chatTarget.value=target;
   notice("Чат сохранён на этом устройстве. Теперь выбирай действие на игровом экране.", "ready");
@@ -110,31 +115,92 @@ function promptForAction(action) {
   }
   return message.join("\n");
 }
+function copySynchronously(text) {
+  // Legacy execCommand is intentional: it completes under the initial user
+  // gesture, BEFORE opening a new tab or losing document focus.
+  const previous=document.activeElement;
+  const field=document.createElement("textarea");
+  field.value=text;
+  field.readOnly=true;
+  field.setAttribute("aria-hidden","true");
+  Object.assign(field.style,{
+    position:"fixed",top:"0",left:"0",width:"1px",height:"1px",opacity:"0",
+    pointerEvents:"none",zIndex:"-1",
+  });
+  document.body.append(field);
+  let copied=false;
+  try {
+    field.focus({preventScroll:true});
+    field.select();
+    field.setSelectionRange(0,text.length);
+    copied=document.execCommand("copy")===true;
+  } catch(error) { console.warn("RPG5: synchronous clipboard copy unavailable",error); }
+  finally {
+    field.remove();
+    if(previous && previous.isConnected && typeof previous.focus==="function")
+      try { previous.focus({preventScroll:true}); } catch { /* optional */ }
+  }
+  return copied;
+}
+function handoffNotice(message,kind="waiting") {
+  if(handoffPanel) handoffPanel.hidden=false;
+  if(handoffMessage) {
+    handoffMessage.textContent=message;
+    handoffMessage.dataset.state=kind;
+  }
+  notice(message,kind);
+}
+function openPreparedChat() {
+  if(!pendingTarget)return;
+  const tab=window.open(pendingTarget,"_blank","noopener,noreferrer");
+  // noopener intentionally returns null in many browsers; it does not
+  // imply a popup was blocked. The user can always click again if needed.
+  void tab;
+}
+async function copyPreparedRequest() {
+  if(!pendingPrompt)return false;
+  let copied=copySynchronously(pendingPrompt);
+  if(!copied && navigator.clipboard && typeof navigator.clipboard.writeText==="function") {
+    try { await navigator.clipboard.writeText(pendingPrompt); copied=true; }
+    catch(error) { console.warn("RPG5: Clipboard API unavailable",error); }
+  }
+  if(copied) {
+    handoffNotice("Запрос скопирован. Открой чат, затем нажми Ctrl+V и Enter. Сам сайт сообщение НЕ отправляет.","ready");
+  } else {
+    if(handoffDetails) handoffDetails.open=true;
+    handoffRequest?.focus({preventScroll:true});
+    handoffRequest?.select();
+    handoffNotice("Буфер обмена заблокирован. Запрос выделен ниже: Ctrl+C, открой чат, затем Ctrl+V и Enter.","error");
+  }
+  return copied;
+}
 function dispatchAction(action) {
   if (!currentPacket || typeof action!=="string" || !action.trim()) {
-    notice("Сначала дождись текущей сцены и введи действие.", "error");return;
+    notice("Сначала дождись текущей сцены и введи действие.","error");return;
   }
   const target=validChatUrl(chatTarget?.value?.trim()||"");
-  if (!target) {
-    notice("Сначала вставь ссылку на нужную переписку ChatGPT в служебном меню.", "error");
-    if (!$("service-drawer")?.classList.contains("open")) $("service-toggle")?.click();
+  if(!target) {
+    notice("Сначала укажи ссылку на нужную переписку ChatGPT в служебном меню.","error");
+    if(!document.getElementById("service-drawer")?.classList.contains("open"))
+      document.getElementById("service-toggle")?.click();
     chatTarget?.focus();
     return;
   }
   rememberTarget();
-  const prompt=promptForAction(action.trim());
-  if (preparedPreview) preparedPreview.value=prompt;
-  // ?q= is best-effort ONLY: ChatGPT may ignore it for an existing conversation.
-  const url=new URL(target);
-  if (chatPrefill?.checked) url.searchParams.set("q",prompt);
-  const copyJob=(navigator.clipboard && typeof navigator.clipboard.writeText==="function")
-    ? navigator.clipboard.writeText(prompt).then(()=>true,()=>false)
-    : Promise.resolve(false);
-  window.open(url.toString(),"_blank","noopener,noreferrer");
-  void copyJob.then(copied=>{
-    if (!copied) notice("Чат открыт. Автокопирование заблокировано — запрос можно скопировать из служебного меню.", "error");
-    else notice("Запрос скопирован. Если ChatGPT не подставил его, нажми Ctrl+V и Enter. Вернись за результатом.", "ready");
-  });
+  pendingPrompt=promptForAction(action.trim());
+  pendingTarget=target;
+  if(preparedPreview) preparedPreview.value=pendingPrompt;
+  if(handoffRequest) handoffRequest.value=pendingPrompt;
+  if(handoffDetails) handoffDetails.open=false;
+  // We deliberately do NOT use ?q=: ChatGPT does not guarantee prefilling an
+  // existing conversation via URL parameters. Nor can GitHub Pages send it.
+  // Only open ChatGPT after the text has been copied successfully.
+  if(copySynchronously(pendingPrompt)) {
+    handoffNotice("Запрос скопирован. В открывшемся ChatGPT нажми Ctrl+V и Enter. Сообщение ещё не отправлено.","ready");
+    openPreparedChat();
+  } else {
+    handoffNotice("Автоматическое копирование заблокировано. Нажми «Скопировать запрос», затем «Открыть чат».","error");
+  }
 }
 function renderHeader(packet) {
   const scene=object(packet.scene||object(packet.reply).scene_state);
@@ -388,11 +454,12 @@ if(!valid) {
   $("save")?.addEventListener("click",()=>dispatchAction("сохранить"));
   $("portrait-close")?.addEventListener("click",()=>$("portrait-dialog")?.close());
   saveChatTarget?.addEventListener("click",rememberTarget);
+  handoffCopy?.addEventListener("click",()=>{void copyPreparedRequest();});
+  handoffOpen?.addEventListener("click",openPreparedChat);
   if(chatTarget) {
     try {
       chatTarget.value=localStorage.getItem(TARGET_KEY)||"";
-      if(chatPrefill)chatPrefill.checked=localStorage.getItem(PREFILL_KEY)!=="0";
-    } catch { if(chatPrefill)chatPrefill.checked=true; }
+    } catch { /* Storage is optional. */ }
   }
   sb.auth.onAuthStateChange(()=>{
     setTimeout(()=>{void getSession().then(s=>{if(s)void poll();});},0);
