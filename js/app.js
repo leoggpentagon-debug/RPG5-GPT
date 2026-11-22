@@ -1,6 +1,6 @@
 (() => {
   "use strict";
-  const BUILD = "RPG6-AUTO-D20-UI";
+  const BUILD = "RPG6-DRAFT-RESET-UI-65";
   // Stable protocol version (not the Edge Function deployment number).
   const SUPPORTED_API_VERSION = 1;
   const config = window.RPG6_CONFIG || {};
@@ -113,9 +113,16 @@
       throw new Error("Ответ игрового хода RPG6 неполный: не хватает reply.narration или draft_sequence.");
     if(op==="save" && !["saved","nothing_to_save"].includes(val?.status))
       throw new Error("Неизвестный результат сохранения RPG6: "+word(val?.status||"отсутствует"));
+    if(op==="reset_drafts" && (val?.status!=="drafts_reset" || Number(val?.draft_sequence)!==0))
+      throw new Error("Сервер не подтвердил удаление черновых ходов.");
     return val;
   }
-  function busy(flag){state.busy=flag;$("start").disabled=flag;$("send").disabled=flag||!state.loaded||!!state.pending;$("save").disabled=flag||!state.loaded||state.sequence===0;$("export").disabled=flag||!state.loaded;$("action").disabled=flag||!state.loaded||!!state.pending;$("send-roll").disabled=flag||!state.loaded||!state.pending?.saved;$("send").textContent=flag?"Обрабатывается…":"Отправить действие";}
+  function updateResetControl(){
+    const button=$("reset-drafts");
+    button.disabled=state.busy||!state.loaded||state.sequence<1;
+    button.textContent=state.sequence>0?"Сбросить черновики ("+state.sequence+")":"Черновиков нет";
+  }
+  function busy(flag){state.busy=flag;$("start").disabled=flag;$("send").disabled=flag||!state.loaded||!!state.pending;$("save").disabled=flag||!state.loaded||state.sequence===0;$("export").disabled=flag||!state.loaded;$("action").disabled=flag||!state.loaded||!!state.pending;$("send-roll").disabled=flag||!state.loaded||!state.pending?.saved;$("send").textContent=flag?"Обрабатывается…":"Отправить действие";updateResetControl();}
   // Hide both suggested actions and custom action entry during a pending turn.
   // Restore everything after success, failure, or turn recovery.
   function showActionProcessing(active){
@@ -496,6 +503,44 @@
         ". Не отправляй тот же пакет повторно, пока не проверишь состояние через «Продолжить RPG6».",true);
     }finally{busy(false);showRoll()}
   }
+  async function resetDrafts(){
+    if(state.busy||!state.loaded||state.sequence<1)return;
+    const count=state.sequence,revision=state.revision;
+    const ok=window.confirm(
+      "Безвозвратно удалить "+count+" несохранённых ходов?\n\n"+
+      "Игра вернётся к последней сохранённой сцене. Канон, инвентарь и сохранённая история останутся.\n\n"+
+      "Подтвердить сброс черновиков?"
+    );
+    if(!ok)return;
+    busy(true);
+    report("Удаляю несохранённые ходы в Supabase…");
+    let resetSucceeded=false;
+    try{
+      const result=await rpc("reset_drafts",{draft_sequence:count,revision});
+      resetSucceeded=result.status==="drafts_reset";
+      const loaded=await rpc("load");
+      if(Number(loaded.revision)!==revision||Number(loaded.draft_sequence)!==0)
+        throw new Error("Не удалось подтвердить чистый черновик повторным чтением.");
+      renderState(loaded);
+      $("action").value="";
+      report("Черновики удалены: "+Number(result.removed_turns||count)+" ходов. Сохранённый канон не изменён.");
+    }catch(error){
+      try{
+        const loaded=await rpc("load");
+        renderState(loaded);
+        if(resetSucceeded&&state.sequence===0){
+          $("action").value="";
+          report("Черновики удалены. Игра восстановлена из последнего сохранения.");
+        }else{
+          report("Сброс не подтверждён: "+(error.message||String(error))+
+            ". Состояние обновлено; проверь число черновиков.",true);
+        }
+      }catch(recoveryError){
+        report("Сброс не подтверждён: "+(error.message||String(error))+
+          ". Повторно загрузи сохранение и проверь число черновиков.",true);
+      }
+    }finally{busy(false);showRoll();}
+  }
   function exportDraft(){const out={build:BUILD,schema:"rpg6",revision:state.revision,draft_turns:state.draft};
     const blob=new Blob([JSON.stringify(out,null,2)],{type:"application/json"});const link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download="RPG6_Отчёт_черновик.json";link.click();setTimeout(()=>URL.revokeObjectURL(link.href),3000);
   }
@@ -531,6 +576,7 @@
   $("start").addEventListener("click",start);
   $("send").addEventListener("click",()=>act());
   $("save").addEventListener("click",save);
+  $("reset-drafts").addEventListener("click",resetDrafts);
   $("export").addEventListener("click",exportDraft);
   $("send-roll").addEventListener("click",()=>{if(!state.pending?.saved){save();return;}act("auto")});
   $("action").addEventListener("keydown",event=>{if(event.key==="Enter"&&event.ctrlKey){event.preventDefault();act()}});
