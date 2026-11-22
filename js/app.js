@@ -203,10 +203,40 @@
     }
     return chunks;
   }
+  // Tiny attribution/gesture asides belong visually to their speaker bubble,
+  // not as a detached narrator paragraph. Full actions remain narration.
+  function joinMicroGestures(parts){
+    const blocks=parts.map(p=>({...p}));
+    const isMicro=s=>{
+      const v=word(s).trim();
+      return v.length>0&&v.length<=90
+        && /(?:кив(?:ает|нула|нул)|вздых(?:ает|нула|нул)|усмеха(?:ется|ется)|говорит|сказала|сказал|отвечает|прошептала|прошептал|пожимает плечами)/i.test(v)
+        && /^(?:(?:Бекс|Иэн|Иан|Оливер)\s+)?(?:(?:коротко|тихо|нервно|молча|едва заметно|сдержанно)\s+)?(?:кив|вздых|усмех|говор|сказ|отвеч|прошепт|пожима)/i.test(v);
+    };
+    function who(text) {
+      if(/\bБекс\b/i.test(text))return "bex";
+      if(/\bИэн\b|\bИан\b/i.test(text))return "ian_calder";
+      if(/\bОливер\b/i.test(text))return "oliver_hayes";
+      return "";
+    }
+    for(let i=blocks.length-1;i>=0;i--){
+      const part=blocks[i];if(part.type!=="narration"||!isMicro(part.text))continue;
+      const hinted=who(part.text);
+      const before=blocks[i-1],after=blocks[i+1];
+      const same=b=>b?.type==="dialogue"&&b.speaker_id&&(!hinted||b.speaker_id===hinted);
+      const target=same(before)?before:(same(after)?after:null);
+      if(!target)continue;
+      const direction=part.text.trim().replace(/[.!]+$/,"");
+      if(target===before)target.text+="\n("+direction+")";
+      else target.text="("+direction+")\n"+target.text;
+      blocks.splice(i,1);
+    }
+    return blocks;
+  }
   function showReply(reply){
     const r=safeObj(reply);
     if(r.roll){const v=r.roll;msg("🎲 ПРОВЕРКА d20",`Натуральный: ${v.natural}\n${v.natural} − ${v.negative} + ${v.positive} = ${v.total}; DC ${v.dc}\n${v.category}: ${v.consequence}`,"system")}
-    for(const part of storyChunks(r)){
+    for(const part of joinMicroGestures(storyChunks(r))){
       // Old draft diagnostic markers belong to the service log, not the story.
       const clean=part.text.replace(/\[Недостаточно данных для корректного плана d20: проверка не открыта\.\]/g,"").trim();
       if(!clean)continue;
