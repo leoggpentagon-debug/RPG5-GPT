@@ -99,11 +99,53 @@
   function zoom(src,label){$("portrait-full").src=src;$("portrait-full").alt=label;$("portrait-dialog").showModal()}
   // The hero portrait now opens the animated dossier on a 500ms hold (profile-ui.js).
   $("portrait-close").addEventListener("click",()=>$("portrait-dialog").close());
+  // A narration is one ordered stream. Speech ranges refer to this single text,
+  // so NPC dialogue is never duplicated or moved to the end of the scene.
+  function storyChunks(reply) {
+    const r=safeObj(reply),narration=word(r.narration);
+    const ranges=many(r.segments).map(safeObj).filter(s=>
+      ["narration","dialogue"].includes(s.type)
+      && Number.isInteger(s.start)&&Number.isInteger(s.end)
+      && s.start>=0&&s.end>s.start&&s.end<=narration.length
+    );
+    if(ranges.length && ranges.every((s,i)=>i===0||ranges[i-1].end<=s.start)) {
+      return ranges.map(s=>({type:s.type,
+        text:narration.slice(s.start,s.end),
+        speaker_id:word(s.speaker_id),name:word(s.name)}));
+    }
+    // Legacy drafts sometimes contained the SAME speech in both narration and dialogue.
+    // Break out matching direct-speech paragraphs and never append duplicates.
+    const past=many(r.dialogue).map(safeObj).filter(d=>word(d.text).trim());
+    const seen=new Set(),chunks=[];
+    for(const paragraph of narration.split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean)){
+      if(/^\s*[—–]\s*/.test(paragraph)){
+        const match=past.find((d,i)=>{
+          const excerpt=word(d.text).trim().slice(0,36);
+          return !seen.has(i)&&excerpt.length>=12 && paragraph.includes(excerpt);
+        });
+        if(match){
+          const i=past.indexOf(match);seen.add(i);
+          chunks.push({type:"dialogue",text:paragraph,
+            speaker_id:word(match.speaker_id),name:word(match.name)});
+          continue;
+        }
+      }
+      chunks.push({type:"narration",text:paragraph});
+    }
+    for(let i=0;i<past.length;i++){
+      const d=past[i],sample=word(d.text).trim().slice(0,36);
+      if(seen.has(i)||sample.length>=12&&narration.includes(sample))continue;
+      chunks.push({type:"dialogue",text:word(d.text),speaker_id:word(d.speaker_id),name:word(d.name)});
+    }
+    return chunks;
+  }
   function showReply(reply){
     const r=safeObj(reply);
     if(r.roll){const v=r.roll;msg("🎲 ПРОВЕРКА d20",`Натуральный: ${v.natural}\n${v.natural} − ${v.negative} + ${v.positive} = ${v.total}; DC ${v.dc}\n${v.category}: ${v.consequence}`,"system")}
-    msg("",r.narration||"","gm");
-    for(const line of many(r.dialogue)){const a=safeObj(line);msg(a.name||nameById[a.speaker_id]||a.speaker_id||"NPC",a.text||"","npc",a.speaker_id)}
+    for(const part of storyChunks(r)){
+      if(part.type==="dialogue")msg(part.name||nameById[part.speaker_id]||part.speaker_id||"NPC",part.text,"npc",part.speaker_id);
+      else msg("",part.text,"gm");
+    }
     $("choices").replaceChildren();for(const choice of many(r.choices)){const b=child("button","",choice);b.addEventListener("click",()=>{if(state.busy||!state.loaded)return;$("action").value=choice;void act()});$("choices").append(b)}
   }
   function showRoll(){
@@ -215,13 +257,8 @@
         const partial=turn.source==="recovered_partial";
         const label="Оливер";
         msg(label,turn.action||"Действие не сохранилось полностью","player","oliver_hayes");
-        if(partial){
-          if(reply.narration)msg("",reply.narration,"gm");
-          else if(reply.summary)msg("СОХРАНЁННАЯ СВОДКА · НЕ ПОЛНЫЙ ТЕКСТ",reply.summary,"system");
-          for(const line of many(reply.dialogue)){
-            const d=safeObj(line);
-            msg(d.name||nameById[d.speaker_id]||"NPC",d.text,"npc",d.speaker_id);
-          }
+        if(partial && !reply.narration && !many(reply.segments).length) {
+          if(reply.summary)msg("СОХРАНЁННАЯ СВОДКА · НЕ ПОЛНЫЙ ТЕКСТ",reply.summary,"system");
         } else showReply({...reply,choices:[]});
       }
     } else {
