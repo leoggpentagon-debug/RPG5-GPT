@@ -46,8 +46,8 @@
     if(level===5)return STRESS_AT_FIVE[Math.floor(Math.random()*STRESS_AT_FIVE.length)];
     return STRESS_BY_LEVEL[level];
   }
-  const STORE_ENABLED="survival.audio.enabled.v1",STORE_VOLUME="survival.audio.volume.v1";
-  let enabled=true,volume=.35;
+  const STORE_ENABLED="rpg5.audio.enabled.v1",STORE_VOLUME="rpg5.audio.volume.v1";
+  let enabled=true,volume=.55;
   const active=new Set();
   const lastPlayed=new Map();
   let activeStat=null,lastStatTime=-10000,lastStatKey="";
@@ -90,7 +90,10 @@
       sound.volume=Math.max(0,Math.min(1,volume*(baseGain[name]??.5)*gain));
       const cleanup=()=>{active.delete(sound);if(activeStat===sound)activeStat=null;};
       sound.addEventListener("ended",cleanup,{once:true});
-      sound.addEventListener("error",cleanup,{once:true});
+      sound.addEventListener("error",()=>{
+        cleanup();
+        console.warn("RPG5 audio asset cannot be loaded:",sound.src);
+      },{once:true});
       active.add(sound);
       if(isStat)activeStat=sound;
       const result=sound.play();
@@ -171,7 +174,8 @@
     if(id==="service-toggle")return; // Drawer opening is silent.
     if(id==="service-close")return; // Drawer closing is silent.
     if(id==="portrait-close")return; // Same unwanted closing cue disabled.
-    if(id==="send"||id==="send-roll"||el.closest("#choices"))return;
+    if(id==="send"||el.closest("#choices"))return play("ui_click",{gain:.9});
+    if(id==="send-roll")return;
     if(id==="save")return play("ui_click");
     if(id==="export")return play("ui_confirm");
     if(id==="start")return;
