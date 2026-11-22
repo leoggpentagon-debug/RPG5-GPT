@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="css/survivor-board.css?v=survival-ui-55">
   <link rel="stylesheet" href="css/polaroid-lettering.css?v=survival-ui-56">
   <link rel="stylesheet" href="css/companion-dossier.css?v=survival-ui-57">
-  <link rel="stylesheet" href="css/gpt-remote.css?v=rpg5-bridge-v1">
+  <link rel="stylesheet" href="css/gpt-remote.css?v=rpg5-ui-fix-1">
 </head>
 <body>
 <div class="game-shell" id="game-shell">
@@ -86,14 +86,13 @@
         <section id="action-area" class="action-area" aria-label="Действия" aria-busy="false">
           <p id="action-processing" class="action-processing" role="status" aria-live="polite" hidden><em>Действие выполняется...</em></p>
           <div id="choices" class="choices"></div>
-          <details id="custom-action-panel" class="custom-action" open>
-            <summary>Своё действие <span>▾</span></summary>
+          <div id="custom-action-panel" class="custom-action">
             <div class="action-compose">
-              <label for="action" class="sr-only">Что делает или говорит персонаж</label>
-              <textarea id="action" rows="2" maxlength="2500" disabled placeholder=""></textarea>
-              <button type="button" id="send" class="primary" disabled>Продолжить в ChatGPT</button>
+              <label for="action" class="sr-only">Ввести своё игровое действие</label>
+              <textarea id="action" rows="2" maxlength="2500" disabled aria-label="Ввести своё игровое действие"></textarea>
+              <button type="button" id="send" class="primary" disabled>Продолжить</button>
             </div>
-          </details>
+          </div>
         </section>
       </section>
 
@@ -369,13 +368,13 @@
 <script src="js/portraits.js?v=survival-ui-2"></script>
 <script src="js/config.js?v=rpg5-bridge-v1"></script>
 
-<script src="js/audio.js?v=survival-ui-41"></script>
+<script src="js/audio.js?v=rpg5-ui-fix-1"></script>
 <script src="js/game-ui.js?v=survival-ui-46"></script>
 <script src="js/radial-navigation.js?v=survival-ui-35"></script>
 <script src="js/profile-ui.js?v=survival-ui-45"></script>
 <script src="js/profile-book.js?v=survival-ui-57"></script>
 <!-- RPG6 Gemini handlers intentionally not loaded; RPG5 transport controls the game. -->
 <script src="js/companion-dossier.js?v=survival-ui-57"></script>
-<script type="module" src="js/rpg5-packets.js?v=rpg5-gameplay-v2"></script>
+<script type="module" src="js/rpg5-packets.js?v=rpg5-ui-fix-1"></script>
 </body>
 </html>
