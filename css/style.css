@@ -107,6 +107,11 @@ a {color:var(--gold)}
 .page-button {height:33px;width:46px;border:1px solid #735647;background:#2f241f;color:#f7e0c5;font-size:27px;line-height:20px}
 .page-button:hover:not(:disabled) {background:#57352e}
 .action-area {padding:9px 16px 14px;flex:0 0 auto;border-top:1px solid #654739;background:#161311e6}
+.action-area.is-processing > .choices,
+.action-area.is-processing > .custom-action {display:none!important}
+.action-processing {margin:0;padding:12px 8px;min-height:42px;display:flex;align-items:center;justify-content:center;
+  color:#aa9a89;opacity:.66;font-size:clamp(14px,1vw,16px);font-style:italic;font-weight:400;letter-spacing:.025em;text-align:center}
+.action-processing[hidden] {display:none!important}
 .choices {display:flex;flex-wrap:wrap;gap:8px;margin-bottom:9px;max-height:98px;overflow:hidden}
 .choices button,.primary,.secondary {border:1px solid #8b5644;padding:9px 15px;border-radius:3px;color:#edd7c2;background:
   linear-gradient(#4b322acc,#2c241fe8),url("../assets/ui/controls/button_idle.webp") center/100% 100%;
