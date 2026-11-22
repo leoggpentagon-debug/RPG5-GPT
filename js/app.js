@@ -35,7 +35,7 @@
   async function rpc(op,data={}) {
     if(!config.supabaseUrl || !config.edgeFunction)throw new Error("Нет адреса Supabase в js/config.js");
     const requestToken = getAccessToken();
-    const timer=new AbortController();const time=setTimeout(()=>timer.abort(),op==="save"?138000:op==="turn"?138000:25000);
+    const timer=new AbortController();const time=setTimeout(()=>timer.abort(),op==="save"?138000:op==="turn"?148000:25000);
     let response;
     try {
       response=await fetch(`${config.supabaseUrl}/functions/v1/${config.edgeFunction}`,{
