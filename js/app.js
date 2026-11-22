@@ -115,6 +115,13 @@
     return val;
   }
   function busy(flag){state.busy=flag;$("start").disabled=flag;$("send").disabled=flag||!state.loaded||!!state.pending;$("save").disabled=flag||!state.loaded||state.sequence===0;$("export").disabled=flag||!state.loaded;$("action").disabled=flag||!state.loaded||!!state.pending;$("send-roll").disabled=flag||!state.loaded||!state.pending?.saved;$("send").textContent=flag?"Обрабатывается…":"Отправить действие";}
+  // Hide both suggested actions and custom action entry during a pending turn.
+  // Restore everything after success, failure, or turn recovery.
+  function showActionProcessing(active){
+    $("action-area").classList.toggle("is-processing",active);
+    $("action-area").setAttribute("aria-busy",String(active));
+    $("action-processing").hidden=!active;
+  }
   function child(tag, className="", text="") {const el=document.createElement(tag);if(className)el.className=className;if(text)el.textContent=word(text);return el;}
   function msg(label,text,kind="gm",speakerId=""){
     if(!word(text))return;
@@ -410,7 +417,7 @@
   }catch(error){report(error.message||String(error),true)}finally{busy(false);if(state.pending?.saved)void act("auto")}}
   async function act(roll=null){if(state.busy)return;const action=$("action").value.trim();if(roll===null && !action)return;
     if(roll===null && action.toLowerCase()==="сохранить"){await save();return;}
-    busy(true);report("Отправляю ход Gemini. Каноническая база не меняется до сохранения.");
+    busy(true);showActionProcessing(true);report("Отправляю ход Gemini. Каноническая база не меняется до сохранения.");
     try{
       const result=await rpc("turn",{draft_sequence:state.sequence,action, ...(roll===null?{}:{roll})});
       const actionShown=roll===null?action:"🎲 Автоматический бросок d20";
@@ -436,7 +443,7 @@
         }
       }catch(recoveryError){console.warn("RPG6 turn recovery:",recoveryError)}
       report(error.message||String(error),true);
-    }finally{busy(false);showRoll()}
+    }finally{showActionProcessing(false);busy(false);showRoll()}
   }
   async function save(){if(state.busy||!state.loaded)return;if(!state.sequence){report("Новых ходов для сохранения нет.");return;}
     busy(true);report("Gemini готовит пакет событий; SQL проверит его до записи. Это может занять время.");
