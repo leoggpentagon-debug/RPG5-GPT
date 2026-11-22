@@ -40,7 +40,28 @@ async function copyAction(value){
 function dispatchAction(action){
  if(typeof action!=="string"||!action.trim()){actionNotice("Сначала введи действие.","error");return;}
  const message=action.trim();
- // Nothing is sent to ChatGPT; the user pastes the plain action.
+ const bridge=window.RPG5_ACTION_BRIDGE;
+ if(bridge){
+  let prepared;
+  try{prepared=bridge.buildMessage(message,currentPacket,lastRenderedSequence);}
+  catch(error){actionNotice("Действие не подготовлено: "+String(error?.message||error),"error");return;}
+  // Synchronous clipboard fallback while the game tab still has focus.
+  const copied=copySynchronously(prepared);
+  actionNotice("Передаю действие и снимок состояния в игровой ChatGPT…","waiting");
+  bridge.send(prepared,lastRenderedSequence,
+   ()=>actionNotice("Действие вставлено в игровой ChatGPT. Проверь текст и нажми Enter — оно НЕ отправлено автоматически.","ready"),
+   error=>{
+    const why=String(error||"Не удалось вставить сообщение");
+    if(why.startsWith("Действие для этой сцены уже вставлено")||why.startsWith("Предыдущий запрос"))
+     {actionNotice(why,"error");return;}
+    if(copied){
+     actionNotice("Автовставка не удалась: "+why+" Подготовленный текст скопирован — при необходимости вставь Ctrl+V.","error");
+    }else void copyAction(prepared).then(ok=>actionNotice(
+      "Автовставка не удалась: "+why+(ok?" Текст скопирован; вставь Ctrl+V.":" Копирование тоже заблокировано."),"error"));
+   });
+  return;
+ }
+ // Compatibility with an older cached website / extension version.
  void copyAction(message).then(ok=>{
   if(ok)actionNotice("Скопировано: «"+message.slice(0,90)+"». В игровом чате нажми Ctrl+V и Enter.","ready");
   else{actionNotice("Копирование заблокировано. Выдели действие и скопируй Ctrl+C.","error");
@@ -186,7 +207,7 @@ function renderChoices(packet) {
   const input=$("action"), send=$("send");
   if(input) {input.disabled=false;input.placeholder=""; }
   if(send){send.disabled=false;send.textContent="Отправить";}
-  if($("save")){$("save").disabled=false;$("save").textContent="Скопировать «сохранить»";}
+  if($("save")){$("save").disabled=false;$("save").textContent="Подготовить «сохранить»";}
   if($("start")){$("start").disabled=false;$("start").textContent="Проверить расширение";}
 }
 function renderPacket(packet, sequence) {
