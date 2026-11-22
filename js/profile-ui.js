@@ -16,7 +16,7 @@
   const pickText=(...args)=>args.find(x=>typeof x==="string"&&x.trim())?.trim()||"";
   let latestHero={},latestScene={},latestObservable={},wasOpen=false,previousFocus=null;
 
-  // Use the stat values exactly as returned by RPG6. Descriptive text is
+  // Use the stat values exactly as returned by RPG5. Descriptive text is
   // server-sourced when available; neutral numeric language otherwise.
   function describeStat(key,value){
     const v=getObj(value),current=Number(v.current),maximum=Number(v.max);
@@ -25,7 +25,7 @@
     if(!Number.isFinite(current)||!Number.isFinite(maximum)||maximum<=0)return "Нет подтверждённых данных о состоянии.";
     const ratio=Math.max(0,Math.min(1,current/maximum));
     const level=ratio<=1/3?"низкий":ratio<2/3?"средний":"высокий";
-    return "Показатель "+level+". Точное описание состояния уточняется правилами RPG6.";
+    return "Показатель "+level+". Точное описание состояния уточняется правилами RPG5.";
   }
   function statValue(value){
     const v=getObj(value);
@@ -62,8 +62,8 @@
       block.style.setProperty("--ring-y",(50+35*Math.sin(angle)).toFixed(2)+"%");
       const selectAndPlay=()=>{
         chooseStat(block);
-        // RPG6's actual stress 0..5 decides the approved sound; unknown is silent.
-        window.RPG6_SFX?.playStat(key,key==="stress"&&valid&&value.current!=null?number:undefined);
+        // RPG5's actual stress 0..5 decides the approved sound; unknown is silent.
+        window.RPG5_SFX?.playStat(key,key==="stress"&&valid&&value.current!=null?number:undefined);
       };
       block.addEventListener("mouseenter",selectAndPlay);
       block.addEventListener("focus",selectAndPlay);
@@ -144,7 +144,7 @@
     if(flyingPhoto){flyingPhoto.remove();flyingPhoto=null;}
   }
   function cue(name,delay=0,gain=1){
-    const trigger=()=>window.RPG6_SFX?.play(name,{gain});
+    const trigger=()=>window.RPG5_SFX?.play(name,{gain});
     if(delay<=0){trigger();return;}
     soundTimers.push(setTimeout(trigger,delay));
   }
@@ -290,7 +290,7 @@
     const serial=++sequence;
     previousFocus=document.activeElement;
     const stressData=getObj(getObj(latestHero.stats).stress);
-    window.RPG6_SFX?.preloadStats(stressData.current==null?undefined:Number(stressData.current));
+    window.RPG5_SFX?.preloadStats(stressData.current==null?undefined:Number(stressData.current));
     panel.style.opacity="";
     setProfileValues();
     stopMotion();
@@ -336,7 +336,7 @@
     finishTimer=setTimeout(()=>finishOpening(serial),1780);
   }
   function closeProfile(){
-    window.RPG6_SFX?.stopStat();
+    window.RPG5_SFX?.stopStat();
     if(!wasOpen||phase==="closed"||phase==="closing")return;
     if(phase==="opening"){
       // Allow Escape even during the reveal; settle at the correct geometry.
