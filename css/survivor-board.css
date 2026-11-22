@@ -1,4 +1,4 @@
-/* Survival UI v53 — extended wooden surface, with room for the full Oliver Polaroid.
+/* Survival UI v54 — extended wooden surface, with room for the full Oliver Polaroid.
    Only the wooden-board presentation changes: the original photograph,
    approved paper frame, tape WebP, Oliver's size/tilt and diary JS remain.
    The page grid and main story column are deliberately untouched. */
@@ -264,5 +264,201 @@
 @media(min-width:1091px) {
   #game-shell > .game-layout {
     grid-template-columns:clamp(278px,calc(28vw - 88px),392px) minmax(0,1fr);
+  }
+}
+
+/* Survival UI v54 — wooden dossier finishing: raised paper clearance, a
+   carved divider, fuller companion photographs, real tape mounting,
+   illuminated engraving and ragged smoke behind the logo.
+   No modifications to the background WebP, game state or Oliver's frame size. */
+
+/* The frame and its tape now clear the upper wood beam by ~18 CSS pixels.
+   The physical Polaroid itself keeps its existing scale and -2° rotation. */
+#game-shell .hero-sidebar > .survivor-board > .hero-card .hero-identity {
+  padding-top:clamp(43px,4.5vh,54px);
+}
+
+/* A bright, chipped knife-scratch across the plank between Oliver and nearby.
+   Dark lower groove + warm bare-wood upper edges, irregular breaks and taper. */
+#game-shell .hero-sidebar > .survivor-board > .hero-card::after {
+  content:"";
+  display:block;
+  height:13px;
+  width:auto;
+  margin:9px calc(var(--wood-safe-edge) + 5px) 6px;
+  opacity:.97;
+  pointer-events:none;
+  transform:rotate(-.65deg);
+  background:
+    linear-gradient(179.5deg,
+      transparent 0 34%,#f2cca0ed 38%,#b88055fa 43%,
+      #3b241ad1 49%,#daa879cd 53%,transparent 59%)
+        center 45% / 100% 9px no-repeat,
+    linear-gradient(174deg,transparent 45%,#f6d4afaa 49%,
+      #70432cc7 52%,transparent 56%) 9% 0 / 41% 8px no-repeat,
+    linear-gradient(182deg,transparent 47%,#e0b58cda 50%,
+      #4a2b20a8 53%,transparent 57%) 84% 4px / 28% 6px no-repeat,
+    repeating-linear-gradient(99deg,transparent 0 27px,
+      #281710b8 29px 30px,transparent 31px 71px);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+  filter:drop-shadow(0 1px .4px #130b06b5);
+}
+
+/* Keep the lettering etched in wood, not a paper sign. Use the existing
+   engraving alpha as a mask and reveal lighter raw-wood grain inside it. */
+#game-shell .hero-sidebar > .survivor-board > .companions-card .card-title::after {
+  background:linear-gradient(180deg,#dcb891 4%,#b98b64 42%,
+    #946649 60%,#e0b78d 91%);
+  -webkit-mask:url("../assets/ui/boards/nearby_engraved_wood.webp?v=survival-ui-52")
+    center / 100% 100% no-repeat;
+  mask:url("../assets/ui/boards/nearby_engraved_wood.webp?v=survival-ui-52")
+    center / 100% 100% no-repeat;
+  opacity:.98;
+  filter:drop-shadow(0 1px 1px #130a06b8)
+         drop-shadow(0 -1px .4px #f1c59a90);
+}
+
+/* The board itself keeps v53 dimensions. Reduce wasted interior gutters,
+   use two fuller photographs, and reserve a narrow center gap. */
+#game-shell .hero-sidebar > .survivor-board {
+  --wood-safe-edge:clamp(33px,8.6%,38px);
+}
+#game-shell .hero-sidebar > .survivor-board .party-list {
+  column-gap:clamp(4px,1.3%,7px);
+  row-gap:clamp(25px,3vh,35px);
+  padding:13px 2px 27px;
+}
+#game-shell .hero-sidebar > .survivor-board .party-person {
+  padding:5px 0 9px;
+}
+#game-shell .hero-sidebar > .survivor-board .party-person .polaroid-npc {
+  width:min(178px,100%);
+  /* The last few percent of enlargement remain inside the plank margins. */
+  transform-origin:50% 50%;
+}
+/* Four modest photo angles and heights. The physical paper (and its attached
+   tape) transform as a single rigid object. */
+#game-shell .hero-sidebar > .survivor-board .party-person:nth-child(4n+1) .polaroid-npc {
+  transform:translate(1px,5px) rotate(-2.6deg) scale(1.04);
+}
+#game-shell .hero-sidebar > .survivor-board .party-person:nth-child(4n+2) .polaroid-npc {
+  transform:translate(-1px,-3px) rotate(1.8deg) scale(1.035);
+}
+#game-shell .hero-sidebar > .survivor-board .party-person:nth-child(4n+3) .polaroid-npc {
+  transform:translate(1px,2px) rotate(-.4deg) scale(1.035);
+}
+#game-shell .hero-sidebar > .survivor-board .party-person:nth-child(4n) .polaroid-npc {
+  transform:translate(-1px,7px) rotate(2.3deg) scale(1.04);
+}
+/* Tape placement is deliberately different on each mounted Polaroid.
+   All adhesive crosses the TOP edge and extends onto the wood. */
+#game-shell .hero-sidebar > .survivor-board .party-person:nth-child(4n+1) .polaroid-npc::before {
+  top:-3.5%;
+  left:23%;
+  width:43%;
+  transform:rotate(-5deg);
+}
+#game-shell .hero-sidebar > .survivor-board .party-person:nth-child(4n+2) .polaroid-npc::before {
+  top:-3.3%;
+  left:48%;
+  width:37%;
+  transform:rotate(8deg);
+}
+#game-shell .hero-sidebar > .survivor-board .party-person:nth-child(4n+3) .polaroid-npc::before {
+  top:-3.8%;
+  left:30%;
+  width:42%;
+  transform:rotate(1deg);
+}
+#game-shell .hero-sidebar > .survivor-board .party-person:nth-child(4n) .polaroid-npc::before {
+  top:-3.3%;
+  left:44%;
+  width:40%;
+  transform:rotate(5deg);
+}
+#game-shell .hero-sidebar > .survivor-board .party-portrait-name strong {
+  font-size:12px;
+}
+/* The last name-fitting pass in app.js still handles long names dynamically. */
+
+/* A softly smoky, uneven torn-edged SHADOW behind the logo (not a black oval).
+   Both pseudo-elements are below the existing image and above the leafy wall.
+   The haze is local to the brand, never covering Oliver or the actual board. */
+#game-shell .hero-sidebar .sidebar-brand {
+  position:relative;
+  isolation:isolate;
+  overflow:visible;
+}
+#game-shell .hero-sidebar .sidebar-brand::before {
+  content:"";
+  display:block;
+  position:absolute;
+  z-index:0;
+  inset:3px 0 0;
+  pointer-events:none;
+  background:radial-gradient(ellipse 75% 71% at 50% 48%,
+    #110b09ec 0%,#1a100ce0 44%,#170d09ab 72%,transparent 100%);
+  clip-path:polygon(0 17%,7% 10%,14% 15%,23% 4%,33% 9%,
+    45% 0%,57% 7%,68% 3%,78% 12%,91% 6%,100% 16%,
+    96% 31%,100% 43%,94% 58%,100% 75%,90% 90%,
+    77% 94%,69% 88%,57% 100%,43% 92%,32% 100%,
+    20% 89%,8% 94%,2% 79%,6% 63%,0 47%,5% 34%);
+  filter:blur(5px);
+  opacity:.94;
+}
+#game-shell .hero-sidebar .sidebar-brand::after {
+  content:"";
+  display:block;
+  position:absolute;
+  z-index:0;
+  inset:-11px -13px -10px;
+  pointer-events:none;
+  background:radial-gradient(ellipse 74% 62% at 50% 49%,
+    #190d09a3,transparent 85%);
+  filter:blur(12px);
+  opacity:.55;
+}
+#game-shell .hero-sidebar .sidebar-brand .brand {
+  position:relative;
+  z-index:1;
+}
+#game-shell .hero-sidebar .sidebar-brand .brand-art {
+  position:relative;
+  z-index:2;
+}
+
+/* Proportional concessions below 1091px: do not allow enlarged photos
+   to extend beyond the narrower wood rails on smaller displays. */
+@media(max-width:1090px) and (min-width:721px) {
+  #game-shell .hero-sidebar > .survivor-board {
+    --wood-safe-edge:clamp(23px,8.5%,29px);
+  }
+  #game-shell .hero-sidebar > .survivor-board .party-list {
+    column-gap:2px;
+  }
+  #game-shell .hero-sidebar > .survivor-board .party-person .polaroid-npc {
+    width:min(142px,100%);
+  }
+  #game-shell .hero-sidebar > .survivor-board .hero-card .hero-identity {
+    padding-top:34px;
+  }
+}
+@media(max-height:820px) {
+  #game-shell .hero-sidebar > .survivor-board > .hero-card .hero-identity {
+    padding-top:clamp(26px,3.8vh,37px);
+  }
+}
+@media(max-height:750px) {
+  #game-shell .hero-sidebar > .survivor-board .party-list {
+    row-gap:16px;
+    padding-bottom:15px;
+  }
+  #game-shell .hero-sidebar > .survivor-board .party-person .polaroid-npc {
+    width:min(159px,100%);
+  }
+  #game-shell .hero-sidebar > .survivor-board > .hero-card::after {
+    margin-top:5px;
+    margin-bottom:2px;
   }
 }
