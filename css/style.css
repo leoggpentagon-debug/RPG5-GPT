@@ -250,3 +250,18 @@ a {color:var(--gold)}
 @media (max-width:720px) {
   .game-header {flex-basis:70px !important}
 }
+
+/* Server-backed reset of unsaved game drafts: deliberately distinct from Save. */
+.service-drawer #reset-drafts.draft-danger {
+  border-color:#9d4943;
+  color:#f8d4cf;
+  background:linear-gradient(#67342f,#3d2624);
+}
+.service-drawer #reset-drafts.draft-danger:hover:not(:disabled) {
+  filter:brightness(1.2);
+  border-color:#d16c5c;
+}
+.service-drawer #reset-drafts.draft-danger:focus-visible {
+  outline:2px solid #f0ab87;
+  outline-offset:2px;
+}
