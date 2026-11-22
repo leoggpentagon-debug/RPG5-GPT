@@ -118,7 +118,7 @@ function dispatchAction(action) {
   const target=validChatUrl(chatTarget?.value?.trim()||"");
   if (!target) {
     notice("Сначала вставь ссылку на нужную переписку ChatGPT в служебном меню.", "error");
-    $("service-toggle")?.click();
+    if (!$("service-drawer")?.classList.contains("open")) $("service-toggle")?.click();
     chatTarget?.focus();
     return;
   }
@@ -128,14 +128,14 @@ function dispatchAction(action) {
   // ?q= is best-effort ONLY: ChatGPT may ignore it for an existing conversation.
   const url=new URL(target);
   if (chatPrefill?.checked) url.searchParams.set("q",prompt);
-  const copyJob=navigator.clipboard?.writeText(prompt).catch(()=>false);
-  const windowRef=window.open(url.toString(),"_blank","noopener,noreferrer");
-  void Promise.resolve(copyJob).then(copied=>{
-    if (copied===false) notice("Чат открыт, но копирование заблокировано. Запрос доступен в служебном меню.", "error");
+  const copyJob=(navigator.clipboard && typeof navigator.clipboard.writeText==="function")
+    ? navigator.clipboard.writeText(prompt).then(()=>true,()=>false)
+    : Promise.resolve(false);
+  window.open(url.toString(),"_blank","noopener,noreferrer");
+  void copyJob.then(copied=>{
+    if (!copied) notice("Чат открыт. Автокопирование заблокировано — запрос можно скопировать из служебного меню.", "error");
     else notice("Запрос скопирован. Если ChatGPT не подставил его, нажми Ctrl+V и Enter. Вернись за результатом.", "ready");
   });
-  if (!windowRef && !navigator.clipboard)
-    notice("Открой сохранённую ссылку на чат и скопируй запрос из служебного меню.", "error");
 }
 function renderHeader(packet) {
   const scene=object(packet.scene||object(packet.reply).scene_state);
