@@ -200,7 +200,7 @@
     return result;
   }
   root.RPG5_MECHANICS=Object.freeze({
-    version:"1.0.0",loadBand,
+    version:"2.0.0",loadBand,
     preview:(plan,hero)=>prepare(plan,hero),
     calculateD20:(plan,hero,natural)=>prepare(plan,hero,natural),
     rollAndCalculate
