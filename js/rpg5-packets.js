@@ -22,12 +22,11 @@ const portraits = Object.freeze({
 const knownNames = Object.freeze({
   oliver_hayes: "Оливер Хейз", bex: "Бекс", ian_calder: "Иэн",
 });
-const statLabels = { health:"Здоровье", stamina:"Выносливость", stress:"Стресс", hunger:"Голод", thirst:"Жажда" };
-const statIcons = { health:"♥", stamina:"⚡", stress:"◉", hunger:"◴", thirst:"💧" };
 const object = x => (x && typeof x === "object" && !Array.isArray(x)) ? x : {};
 const array = x => Array.isArray(x) ? x : [];
 const str = x => (typeof x === "string" ? x : "");
 let currentPacket = null, connected = false, busy = false;
+let lastRenderedSequence = null;
 
 function notice(message, kind="waiting") {
   if (!status) return;
@@ -150,23 +149,10 @@ function renderHeader(packet) {
   if ($("world-time")) $("world-time").textContent=scene.time_label||"—:—";
 }
 function renderHero(hero) {
-  const stats=object(hero.stats), area=$("hero-stats");
-  if (area) {
-    area.replaceChildren();
-    for (const [key,label] of Object.entries(statLabels)) {
-      const s=object(stats[key]);
-      const box=node("div","stat-chip");
-      box.title=label+": "+(s.current??"—")+"/"+(s.max??"—");
-      box.setAttribute("aria-label",box.title);
-      const n=Number(s.current),file=node("img","stat-icon");
-      file.alt="";
-      file.src="assets/status/"+key+"/"+key+"_"+(Number.isInteger(n)?n:"unknown")+".webp";
-      file.addEventListener("error",()=>file.replaceWith(node("span","stat-fallback",statIcons[key])),{once:true});
-      box.append(file,node("strong","",(s.current??"—")+"/"+(s.max??"—")));
-      area.append(box);
-    }
-    area.hidden=false;
-  }
+  // The HERO stats belong exclusively in Oliver's interactive diary.
+  // The original RPG6 interface kept the under-portrait legacy panel hidden.
+  const area=$("hero-stats");
+  if (area) { area.replaceChildren(); area.hidden=true; }
   const inv=object(hero.inventory), list=$("inventory");
   if (list) {
     list.replaceChildren();
@@ -225,10 +211,10 @@ function chatEntry(kind,speaker,text,speakerId="") {
   wrap.append(bubble);
   $("chat")?.append(wrap);
 }
-function renderStory(packet) {
+function renderStory(packet, append=false) {
   const reply=object(packet.reply),scene=object(packet.scene),source=$("chat");
   if (!source) return;
-  source.replaceChildren();
+  if(!append) source.replaceChildren();
   if ($("scene-text")) $("scene-text").textContent="";
   const segments=array(reply.segments);
   if(segments.length){
@@ -267,21 +253,23 @@ function renderChoices(packet) {
     area.append(b);
   }
   const input=$("action"), send=$("send");
-  if(input) {input.disabled=false;input.placeholder="Что делает или говорит Оливер?"; }
-  if(send){send.disabled=false;send.textContent="Продолжить в ChatGPT";}
-  if($("custom-action-panel")) $("custom-action-panel").open=true;
+  if(input) {input.disabled=false;input.placeholder=""; }
+  if(send){send.disabled=false;send.textContent="Продолжить";}
   if($("save")){$("save").disabled=false;$("save").textContent="Сохранить через ChatGPT";}
   if($("start")){$("start").disabled=false;$("start").textContent="Проверить ответы";}
 }
-function renderPacket(packet) {
+function renderPacket(packet, sequence) {
   if(!packet || typeof packet!=="object" || Array.isArray(packet))return;
   const kind=packet.packet_kind||packet.kind;
   if(kind==="test")return;
+  if (lastRenderedSequence !== null && String(lastRenderedSequence) === String(sequence))return;
+  const append=lastRenderedSequence!==null;
+  lastRenderedSequence=String(sequence);
   currentPacket=packet;
   renderHeader(packet);
   renderHero(object(packet.hero));
   renderCharacters(packet);
-  renderStory(packet);
+  renderStory(packet, append);
   renderChoices(packet);
   const scene=object(packet.scene), observable=object(packet.player_observable);
   const names=Object.fromEntries(array(packet.characters).map(c=>[c.character_id,c.name]));
@@ -306,7 +294,7 @@ async function restoreCache() {
     const packet=JSON.parse(saved.text);
     rawView.textContent=saved.text;
     packetLabel.textContent="№"+saved.sequence+" · восстановлен из проверенного кеша";
-    renderPacket(packet);
+    renderPacket(packet, saved.sequence);
     storageSet(CURSOR_KEY,String(saved.sequence));
   } catch {
     storageDelete(CURSOR_KEY);storageDelete(CACHE_KEY);
@@ -357,7 +345,7 @@ if(!valid) {
         rawView.textContent=text; // complete original JSON, no shortening
         packetLabel.textContent="№"+sequence+" · SHA-256 верна · "+new TextEncoder().encode(text).length+" байт";
         if(kind!=="test") {
-          renderPacket(packet);
+          renderPacket(packet, sequence);
           storageSet(CACHE_KEY,JSON.stringify({text,sha:expected,sequence}));
         }
         storageSet(CURSOR_KEY,sequence);
