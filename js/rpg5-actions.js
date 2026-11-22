@@ -14,14 +14,23 @@
     for(const key of keys)if(Object.hasOwn(obj(source),key))result[key]=source[key];
     return result;
   }
+  function clockTime(scene) {
+    if(Number.isInteger(scene.minute_of_day)&&scene.minute_of_day>=0&&scene.minute_of_day<1440)
+      return String(Math.floor(scene.minute_of_day/60)).padStart(2,'0')+':'+String(scene.minute_of_day%60).padStart(2,'0');
+    const m=String(scene.time_label||'').match(/(?:^|[^\d])(2[0-3]|[01]?\d):([0-5]\d)(?!\d)/);
+    return m?m[1].padStart(2,'0')+':'+m[2]:null;
+  }
   function snapshot(packet,packetSha){
     const scene=obj(packet.scene),hero=obj(packet.hero),inventory=obj(hero.inventory);
+    const exactClock=clockTime(scene);
+    const sceneState=take(scene,['episode_number','scene_number','day','minute_of_day','location_id','location_detail','cast_ids']);
+    if(exactClock)sceneState.time_label=exactClock;
     // Explicit allowlist: do NOT transmit NPC private state or the entire packet.
     return {
       schema:SCHEMA,storyline_id:packet.storyline_id,
       packet_sha256:packetSha||null,memory_revision:packet.memory_revision??null,
       canonical_status:'snapshot_of_last_rendered_player_visible_packet_not_a_database_save',
-      scene:take(scene,['episode_number','scene_number','day','minute_of_day','time_label','location_id','location_detail','cast_ids']),
+      scene:sceneState,
       hero:{
         hero_id:hero.hero_id||'oliver_hayes',
         stats:take(hero.stats,['health','stamina','stress','hunger','thirst']),
@@ -54,7 +63,9 @@
     const message='Действие Оливера: '+action.trim()+'\n\n'+
       '[RPG5_SITE_SNAPSHOT_V1]\n'+JSON.stringify(context)+'\n[/RPG5_SITE_SNAPSHOT_V1]\n'+
       'Это снимок числовых и видимых данных сайта, не новое сохранение в Supabase. '+
-      'Не считай его подтверждением новых действий или изменений. Сохраняй канон только по буквальной команде «сохранить».';
+      'Не считай его подтверждением новых действий или изменений. '+
+      'Игровое время указывай точно в формате ЧЧ:ММ по minute_of_day из сцены, без слов «около» и «примерно»; '+
+      'не изменяй время без события или действия. Сохраняй канон только по буквальной команде «сохранить».';
     if(message.length>MAX_MESSAGE_LENGTH)throw Error('Текущий снимок слишком большой для безопасной передачи.');
     return message;
   }
