@@ -1,6 +1,8 @@
-// Publishable key is public by design. NEVER insert a service_role key or Gemini API key here.
+// RPG5-GPT: isolated frontend. Legacy Gemini/RPG6 API calls are disabled.
+// Configure supported ChatGPT access only after separate verification.
 window.RPG6_CONFIG = Object.freeze({
-  supabaseUrl: 'https://ltubfxamcrfogwmidsup.supabase.co',
-  publishableKey: 'sb_publishable_0QIldokYIxZSD7ElfvvW2Q_KLP8fkmQ',
-  edgeFunction: 'rpg6-gemini',
+  mode: 'rpg5-gpt-disconnected',
+  supabaseUrl: '',
+  publishableKey: '',
+  edgeFunction: '',
 });
